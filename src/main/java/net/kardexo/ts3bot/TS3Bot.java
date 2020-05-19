@@ -73,8 +73,8 @@ public class TS3Bot extends TS3EventAdapter
 		
 		TS3Bot.LOGGER.info("Logged in as " + this.config.getLoginName());
 		
-		this.id = this.api.whoAmI().getId();
 		this.api.selectVirtualServerById(this.config.getVirtualServerId(), this.config.getLoginName());
+		this.id = this.api.whoAmI().getId();
 		this.api.moveClient(this.id, this.api.getChannelByNameExact(this.config.getChannelName(), true).getId());
 		this.api.registerEvent(TS3EventType.TEXT_CHANNEL);
 		this.api.registerEvent(TS3EventType.TEXT_PRIVATE);
