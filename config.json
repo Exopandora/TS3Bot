@@ -1,0 +1,16 @@
+{
+	"host_address": "127.0.0.1",
+	"login_name": "TS3Bot",
+	"login_password": "PASSWORD",
+	"channel_name": "CHANNEL",
+	"virtual_server_id": 1,
+	"chat_history_size": 100,
+	"api_watch_2_gether": "API_KEY",
+	"api_twitch_client_id": "CLIENT_ID",
+	"api_twitch_oauth_token": "OAUTH_TOKEN",
+	"permissions": {
+		"admin": [
+			"CLIENT_UID"
+		]
+	}
+}
