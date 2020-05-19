@@ -1,0 +1,9 @@
+# Ignore Everything
+/*
+
+# Except
+
+!/src/
+!.gitignore
+!pom.xml
+!README.md
