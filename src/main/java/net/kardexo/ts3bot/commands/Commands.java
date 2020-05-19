@@ -15,9 +15,9 @@ public class Commands
 	}
 	
 	public static <T> RequiredArgumentBuilder<CommandSource, T> argument(String name, ArgumentType<T> type)
-    {
-        return RequiredArgumentBuilder.argument(name, type);
-    }
+	{
+		return RequiredArgumentBuilder.argument(name, type);
+	}
 	
 	public static String searchHistory(Pattern pattern, List<String> history)
 	{
