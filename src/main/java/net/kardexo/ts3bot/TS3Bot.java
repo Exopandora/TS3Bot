@@ -24,6 +24,7 @@ import net.kardexo.ts3bot.commands.impl.CommandBobRoss;
 import net.kardexo.ts3bot.commands.impl.CommandBot;
 import net.kardexo.ts3bot.commands.impl.CommandExit;
 import net.kardexo.ts3bot.commands.impl.CommandHelp;
+import net.kardexo.ts3bot.commands.impl.CommandMove;
 import net.kardexo.ts3bot.commands.impl.CommandRandom;
 import net.kardexo.ts3bot.commands.impl.CommandSteam;
 import net.kardexo.ts3bot.commands.impl.CommandTeams;
@@ -78,6 +79,7 @@ public class TS3Bot extends TS3EventAdapter
 		this.api.moveClient(this.id, this.api.getChannelByNameExact(this.config.getChannelName(), true).getId());
 		this.api.registerEvent(TS3EventType.TEXT_CHANNEL);
 		this.api.registerEvent(TS3EventType.TEXT_PRIVATE);
+		this.api.registerEvent(TS3EventType.TEXT_SERVER);
 		this.api.addTS3Listeners(this);
 		
 		Scanner scanner = new Scanner(System.in);
@@ -135,6 +137,7 @@ public class TS3Bot extends TS3EventAdapter
 		CommandTeams.register(this.dispatcher);
 		CommandWatch2Gether.register(this.dispatcher);
 		CommandRandom.register(this.dispatcher);
+		CommandMove.register(this.dispatcher);
 	}
 	
 	@Override
