@@ -26,6 +26,7 @@ import net.kardexo.ts3bot.commands.impl.CommandExit;
 import net.kardexo.ts3bot.commands.impl.CommandHelp;
 import net.kardexo.ts3bot.commands.impl.CommandMove;
 import net.kardexo.ts3bot.commands.impl.CommandRandom;
+import net.kardexo.ts3bot.commands.impl.CommandSilent;
 import net.kardexo.ts3bot.commands.impl.CommandSteam;
 import net.kardexo.ts3bot.commands.impl.CommandTeams;
 import net.kardexo.ts3bot.commands.impl.CommandTwitch;
@@ -43,6 +44,7 @@ public class TS3Bot extends TS3EventAdapter
 	private final List<String> history = new ArrayList<String>();
 	private TS3Query query;
 	private TS3Api api;
+	private boolean silent;
 	
 	public TS3Bot(Config config)
 	{
@@ -138,12 +140,13 @@ public class TS3Bot extends TS3EventAdapter
 		CommandWatch2Gether.register(this.dispatcher);
 		CommandRandom.register(this.dispatcher);
 		CommandMove.register(this.dispatcher);
+		CommandSilent.register(this.dispatcher);
 	}
 	
 	@Override
 	public void onTextMessage(TextMessageEvent event)
 	{
-		if(event.getInvokerId() == this.id)
+		if(this.silent || event.getInvokerId() == this.id)
 		{
 			return;
 		}
@@ -212,6 +215,16 @@ public class TS3Bot extends TS3EventAdapter
 	public TS3Query getQuery()
 	{
 		return this.query;
+	}
+	
+	public void setSilent(boolean silent)
+	{
+		this.silent = silent;
+	}
+	
+	public boolean isSilent()
+	{
+		return this.silent;
 	}
 	
 	public static TS3Bot getInstance()
