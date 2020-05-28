@@ -146,7 +146,7 @@ public class TS3Bot extends TS3EventAdapter
 	@Override
 	public void onTextMessage(TextMessageEvent event)
 	{
-		if(this.silent || event.getInvokerId() == this.id)
+		if(event.getInvokerId() == this.id)
 		{
 			return;
 		}
@@ -157,9 +157,16 @@ public class TS3Bot extends TS3EventAdapter
 		{
 			reader.skip();
 			
+			CommandSource source = new CommandSource(this.query, this.api, this.api.getClientInfo(event.getInvokerId()), event.getTargetMode(), this.history, this.id);
+			
+			if(this.silent && !source.hasPermission("admin"))
+			{
+				return;
+			}
+			
 			try
 			{
-				this.dispatcher.execute(reader, new CommandSource(this.query, this.api, this.api.getClientInfo(event.getInvokerId()), event.getTargetMode(), this.history, this.id));
+				this.dispatcher.execute(reader, source);
 			}
 			catch(CommandSyntaxException e)
 			{
