@@ -1,11 +1,9 @@
 package net.kardexo.ts3bot.commands;
 
 import java.util.Iterator;
-import java.util.List;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.theholywaffle.teamspeak3.TS3Api;
-import com.github.theholywaffle.teamspeak3.TS3Query;
 import com.github.theholywaffle.teamspeak3.api.TextMessageTargetMode;
 import com.github.theholywaffle.teamspeak3.api.wrapper.ClientInfo;
 
@@ -16,7 +14,7 @@ public class CommandSource
 	private final ClientInfo clientInfo;
 	private final TextMessageTargetMode target;
 	
-	public CommandSource(TS3Query query, TS3Api api, ClientInfo clientInfo, TextMessageTargetMode target, List<String> history, int botId)
+	public CommandSource(TS3Api api, ClientInfo clientInfo, TextMessageTargetMode target)
 	{
 		this.clientInfo = clientInfo;
 		this.target = target;

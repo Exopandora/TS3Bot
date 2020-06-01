@@ -15,7 +15,6 @@ import com.mojang.brigadier.exceptions.Dynamic2CommandExceptionType;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 
 import net.kardexo.ts3bot.TS3Bot;
-import net.kardexo.ts3bot.Util;
 import net.kardexo.ts3bot.commands.CommandSource;
 import net.kardexo.ts3bot.commands.Commands;
 
@@ -72,7 +71,7 @@ public class CommandTeams
 					builder.append(", ");
 				}
 				
-				builder.append(players.remove(Util.RANDOM.nextInt(players.size())));
+				builder.append(players.remove(TS3Bot.RANDOM.nextInt(players.size())));
 			}
 		}
 		

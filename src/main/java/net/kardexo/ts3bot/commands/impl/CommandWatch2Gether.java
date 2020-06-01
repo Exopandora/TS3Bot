@@ -2,7 +2,6 @@ package net.kardexo.ts3bot.commands.impl;
 
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -17,7 +16,7 @@ import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 
 import net.kardexo.ts3bot.TS3Bot;
-import net.kardexo.ts3bot.Util;
+import net.kardexo.ts3bot.URLs;
 import net.kardexo.ts3bot.commands.CommandSource;
 import net.kardexo.ts3bot.commands.Commands;
 
@@ -25,7 +24,6 @@ public class CommandWatch2Gether
 {
 	private static final String BASE_URL = "https://www.watch2gether.com/rooms/";
 	private static final DynamicCommandExceptionType NOT_A_YOUTUBE_URL = new DynamicCommandExceptionType(input -> new LiteralMessage("\"" + input + "\" is not a youtube url"));
-	private static final Pattern YOUTUBE_URL = Pattern.compile("\\[URL\\]https?:\\/\\/([^\\.]+\\.)?youtube\\.[^ ]+v=[^ ]+\\[\\/URL\\]");
 	private static final SimpleCommandExceptionType WATCH2GETHER_SERVICE_UNAVAILABLE = new SimpleCommandExceptionType(new LiteralMessage("Watch2Gether is currently unavailable"));
 	
 	public static void register(CommandDispatcher<CommandSource> dispatcher)
@@ -41,12 +39,12 @@ public class CommandWatch2Gether
 	
 	public static int watch2gether(CommandContext<CommandSource> context) throws CommandSyntaxException
 	{
-		return watch2gether(context, Commands.searchHistory(YOUTUBE_URL, TS3Bot.getInstance().getHistory()));
+		return watch2gether(context, Commands.searchHistory(URLs::isYouTube, TS3Bot.getInstance().getHistory()));
 	}
 	
 	public static int watch2gether(CommandContext<CommandSource> context, String url) throws CommandSyntaxException
 	{
-		if(url != null && !YOUTUBE_URL.matcher(url).matches())
+		if(!URLs.isYouTube(url))
 		{
 			throw NOT_A_YOUTUBE_URL.create(url);
 		}
@@ -55,7 +53,7 @@ public class CommandWatch2Gether
 		{
 			ObjectMapper mapper = new ObjectMapper();
 			HttpURLConnection connection = (HttpURLConnection) new URL(BASE_URL + "create.json").openConnection();
-			byte[] content = mapper.writeValueAsBytes(new Watch2Gether(TS3Bot.getInstance().getConfig().getApiWatch2Gether(), Util.extractURL(url)));
+			byte[] content = mapper.writeValueAsBytes(new Watch2Gether(TS3Bot.getInstance().getConfig().getApiWatch2Gether(), URLs.extract(url)));
 			
 			connection.setDoOutput(true);
 			connection.setRequestMethod("POST");

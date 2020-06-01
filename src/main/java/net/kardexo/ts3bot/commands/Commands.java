@@ -1,7 +1,7 @@
 package net.kardexo.ts3bot.commands;
 
 import java.util.List;
-import java.util.regex.Pattern;
+import java.util.function.Predicate;
 
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -19,11 +19,20 @@ public class Commands
 		return RequiredArgumentBuilder.argument(name, type);
 	}
 	
-	public static String searchHistory(Pattern pattern, List<String> history)
+	public static String searchHistory(Predicate<String> predicate, List<String> history)
 	{
-		for(String message : history)
+		return Commands.searchHistory(predicate, history, 0, history.size());
+	}
+	
+	public static String searchHistory(Predicate<String> predicate, List<String> history, int start, int end)
+	{
+		end = Math.min(end, history.size());
+		
+		for(int x = start; x < end; x++)
 		{
-			if(pattern.matcher(message).matches())
+			String message = history.get(x);
+			
+			if(predicate.test(message))
 			{
 				return message;
 			}

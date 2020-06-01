@@ -1,7 +1,9 @@
 package net.kardexo.ts3bot;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 import java.util.Scanner;
 
 import org.apache.logging.log4j.LogManager;
@@ -14,11 +16,13 @@ import com.github.theholywaffle.teamspeak3.api.TextMessageTargetMode;
 import com.github.theholywaffle.teamspeak3.api.event.TS3EventAdapter;
 import com.github.theholywaffle.teamspeak3.api.event.TS3EventType;
 import com.github.theholywaffle.teamspeak3.api.event.TextMessageEvent;
+import com.github.theholywaffle.teamspeak3.api.wrapper.ClientInfo;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
 import net.kardexo.ts3bot.commands.CommandSource;
+import net.kardexo.ts3bot.commands.Commands;
 import net.kardexo.ts3bot.commands.impl.CommandAmouranth;
 import net.kardexo.ts3bot.commands.impl.CommandBobRoss;
 import net.kardexo.ts3bot.commands.impl.CommandBot;
@@ -32,9 +36,13 @@ import net.kardexo.ts3bot.commands.impl.CommandTeams;
 import net.kardexo.ts3bot.commands.impl.CommandTwitch;
 import net.kardexo.ts3bot.commands.impl.CommandWatch2Gether;
 import net.kardexo.ts3bot.config.Config;
+import net.kardexo.ts3bot.messageprocessor.IMessageProcessor;
+import net.kardexo.ts3bot.messageprocessor.impl.YouTubeProcessor;
 
 public class TS3Bot extends TS3EventAdapter
 {
+	public static final Random RANDOM = new Random();
+	
 	private static final Logger LOGGER = LogManager.getLogger();
 	private static TS3Bot instance;
 	
@@ -42,6 +50,7 @@ public class TS3Bot extends TS3EventAdapter
 	private final Config config;
 	private final CommandDispatcher<CommandSource> dispatcher = new CommandDispatcher<CommandSource>();
 	private final List<String> history = new ArrayList<String>();
+	private final List<IMessageProcessor> messageProcessors = new ArrayList<IMessageProcessor>();
 	private TS3Query query;
 	private TS3Api api;
 	private boolean silent;
@@ -67,6 +76,7 @@ public class TS3Bot extends TS3EventAdapter
 		TS3Bot.LOGGER.info("Connected to " + this.config.getHostAddress());
 		
 		this.registerCommands();
+		this.registerMessageProcessors();
 		this.api = this.query.getApi();
 		
 		while(!this.login())
@@ -143,6 +153,11 @@ public class TS3Bot extends TS3EventAdapter
 		CommandSilent.register(this.dispatcher);
 	}
 	
+	private void registerMessageProcessors()
+	{
+		this.messageProcessors.add(new YouTubeProcessor());
+	}
+	
 	@Override
 	public void onTextMessage(TextMessageEvent event)
 	{
@@ -157,7 +172,7 @@ public class TS3Bot extends TS3EventAdapter
 		{
 			reader.skip();
 			
-			CommandSource source = new CommandSource(this.query, this.api, this.api.getClientInfo(event.getInvokerId()), event.getTargetMode(), this.history, this.id);
+			CommandSource source = new CommandSource(this.api, this.api.getClientInfo(event.getInvokerId()), event.getTargetMode());
 			
 			if(this.silent && !source.hasPermission("admin"))
 			{
@@ -175,11 +190,27 @@ public class TS3Bot extends TS3EventAdapter
 		}
 		else if(event.getTargetMode().equals(TextMessageTargetMode.CHANNEL))
 		{
-			this.history.add(0, event.getMessage());
+			ClientInfo info = this.api.getClientInfo(event.getInvokerId());
 			
-			if(this.history.size() > this.config.getChatHistorySize())
+			synchronized(this.history)
 			{
-				this.history.remove(this.config.getChatHistorySize());
+				this.history.add(0, reader.getString());
+				
+				if(this.history.size() > this.config.getChatHistorySize())
+				{
+					this.history.remove(this.config.getChatHistorySize());
+				}
+			}
+			
+			if(Commands.searchHistory(string -> string.equals(reader.getString()), this.history, 1, 10) == null)
+			{
+				for(IMessageProcessor processor : this.messageProcessors)
+				{
+					if(processor.onMessage(reader.getString(), this.api, info, event.getTargetMode()))
+					{
+						break;
+					}
+				}
 			}
 		}
 	}
@@ -216,7 +247,10 @@ public class TS3Bot extends TS3EventAdapter
 	
 	public List<String> getHistory()
 	{
-		return this.history;
+		synchronized(this.history)
+		{
+			return Collections.unmodifiableList(this.history);
+		}
 	}
 	
 	public TS3Query getQuery()

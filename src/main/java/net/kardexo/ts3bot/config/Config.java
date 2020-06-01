@@ -25,6 +25,8 @@ public class Config
 	private String apiTwitchClientId;
 	@JsonProperty("api_twitch_oauth_token")
 	private String apiTwitchOAuthToken;
+	@JsonProperty("api_youtube")
+	private String apiYouTube;
 	
 	@JsonProperty("permissions")
 	private JsonNode permissions;
@@ -77,6 +79,11 @@ public class Config
 	public String getApiTwitchOAuthToken()
 	{
 		return this.apiTwitchOAuthToken;
+	}
+	
+	public String getApiYouTube()
+	{
+		return this.apiYouTube;
 	}
 	
 	public JsonNode getPermissions()
