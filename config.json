@@ -8,6 +8,7 @@
 	"api_watch_2_gether": "API_KEY",
 	"api_twitch_client_id": "CLIENT_ID",
 	"api_twitch_oauth_token": "OAUTH_TOKEN",
+	"api_youtube": "API_KEY",
 	"permissions": {
 		"admin": [
 			"CLIENT_UID"
