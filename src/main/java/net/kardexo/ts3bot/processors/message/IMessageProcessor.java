@@ -1,4 +1,4 @@
-package net.kardexo.ts3bot.messageprocessor;
+package net.kardexo.ts3bot.processors.message;
 
 import com.github.theholywaffle.teamspeak3.TS3Api;
 import com.github.theholywaffle.teamspeak3.api.TextMessageTargetMode;

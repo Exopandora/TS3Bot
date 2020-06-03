@@ -1,7 +1,6 @@
 package net.kardexo.ts3bot;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
@@ -22,7 +21,6 @@ import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
 import net.kardexo.ts3bot.commands.CommandSource;
-import net.kardexo.ts3bot.commands.Commands;
 import net.kardexo.ts3bot.commands.impl.CommandAmouranth;
 import net.kardexo.ts3bot.commands.impl.CommandBobRoss;
 import net.kardexo.ts3bot.commands.impl.CommandBot;
@@ -31,13 +29,11 @@ import net.kardexo.ts3bot.commands.impl.CommandHelp;
 import net.kardexo.ts3bot.commands.impl.CommandMove;
 import net.kardexo.ts3bot.commands.impl.CommandRandom;
 import net.kardexo.ts3bot.commands.impl.CommandSilent;
-import net.kardexo.ts3bot.commands.impl.CommandSteam;
 import net.kardexo.ts3bot.commands.impl.CommandTeams;
-import net.kardexo.ts3bot.commands.impl.CommandTwitch;
 import net.kardexo.ts3bot.commands.impl.CommandWatch2Gether;
 import net.kardexo.ts3bot.config.Config;
-import net.kardexo.ts3bot.messageprocessor.IMessageProcessor;
-import net.kardexo.ts3bot.messageprocessor.impl.YouTubeProcessor;
+import net.kardexo.ts3bot.processors.message.IMessageProcessor;
+import net.kardexo.ts3bot.processors.message.impl.URLProcessor;
 
 public class TS3Bot extends TS3EventAdapter
 {
@@ -48,8 +44,8 @@ public class TS3Bot extends TS3EventAdapter
 	
 	private int id;
 	private final Config config;
+	private final ChatHistory history;
 	private final CommandDispatcher<CommandSource> dispatcher = new CommandDispatcher<CommandSource>();
-	private final List<String> history = new ArrayList<String>();
 	private final List<IMessageProcessor> messageProcessors = new ArrayList<IMessageProcessor>();
 	private TS3Query query;
 	private TS3Api api;
@@ -59,6 +55,7 @@ public class TS3Bot extends TS3EventAdapter
 	{
 		TS3Bot.instance = this;
 		this.config = config;
+		this.history = new ChatHistory(this.config.getChatHistorySize());
 	}
 	
 	public void start() throws InterruptedException
@@ -140,12 +137,10 @@ public class TS3Bot extends TS3EventAdapter
 	private void registerCommands()
 	{
 		CommandExit.register(this.dispatcher);
-		CommandSteam.register(this.dispatcher);
 		CommandBot.register(this.dispatcher);
 		CommandHelp.register(this.dispatcher);
 		CommandAmouranth.register(this.dispatcher);
 		CommandBobRoss.register(this.dispatcher);
-		CommandTwitch.register(this.dispatcher);
 		CommandTeams.register(this.dispatcher);
 		CommandWatch2Gether.register(this.dispatcher);
 		CommandRandom.register(this.dispatcher);
@@ -155,7 +150,7 @@ public class TS3Bot extends TS3EventAdapter
 	
 	private void registerMessageProcessors()
 	{
-		this.messageProcessors.add(new YouTubeProcessor());
+		this.messageProcessors.add(new URLProcessor());
 	}
 	
 	@Override
@@ -192,17 +187,9 @@ public class TS3Bot extends TS3EventAdapter
 		{
 			ClientInfo info = this.api.getClientInfo(event.getInvokerId());
 			
-			synchronized(this.history)
-			{
-				this.history.add(0, reader.getString());
-				
-				if(this.history.size() > this.config.getChatHistorySize())
-				{
-					this.history.remove(this.config.getChatHistorySize());
-				}
-			}
+			this.history.append(reader.getString());
 			
-			if(Commands.searchHistory(string -> string.equals(reader.getString()), this.history, 1, 10) == null)
+			if(this.history.contains(string -> string.equals(reader.getString()), true, 10))
 			{
 				for(IMessageProcessor processor : this.messageProcessors)
 				{
@@ -243,14 +230,6 @@ public class TS3Bot extends TS3EventAdapter
 	public int getId()
 	{
 		return this.id;
-	}
-	
-	public List<String> getHistory()
-	{
-		synchronized(this.history)
-		{
-			return Collections.unmodifiableList(this.history);
-		}
 	}
 	
 	public TS3Query getQuery()

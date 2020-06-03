@@ -11,7 +11,6 @@ import com.mojang.brigadier.LiteralMessage;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 
@@ -22,8 +21,7 @@ import net.kardexo.ts3bot.commands.Commands;
 
 public class CommandWatch2Gether
 {
-	private static final String BASE_URL = "https://www.watch2gether.com/rooms/";
-	private static final DynamicCommandExceptionType NOT_A_YOUTUBE_URL = new DynamicCommandExceptionType(input -> new LiteralMessage("\"" + input + "\" is not a youtube url"));
+	private static final String API_URL = "https://www.watch2gether.com/rooms/";
 	private static final SimpleCommandExceptionType WATCH2GETHER_SERVICE_UNAVAILABLE = new SimpleCommandExceptionType(new LiteralMessage("Watch2Gether is currently unavailable"));
 	
 	public static void register(CommandDispatcher<CommandSource> dispatcher)
@@ -39,20 +37,15 @@ public class CommandWatch2Gether
 	
 	public static int watch2gether(CommandContext<CommandSource> context) throws CommandSyntaxException
 	{
-		return watch2gether(context, Commands.searchHistory(URLs::isYouTube, TS3Bot.getInstance().getHistory()));
+		return watch2gether(context, null);
 	}
 	
 	public static int watch2gether(CommandContext<CommandSource> context, String url) throws CommandSyntaxException
 	{
-		if(!URLs.isYouTube(url))
-		{
-			throw NOT_A_YOUTUBE_URL.create(url);
-		}
-		
 		try
 		{
 			ObjectMapper mapper = new ObjectMapper();
-			HttpURLConnection connection = (HttpURLConnection) new URL(BASE_URL + "create.json").openConnection();
+			HttpURLConnection connection = (HttpURLConnection) new URL(API_URL + "create.json").openConnection();
 			byte[] content = mapper.writeValueAsBytes(new Watch2Gether(TS3Bot.getInstance().getConfig().getApiWatch2Gether(), URLs.extract(url)));
 			
 			connection.setDoOutput(true);
@@ -65,7 +58,7 @@ public class CommandWatch2Gether
 			
 			JsonNode node = mapper.readTree(connection.getInputStream());
 			
-			context.getSource().sendFeedback(BASE_URL + node.path("streamkey").asText());
+			context.getSource().sendFeedback(API_URL + node.path("streamkey").asText());
 			return 0;
 		}
 		catch(Exception e)
