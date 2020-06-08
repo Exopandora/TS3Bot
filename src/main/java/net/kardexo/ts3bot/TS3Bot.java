@@ -187,9 +187,7 @@ public class TS3Bot extends TS3EventAdapter
 		{
 			ClientInfo info = this.api.getClientInfo(event.getInvokerId());
 			
-			this.history.append(reader.getString());
-			
-			if(this.history.contains(string -> string.equals(reader.getString()), true, 10))
+			if(this.history.appendAndCheckIfNew(reader.getString(), 10000))
 			{
 				for(IMessageProcessor processor : this.messageProcessors)
 				{

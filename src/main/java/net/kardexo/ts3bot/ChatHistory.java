@@ -1,12 +1,12 @@
 package net.kardexo.ts3bot;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Predicate;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 
 public class ChatHistory
 {
-	private final List<String> history = new ArrayList<String>();
+	private final Map<String, Long> history = new HashMap<String, Long>();
 	private final int size;
 	
 	public ChatHistory(int size)
@@ -14,49 +14,38 @@ public class ChatHistory
 		this.size = size;
 	}
 	
-	public void append(String line)
+	public boolean appendAndCheckIfNew(String line, long millis)
 	{
-		synchronized(this.history)
+		Long now = System.currentTimeMillis();
+		Long timestamp = this.history.put(line, now);
+		
+		if(timestamp == null)
 		{
-			this.history.add(0, line);
-			
 			if(this.history.size() > this.size)
 			{
-				this.history.remove(this.size);
+				this.history.remove(this.getMin().getKey());
 			}
 		}
-	}
-	
-	public String search(Predicate<String> predicate)
-	{
-		return this.search(predicate, 0, this.history.size());
-	}
-	
-	public String search(Predicate<String> predicate, int start, int end)
-	{
-		synchronized(this.history)
+		else
 		{
-			if(end < 0 || end > this.history.size())
-			{
-				end = this.history.size();
-			}
-			
-			for(int x = start; x < end; x++)
-			{
-				String message = this.history.get(x);
-				
-				if(predicate.test(message))
-				{
-					return message;
-				}
-			}
-			
-			return null;
+			return now - timestamp > millis;
 		}
+		
+		return true;
 	}
 	
-	public boolean contains(Predicate<String> predicate, boolean skipLast, int limit)
+	private Entry<String, Long> getMin()
 	{
-		return this.search(predicate, skipLast ? 1 : 0, Math.max(1, limit + (skipLast ? 1 : 0))) == null;
+		Entry<String, Long> min = null;
+		
+		for(Entry<String, Long> entry : this.history.entrySet())
+		{
+			if(min == null || entry.getValue() < min.getValue())
+			{
+				min = entry;
+			}
+		}
+		
+		return min;
 	}
 }
