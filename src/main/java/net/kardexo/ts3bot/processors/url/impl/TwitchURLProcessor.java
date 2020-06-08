@@ -54,6 +54,7 @@ public class TwitchURLProcessor implements IURLProcessor
 		HttpURLConnection connection = (HttpURLConnection) new URL(API_URL + user).openConnection();
 		connection.setRequestProperty("Client-ID", TS3Bot.getInstance().getConfig().getApiTwitchClientId());
 		connection.setRequestProperty("Authorization", "Bearer " + TS3Bot.getInstance().getConfig().getApiTwitchOAuthToken());
+		connection.setConnectTimeout(5000);
 		connection.connect();
 		
 		JsonNode node = new ObjectMapper().readTree(connection.getInputStream());
