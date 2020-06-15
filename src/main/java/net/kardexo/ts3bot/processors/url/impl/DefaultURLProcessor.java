@@ -20,10 +20,11 @@ public class DefaultURLProcessor implements IURLProcessor
 		{
 			HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
 			connection.setRequestProperty("User-Agent", USER_AGENT);
+			connection.setRequestProperty("Accept-Charset", "UTF-8"); 
 			connection.setConnectTimeout(5000);
 			connection.connect();
 			
-			return Jsoup.parse(IOUtils.toString(new InputStreamReader(connection.getInputStream()))).getElementsByTag("title").first().text();
+			return Jsoup.parse(IOUtils.toString(new InputStreamReader(connection.getInputStream(), "UTF-8"))).getElementsByTag("title").first().text();
 		}
 		catch(Exception e)
 		{
