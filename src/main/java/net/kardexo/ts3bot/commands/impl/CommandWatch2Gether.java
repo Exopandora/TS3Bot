@@ -1,7 +1,8 @@
 package net.kardexo.ts3bot.commands.impl;
 
-import java.net.HttpURLConnection;
 import java.net.URL;
+
+import javax.net.ssl.HttpsURLConnection;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -45,27 +46,33 @@ public class CommandWatch2Gether
 		try
 		{
 			ObjectMapper mapper = new ObjectMapper();
-			HttpURLConnection connection = (HttpURLConnection) new URL(API_URL + "create.json").openConnection();
+			HttpsURLConnection connection = (HttpsURLConnection) new URL(API_URL + "create.json").openConnection();
 			byte[] content = mapper.writeValueAsBytes(new Watch2Gether(TS3Bot.getInstance().getConfig().getApiWatch2Gether(), URLs.extract(url)));
 			
-			connection.setDoOutput(true);
-			connection.setRequestMethod("POST");
-			connection.setRequestProperty("Content-Type", "application/json");
-			connection.setRequestProperty("Content-Length", String.valueOf(content.length));
-			
-			connection.getOutputStream().write(content);
-			connection.connect();
-			
-			JsonNode node = mapper.readTree(connection.getInputStream());
-			
-			context.getSource().sendFeedback(API_URL + node.path("streamkey").asText());
-			return 0;
+			try
+			{
+				connection.setDoOutput(true);
+				connection.setRequestMethod("POST");
+				connection.setRequestProperty("Content-Type", "application/json");
+				connection.setRequestProperty("Content-Length", String.valueOf(content.length));
+				
+				connection.getOutputStream().write(content);
+				connection.connect();
+				
+				JsonNode node = mapper.readTree(connection.getInputStream());
+				context.getSource().sendFeedback(API_URL + node.path("streamkey").asText());
+			}
+			finally
+			{
+				connection.disconnect();
+			}
 		}
 		catch(Exception e)
 		{
-			e.printStackTrace();
 			throw WATCH2GETHER_SERVICE_UNAVAILABLE.create();
 		}
+		
+		return 0;
 	}
 	
 	public static class Watch2Gether

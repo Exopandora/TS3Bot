@@ -1,10 +1,11 @@
 package net.kardexo.ts3bot.processors.url.impl;
 
 import java.io.IOException;
-import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import javax.net.ssl.HttpsURLConnection;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -51,30 +52,38 @@ public class TwitchURLProcessor implements IURLProcessor
 	
 	public static String twitchDetails(String user, boolean appendLink) throws IOException
 	{
-		HttpURLConnection connection = (HttpURLConnection) new URL(API_URL + user).openConnection();
-		connection.setRequestProperty("Client-ID", TS3Bot.getInstance().getConfig().getApiTwitchClientId());
-		connection.setRequestProperty("Authorization", "Bearer " + TS3Bot.getInstance().getConfig().getApiTwitchOAuthToken());
-		connection.setConnectTimeout(5000);
-		connection.connect();
+		HttpsURLConnection connection = (HttpsURLConnection) new URL(API_URL + user).openConnection();
 		
-		JsonNode node = new ObjectMapper().readTree(connection.getInputStream());
-		JsonNode data = node.path("data");
-		
-		if(data != null && data.size() > 0)
+		try
 		{
-			JsonNode content = data.get(0);
-			String result = content.path("user_name").asText() + " is live for " + content.path("viewer_count").asInt() + " viewers " + content.path("title");
+			connection.setRequestProperty("Client-ID", TS3Bot.getInstance().getConfig().getApiTwitchClientId());
+			connection.setRequestProperty("Authorization", "Bearer " + TS3Bot.getInstance().getConfig().getApiTwitchOAuthToken());
+			connection.setConnectTimeout(5000);
+			connection.connect();
 			
-			if(appendLink)
+			JsonNode node = new ObjectMapper().readTree(connection.getInputStream());
+			JsonNode data = node.path("data");
+			
+			if(data != null && data.size() > 0)
 			{
-				result += " " + BASE_URL + user;
+				JsonNode content = data.get(0);
+				String result = content.path("user_name").asText() + " is live for " + content.path("viewer_count").asInt() + " viewers " + content.path("title");
+				
+				if(appendLink)
+				{
+					result += " " + BASE_URL + user;
+				}
+				
+				return result;
 			}
-			
-			return result;
+			else
+			{
+				return user + " is currently offline";
+			}
 		}
-		else
+		finally
 		{
-			return user + " is currently offline";
+			connection.disconnect();
 		}
 	}
 }
