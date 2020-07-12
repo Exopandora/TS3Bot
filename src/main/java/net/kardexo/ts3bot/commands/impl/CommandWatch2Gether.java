@@ -30,7 +30,7 @@ public class CommandWatch2Gether
 		LiteralCommandNode<CommandSource> watch2gether = dispatcher.register(Commands.literal("watch2gether")
 				.executes(context -> watch2gether(context))
 				.then(Commands.argument("url", StringArgumentType.greedyString())
-						.executes(context -> watch2gether(context, StringArgumentType.getString(context, "url")))));
+						.executes(context -> watch2gether(context, URLs.extract(StringArgumentType.getString(context, "url"))))));
 		dispatcher.register(Commands.literal("w2g")
 				.executes(context -> watch2gether(context))
 				.redirect(watch2gether));
@@ -47,7 +47,7 @@ public class CommandWatch2Gether
 		{
 			ObjectMapper mapper = new ObjectMapper();
 			HttpsURLConnection connection = (HttpsURLConnection) new URL(API_URL + "create.json").openConnection();
-			byte[] content = mapper.writeValueAsBytes(new Watch2Gether(TS3Bot.getInstance().getConfig().getApiWatch2Gether(), URLs.extract(url)));
+			byte[] content = mapper.writeValueAsBytes(new Watch2Gether(TS3Bot.getInstance().getConfig().getApiWatch2Gether(), url));
 			
 			try
 			{
