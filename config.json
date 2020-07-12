@@ -9,6 +9,7 @@
 	"api_twitch_client_id": "CLIENT_ID",
 	"api_twitch_oauth_token": "OAUTH_TOKEN",
 	"api_youtube": "API_KEY",
+	"default_watch2gether_share": "URL",
 	"permissions": {
 		"admin": [
 			"CLIENT_UID"

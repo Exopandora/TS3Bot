@@ -38,7 +38,7 @@ public class CommandWatch2Gether
 	
 	public static int watch2gether(CommandContext<CommandSource> context) throws CommandSyntaxException
 	{
-		return watch2gether(context, null);
+		return watch2gether(context, TS3Bot.getInstance().getConfig().getDefaultW2GShare());
 	}
 	
 	public static int watch2gether(CommandContext<CommandSource> context, String url) throws CommandSyntaxException
