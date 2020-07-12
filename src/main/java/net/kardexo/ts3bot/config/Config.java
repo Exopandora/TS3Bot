@@ -31,7 +31,7 @@ public class Config
 	@JsonProperty("permissions")
 	private JsonNode permissions;
 	
-	@JsonProperty("default_watch2gether_video")
+	@JsonProperty("default_watch2gether_share")
 	private String defaultW2GShare;
 	
 	public Config()
