@@ -38,7 +38,7 @@ public class URLProcessor implements IMessageProcessor
 			{
 				if(processor.isApplicable(url))
 				{
-					String response = processor.process(url);
+					String response = URLProcessor.normalize(processor.process(url));
 					
 					if(response != null)
 					{
@@ -50,5 +50,15 @@ public class URLProcessor implements IMessageProcessor
 		}
 		
 		return false;
+	}
+	
+	private static String normalize(String string)
+	{
+		if(string != null)
+		{
+			return string.replaceAll("\\s*", " ");
+		}
+		
+		return null;
 	}
 }
