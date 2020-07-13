@@ -56,7 +56,7 @@ public class URLProcessor implements IMessageProcessor
 	{
 		if(string != null)
 		{
-			return string.replaceAll("\\s*", " ");
+			return string.replaceAll("\\s+", " ");
 		}
 		
 		return null;
