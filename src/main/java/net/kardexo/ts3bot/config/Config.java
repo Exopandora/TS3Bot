@@ -27,6 +27,8 @@ public class Config
 	private String apiTwitchOAuthToken;
 	@JsonProperty("api_youtube")
 	private String apiYouTube;
+	@JsonProperty("api_twitter_bearer_token")
+	private String apiTwitterBearerToken;
 	
 	@JsonProperty("permissions")
 	private JsonNode permissions;
@@ -87,6 +89,11 @@ public class Config
 	public String getApiYouTube()
 	{
 		return this.apiYouTube;
+	}
+	
+	public String getApiTwitterBearerToken()
+	{
+		return this.apiTwitterBearerToken;
 	}
 	
 	public JsonNode getPermissions()

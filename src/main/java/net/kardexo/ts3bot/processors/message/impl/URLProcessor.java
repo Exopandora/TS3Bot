@@ -13,18 +13,20 @@ import net.kardexo.ts3bot.processors.url.IURLProcessor;
 import net.kardexo.ts3bot.processors.url.impl.DefaultURLProcessor;
 import net.kardexo.ts3bot.processors.url.impl.SteamURLProcessor;
 import net.kardexo.ts3bot.processors.url.impl.TwitchURLProcessor;
+import net.kardexo.ts3bot.processors.url.impl.TwitterURLProcessor;
 import net.kardexo.ts3bot.processors.url.impl.YouTubeURLProcessor;
 
 public class URLProcessor implements IMessageProcessor
 {
-	private final List<IURLProcessor> processors = new ArrayList<IURLProcessor>();
+	private static final DefaultURLProcessor DEFAULT_URL_PROCESSOR = new DefaultURLProcessor();
+	private static final List<IURLProcessor> URL_PROCESSORS = new ArrayList<IURLProcessor>();
 	
-	public URLProcessor()
+	static
 	{
-		this.processors.add(new SteamURLProcessor());
-		this.processors.add(new TwitchURLProcessor());
-		this.processors.add(new YouTubeURLProcessor());
-		this.processors.add(new DefaultURLProcessor());
+		URL_PROCESSORS.add(new SteamURLProcessor());
+		URL_PROCESSORS.add(new TwitchURLProcessor());
+		URL_PROCESSORS.add(new YouTubeURLProcessor());
+		URL_PROCESSORS.add(new TwitterURLProcessor());
 	}
 	
 	@Override
@@ -34,18 +36,34 @@ public class URLProcessor implements IMessageProcessor
 		
 		if(url != null)
 		{
-			for(IURLProcessor processor : this.processors)
+			for(IURLProcessor processor : URL_PROCESSORS)
 			{
-				if(processor.isApplicable(url))
+				if(this.process(processor, url, api, clientInfo, target))
 				{
-					String response = URLProcessor.normalize(processor.process(url));
-					
-					if(response != null)
-					{
-						api.sendTextMessage(target, clientInfo.getId(), response);
-						return true;
-					}
+					return true;
 				}
+			}
+			
+			return this.process(DEFAULT_URL_PROCESSOR, url, api, clientInfo, target);
+		}
+		
+		return false;
+	}
+	
+	private boolean process(IURLProcessor processor, String url, TS3Api api, ClientInfo clientInfo, TextMessageTargetMode target)
+	{
+		if(processor.isApplicable(url))
+		{
+			String response = URLProcessor.normalize(processor.process(url));
+			
+			if(response != null)
+			{
+				if(!response.isEmpty())
+				{
+					api.sendTextMessage(target, clientInfo.getId(), response);
+				}
+				
+				return true;
 			}
 		}
 		
