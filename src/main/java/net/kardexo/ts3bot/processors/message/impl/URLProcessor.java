@@ -14,6 +14,7 @@ import net.kardexo.ts3bot.processors.url.impl.DefaultURLProcessor;
 import net.kardexo.ts3bot.processors.url.impl.SteamURLProcessor;
 import net.kardexo.ts3bot.processors.url.impl.TwitchURLProcessor;
 import net.kardexo.ts3bot.processors.url.impl.TwitterURLProcessor;
+import net.kardexo.ts3bot.processors.url.impl.Watch2GetherURLProcessor;
 import net.kardexo.ts3bot.processors.url.impl.YouTubeURLProcessor;
 
 public class URLProcessor implements IMessageProcessor
@@ -27,6 +28,7 @@ public class URLProcessor implements IMessageProcessor
 		URL_PROCESSORS.add(new TwitchURLProcessor());
 		URL_PROCESSORS.add(new YouTubeURLProcessor());
 		URL_PROCESSORS.add(new TwitterURLProcessor());
+		URL_PROCESSORS.add(new Watch2GetherURLProcessor());
 	}
 	
 	@Override
