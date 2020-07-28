@@ -3,6 +3,8 @@ package net.kardexo.ts3bot.config;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 
+import net.kardexo.ts3bot.commands.impl.CommandLeagueOfLegends.Region;
+
 public class Config
 {
 	@JsonProperty("host_address")
@@ -29,12 +31,16 @@ public class Config
 	private String apiYouTube;
 	@JsonProperty("api_twitter_bearer_token")
 	private String apiTwitterBearerToken;
+	@JsonProperty("api_league_of_legends")
+	private String apiLeagueOfLegends;
 	
 	@JsonProperty("permissions")
 	private JsonNode permissions;
 	
 	@JsonProperty("default_watch2gether_share")
 	private String defaultW2GShare;
+	@JsonProperty("league_of_legends_region")
+	private Region lolRegion;
 	
 	public Config()
 	{
@@ -96,6 +102,11 @@ public class Config
 		return this.apiTwitterBearerToken;
 	}
 	
+	public String getApiLeagueOfLegends()
+	{
+		return this.apiLeagueOfLegends;
+	}
+	
 	public JsonNode getPermissions()
 	{
 		return this.permissions;
@@ -109,5 +120,15 @@ public class Config
 	public void setDefaultW2GShare(String defaultW2GShare)
 	{
 		this.defaultW2GShare = defaultW2GShare;
+	}
+	
+	public Region getLoLRegion()
+	{
+		return this.lolRegion;
+	}
+	
+	public void setLoLRegion(Region lolRegion)
+	{
+		this.lolRegion = lolRegion;
 	}
 }
