@@ -27,10 +27,7 @@ dependencies {
 
 jar {
 	manifest {
-		attributes (
-			'Main-Class': mainClassName,
-			'Multi-Release': 'true'
-		)
+		attributes 'Main-Class': mainClassName
 	}
 	
 	from {

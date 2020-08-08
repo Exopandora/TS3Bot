@@ -6,6 +6,8 @@
 !/gradle/
 !/src/
 !.gitignore
+!build.gradle
 !gradlew
 !gradlew.bat
 !README.md
+!settings.gradle
