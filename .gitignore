@@ -3,7 +3,9 @@
 
 # Except
 
+!/gradle/
 !/src/
 !.gitignore
-!pom.xml
+!gradlew
+!gradlew.bat
 !README.md
