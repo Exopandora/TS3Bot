@@ -1,0 +1,41 @@
+plugins {
+    id 'java'
+	id 'application'
+	id 'eclipse'
+	id 'idea'
+}
+
+repositories {
+	jcenter()
+    mavenCentral()
+	maven {
+		url = 'https://libraries.minecraft.net'
+	}
+}
+
+mainClassName = 'net.kardexo.ts3bot.Start'
+
+dependencies {
+	implementation 'com.github.theholywaffle:teamspeak3-api:1.2.0'
+	implementation 'com.fasterxml.jackson.core:jackson-databind:2.11.0'
+	implementation 'org.apache.logging.log4j:log4j-core:2.13.2'
+	implementation 'org.apache.logging.log4j:log4j-slf4j-impl:2.13.2'
+	implementation 'com.mojang:brigadier:1.0.17'
+	implementation 'com.fasterxml.jackson.core:jackson-databind:2.11.0'
+	implementation 'org.jsoup:jsoup:1.13.1'
+}
+
+jar {
+	manifest {
+		attributes (
+			'Main-Class': mainClassName,
+			'Multi-Release': 'true'
+		)
+	}
+	
+	from {
+		configurations.runtimeClasspath.collect {
+			it.isDirectory() ? it : zipTree(it)
+		}
+	}
+}
