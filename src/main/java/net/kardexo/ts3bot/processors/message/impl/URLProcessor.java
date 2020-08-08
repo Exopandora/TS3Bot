@@ -7,7 +7,6 @@ import com.github.theholywaffle.teamspeak3.TS3Api;
 import com.github.theholywaffle.teamspeak3.api.TextMessageTargetMode;
 import com.github.theholywaffle.teamspeak3.api.wrapper.ClientInfo;
 
-import net.kardexo.ts3bot.URLs;
 import net.kardexo.ts3bot.processors.message.IMessageProcessor;
 import net.kardexo.ts3bot.processors.url.IURLProcessor;
 import net.kardexo.ts3bot.processors.url.impl.DefaultURLProcessor;
@@ -16,6 +15,7 @@ import net.kardexo.ts3bot.processors.url.impl.TwitchURLProcessor;
 import net.kardexo.ts3bot.processors.url.impl.TwitterURLProcessor;
 import net.kardexo.ts3bot.processors.url.impl.Watch2GetherURLProcessor;
 import net.kardexo.ts3bot.processors.url.impl.YouTubeURLProcessor;
+import net.kardexo.ts3bot.util.URLs;
 
 public class URLProcessor implements IMessageProcessor
 {
