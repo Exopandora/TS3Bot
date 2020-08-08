@@ -16,13 +16,13 @@ import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 
 import net.kardexo.ts3bot.TS3Bot;
-import net.kardexo.ts3bot.URLs;
 import net.kardexo.ts3bot.commands.CommandSource;
 import net.kardexo.ts3bot.commands.Commands;
+import net.kardexo.ts3bot.util.URLs;
 
 public class CommandWatch2Gether
 {
-	private static final String API_URL = "https://www.watch2gether.com/rooms/";
+	private static final String API_URL = "https://www.w2g.tv/rooms/";
 	private static final SimpleCommandExceptionType WATCH2GETHER_SERVICE_UNAVAILABLE = new SimpleCommandExceptionType(new LiteralMessage("Watch2Gether is currently unavailable"));
 	
 	public static void register(CommandDispatcher<CommandSource> dispatcher)
@@ -79,7 +79,6 @@ public class CommandWatch2Gether
 	{
 		@JsonProperty("api_key")
 		private String apiKey;
-		
 		@JsonProperty("share")
 		private String share;
 		
