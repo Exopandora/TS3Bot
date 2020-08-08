@@ -35,12 +35,13 @@ import net.kardexo.ts3bot.commands.impl.CommandWatch2Gether;
 import net.kardexo.ts3bot.config.Config;
 import net.kardexo.ts3bot.processors.message.IMessageProcessor;
 import net.kardexo.ts3bot.processors.message.impl.URLProcessor;
+import net.kardexo.ts3bot.util.ChatHistory;
 
 public class TS3Bot extends TS3EventAdapter
 {
 	public static final Random RANDOM = new Random();
 	
-	private static final Logger LOGGER = LogManager.getLogger();
+	private static final Logger LOGGER = LogManager.getLogger(TS3Bot.class);
 	private static TS3Bot instance;
 	
 	private int id;
