@@ -1,4 +1,4 @@
-package net.kardexo.ts3bot;
+package net.kardexo.ts3bot.util;
 
 import java.util.HashMap;
 import java.util.Map;
