@@ -27,6 +27,7 @@ import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import net.kardexo.ts3bot.TS3Bot;
 import net.kardexo.ts3bot.commands.CommandSource;
 import net.kardexo.ts3bot.commands.Commands;
+import net.kardexo.ts3bot.util.StringUtils;
 
 public class CommandLeagueOfLegends
 {
@@ -124,7 +125,7 @@ public class CommandLeagueOfLegends
 			builder.append("\n[[color=" + (winner ? "green" : "#FF2345") + "]" + (x + 1) + "[/color]]");
 			builder.append(" " + match.path("gameMode").asText());
 			builder.append(" - " + DATE_FORMAT.format(new Date(match.path("gameCreation").asLong())));
-			builder.append(" - " + CommandLeagueOfLegends.formatMatchDuration(gameDuration));
+			builder.append(" - " + StringUtils.formatDuration(gameDuration));
 			builder.append(" - " + kills + "/" + deaths + "/" + assists);
 			builder.append(" - " + champion);
 			
@@ -143,7 +144,7 @@ public class CommandLeagueOfLegends
 		
 		builder.append("\nWinrate: " + Math.round(wins * 100 / matches) + "%");
 		builder.append(" - Average KAD: " + totalKills / matches + "/" + totalDeaths / matches + "/" + totalAssists / matches);
-		builder.append(" - Average Match Length: " + CommandLeagueOfLegends.formatMatchDuration((long) (totalDuration / matches)));
+		builder.append(" - Average Match Length: " + StringUtils.formatDuration((long) (totalDuration / matches)));
 		
 		context.getSource().sendFeedback(builder.toString());
 		
@@ -319,24 +320,6 @@ public class CommandLeagueOfLegends
 		}
 		
 		return null;
-	}
-	
-	private static String formatMatchDuration(long gameDuration)
-	{
-		long seconds = gameDuration % 60;
-		long minutes = (gameDuration % 3600) / 60;
-		long hours = gameDuration / 3600;
-		
-		if(hours > 0)
-		{
-			return String.format("%d:%02d:%02d", hours, minutes, seconds);
-		}
-		else if(minutes > 0)
-		{
-			return String.format("%02d:%02d", minutes, seconds);
-		}
-		
-		return String.format("%02d", seconds);
 	}
 	
 	private static String encodeSummonerName(String summonerName) throws CommandSyntaxException

@@ -1,6 +1,7 @@
 package net.kardexo.ts3bot.processors.url.impl;
 
 import java.net.URL;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -8,8 +9,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import net.kardexo.ts3bot.TS3Bot;
-import net.kardexo.ts3bot.URLs;
 import net.kardexo.ts3bot.processors.url.IURLProcessor;
+import net.kardexo.ts3bot.util.StringUtils;
+import net.kardexo.ts3bot.util.URLs;
 
 public class YouTubeURLProcessor implements IURLProcessor
 {
@@ -20,7 +22,8 @@ public class YouTubeURLProcessor implements IURLProcessor
 	@Override
 	public String process(String url)
 	{
-		String id = this.extractWatchId(url);
+		Map<String, String> parameters = this.extractQuery(url);
+		String id = parameters.get("v");
 		
 		if(id != null)
 		{
@@ -37,11 +40,20 @@ public class YouTubeURLProcessor implements IURLProcessor
 				
 				if(items.size() == 1)
 				{
-					String title = items.get(0).path("snippet").path("title").asText();
+					JsonNode snippet = items.get(0).path("snippet");
+					String channelTitle = snippet.path("channelTitle").asText();
+					String title = snippet.path("title").asText();
 					
-					if(title != null && !title.isEmpty())
+					if(channelTitle != null && !channelTitle.isEmpty() && title != null && !title.isEmpty())
 					{
-						return title;
+						StringBuilder builder = new StringBuilder(channelTitle + ": \"" + title + "\"");
+						
+						if(parameters.containsKey("t"))
+						{
+							builder.append(" [" + StringUtils.formatDuration(Long.parseLong(parameters.get("t"))) + "]");
+						}
+						
+						return builder.toString();
 					}
 				}
 			}
@@ -60,26 +72,20 @@ public class YouTubeURLProcessor implements IURLProcessor
 		return message != null && (YOUTUBE_URL.matcher(message).matches() || YOUTUBE_URL_2.matcher(message).matches());
 	}
 	
-	private String extractWatchId(String message)
+	private Map<String, String> extractQuery(String url)
 	{
-		Matcher matcher = YOUTUBE_URL.matcher(message);
+		Matcher matcher = YOUTUBE_URL.matcher(url);
 		
 		if(matcher.matches() && matcher.group(2) != null)
 		{
-			for(String split : matcher.group(2).split(URLs.QUERY_SPLIT))
-			{
-				if(split.startsWith("v="))
-				{
-					return split.substring(2);
-				}
-			}
+			return URLs.queryToMap(matcher.group(2));
 		}
 		
-		matcher = YOUTUBE_URL_2.matcher(message);
+		matcher = YOUTUBE_URL_2.matcher(url);
 		
 		if(matcher.matches() && matcher.group(2) != null)
 		{
-			return matcher.group(2).split(URLs.QUERY_SPLIT)[0];
+			return URLs.queryToMap("v=" + matcher.group(2));
 		}
 		
 		return null;
