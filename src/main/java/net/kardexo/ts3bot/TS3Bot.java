@@ -25,6 +25,7 @@ import net.kardexo.ts3bot.commands.CommandSource;
 import net.kardexo.ts3bot.commands.impl.CommandAmouranth;
 import net.kardexo.ts3bot.commands.impl.CommandBobRoss;
 import net.kardexo.ts3bot.commands.impl.CommandBot;
+import net.kardexo.ts3bot.commands.impl.CommandCoinflip;
 import net.kardexo.ts3bot.commands.impl.CommandExit;
 import net.kardexo.ts3bot.commands.impl.CommandGameServers;
 import net.kardexo.ts3bot.commands.impl.CommandHelp;
@@ -156,6 +157,7 @@ public class TS3Bot extends TS3EventAdapter
 		CommandSilent.register(this.dispatcher);
 		CommandLeagueOfLegends.register(this.dispatcher);
 		CommandGameServers.register(this.dispatcher);
+		CommandCoinflip.register(this.dispatcher);
 	}
 	
 	private void registerMessageProcessors()
