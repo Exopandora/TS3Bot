@@ -1,0 +1,32 @@
+plugins {
+	id 'java'
+	id 'application'
+	id 'eclipse'
+	id 'idea'
+}
+
+repositories {
+	jcenter()
+	mavenCentral()
+	maven {
+		url = 'https://libraries.minecraft.net'
+	}
+}
+
+mainClassName = 'net.kardexo.launchwrapper.Start'
+
+dependencies {
+	implementation 'com.fasterxml.jackson.core:jackson-databind:2.11.0'
+}
+
+jar {
+	manifest {
+		attributes 'Main-Class': mainClassName
+	}
+	
+	from {
+		configurations.runtimeClasspath.collect {
+			it.isDirectory() ? it : zipTree(it)
+		}
+	}
+}

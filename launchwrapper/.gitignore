@@ -4,11 +4,10 @@
 # Except
 
 !/gradle/
-!/launchwrapper/
+!/run/launchwrapper.json
 !/src/
 !.gitignore
 !build.gradle
 !gradlew
 !gradlew.bat
-!README.md
 !settings.gradle
