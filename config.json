@@ -17,5 +17,8 @@
 		"admin": [
 			"CLIENT_UID"
 		]
+	},
+	"gameservers": {
+		"server_id": "PATH_TO_LAUNCHWRAPPER"
 	}
 }

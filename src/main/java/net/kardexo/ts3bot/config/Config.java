@@ -1,5 +1,8 @@
 package net.kardexo.ts3bot.config;
 
+import java.io.File;
+import java.util.Map;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -41,6 +44,9 @@ public class Config
 	private String defaultW2GShare;
 	@JsonProperty("league_of_legends_region")
 	private Region lolRegion;
+	
+	@JsonProperty("gameservers")
+	private Map<String, File> gameservers;
 	
 	public Config()
 	{
@@ -130,5 +136,10 @@ public class Config
 	public void setLoLRegion(Region lolRegion)
 	{
 		this.lolRegion = lolRegion;
+	}
+	
+	public Map<String, File> getGameservers()
+	{
+		return this.gameservers;
 	}
 }

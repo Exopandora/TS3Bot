@@ -1,5 +1,6 @@
 package net.kardexo.ts3bot;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -25,6 +26,7 @@ import net.kardexo.ts3bot.commands.impl.CommandAmouranth;
 import net.kardexo.ts3bot.commands.impl.CommandBobRoss;
 import net.kardexo.ts3bot.commands.impl.CommandBot;
 import net.kardexo.ts3bot.commands.impl.CommandExit;
+import net.kardexo.ts3bot.commands.impl.CommandGameServers;
 import net.kardexo.ts3bot.commands.impl.CommandHelp;
 import net.kardexo.ts3bot.commands.impl.CommandLeagueOfLegends;
 import net.kardexo.ts3bot.commands.impl.CommandMove;
@@ -33,6 +35,7 @@ import net.kardexo.ts3bot.commands.impl.CommandSilent;
 import net.kardexo.ts3bot.commands.impl.CommandTeams;
 import net.kardexo.ts3bot.commands.impl.CommandWatch2Gether;
 import net.kardexo.ts3bot.config.Config;
+import net.kardexo.ts3bot.gameservers.GameServerManager;
 import net.kardexo.ts3bot.processors.message.IMessageProcessor;
 import net.kardexo.ts3bot.processors.message.impl.URLProcessor;
 import net.kardexo.ts3bot.util.ChatHistory;
@@ -49,15 +52,17 @@ public class TS3Bot extends TS3EventAdapter
 	private final ChatHistory history;
 	private final CommandDispatcher<CommandSource> dispatcher = new CommandDispatcher<CommandSource>();
 	private final List<IMessageProcessor> messageProcessors = new ArrayList<IMessageProcessor>();
+	private final GameServerManager gameserverManager;
 	private TS3Query query;
 	private TS3Api api;
 	private boolean silent;
 	
-	public TS3Bot(Config config)
+	public TS3Bot(Config config) throws IOException
 	{
 		TS3Bot.instance = this;
 		this.config = config;
 		this.history = new ChatHistory(this.config.getChatHistorySize());
+		this.gameserverManager = new GameServerManager(this.config.getGameservers());
 	}
 	
 	public void start() throws InterruptedException
@@ -66,6 +71,7 @@ public class TS3Bot extends TS3EventAdapter
 		TS3Config config = new TS3Config().setHost(this.config.getHostAddress());
 		
 		this.query = new TS3Query(config);
+		this.gameserverManager.start();
 		
 		while(!this.connect())
 		{
@@ -149,6 +155,7 @@ public class TS3Bot extends TS3EventAdapter
 		CommandMove.register(this.dispatcher);
 		CommandSilent.register(this.dispatcher);
 		CommandLeagueOfLegends.register(this.dispatcher);
+		CommandGameServers.register(this.dispatcher);
 	}
 	
 	private void registerMessageProcessors()
@@ -216,6 +223,18 @@ public class TS3Bot extends TS3EventAdapter
 			this.query.exit();
 			TS3Bot.LOGGER.info("Disconnected");
 		}
+		
+		if(this.gameserverManager != null)
+		{
+			try
+			{
+				this.gameserverManager.close();
+			}
+			catch(IOException e)
+			{
+				e.printStackTrace();
+			}
+		}
 	}
 	
 	public Config getConfig()
@@ -236,6 +255,11 @@ public class TS3Bot extends TS3EventAdapter
 	public TS3Query getQuery()
 	{
 		return this.query;
+	}
+	
+	public GameServerManager getGameserverManager()
+	{
+		return this.gameserverManager;
 	}
 	
 	public void setSilent(boolean silent)
