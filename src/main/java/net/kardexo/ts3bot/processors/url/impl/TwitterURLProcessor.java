@@ -43,7 +43,7 @@ public class TwitterURLProcessor implements IURLProcessor
 				JsonNode data = node.path("data");
 				JsonNode users = node.path("includes").path("users");
 				
-				if(data.size() == 1 &&users.size() == 1)
+				if(data.size() == 1 && users.size() == 1)
 				{
 					String text = data.get(0).path("text").asText();
 					String user = users.get(0).path("name").asText();
