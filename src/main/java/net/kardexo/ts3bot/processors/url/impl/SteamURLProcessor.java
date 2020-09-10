@@ -2,16 +2,22 @@ package net.kardexo.ts3bot.processors.url.impl;
 
 import java.util.regex.Pattern;
 
-import net.kardexo.ts3bot.processors.url.IURLProcessor;
-
-public class SteamURLProcessor implements IURLProcessor
+public class SteamURLProcessor extends DefaultURLProcessor
 {
 	private static final Pattern STEAM_URL = Pattern.compile("https?:\\/\\/([^\\.]+\\.)?(steamcommunity|steampowered)\\.[^ ]+");
 	
 	@Override
 	public String process(String url)
 	{
-		return "steam://openurl/" + url;
+		String response = super.process(url);
+		StringBuilder builder = new StringBuilder();
+		
+		if(response != null)
+		{
+			builder.append(response + " ");
+		}
+		
+		return builder.append("steam://openurl/" + url).toString();
 	}
 	
 	@Override
