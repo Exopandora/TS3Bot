@@ -21,7 +21,7 @@ import net.kardexo.ts3bot.util.URLs;
 
 public class CommandWatch2Gether
 {
-	private static final String API_URL = "https://www.watch2gether.com/rooms/";
+	private static final String API_URL = "https://w2g.tv/rooms/";
 	private static final SimpleCommandExceptionType WATCH2GETHER_SERVICE_UNAVAILABLE = new SimpleCommandExceptionType(new LiteralMessage("Watch2Gether is currently unavailable"));
 	
 	public static void register(CommandDispatcher<CommandSource> dispatcher)
@@ -76,7 +76,7 @@ public class CommandWatch2Gether
 	
 	public static class Watch2Gether
 	{
-		@JsonProperty("api_key")
+		@JsonProperty("w2g_api_key")
 		private String apiKey;
 		@JsonProperty("share")
 		private String share;
