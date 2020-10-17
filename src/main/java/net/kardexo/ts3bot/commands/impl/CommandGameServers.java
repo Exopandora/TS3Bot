@@ -53,7 +53,7 @@ public class CommandGameServers
 		{
 			manager.startServer(server);
 		}
-		catch(IOException e)
+		catch(IOException | InterruptedException e)
 		{
 			throw COULD_NOT_START_SERVER.create(server);
 		}

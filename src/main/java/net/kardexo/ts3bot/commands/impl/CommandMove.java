@@ -36,7 +36,7 @@ public class CommandMove
 		
 		if(channel == null)
 		{
-			CHANNEL_NOT_FOUND.create(name);
+			throw CHANNEL_NOT_FOUND.create(name);
 		}
 		
 		if(channel.getId() != TS3Bot.getInstance().getApi().getClientInfo(TS3Bot.getInstance().getId()).getChannelId())

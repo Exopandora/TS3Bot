@@ -1,6 +1,7 @@
 package net.kardexo.ts3bot.processors.url.impl;
 
 import java.net.URL;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -88,6 +89,6 @@ public class YouTubeURLProcessor implements IURLProcessor
 			return URLs.queryToMap("v=" + matcher.group(2));
 		}
 		
-		return null;
+		return new HashMap<String, String>();
 	}
 }

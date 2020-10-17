@@ -14,6 +14,7 @@ import java.util.stream.StreamSupport;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.MissingNode;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.LiteralMessage;
 import com.mojang.brigadier.StringReader;
@@ -319,7 +320,7 @@ public class CommandLeagueOfLegends
 			}
 		}
 		
-		return null;
+		return MissingNode.getInstance();
 	}
 	
 	private static String encodeSummonerName(String summonerName) throws CommandSyntaxException

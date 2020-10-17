@@ -1,8 +1,7 @@
 package net.kardexo.ts3bot.commands.impl;
 
+import java.net.HttpURLConnection;
 import java.net.URL;
-
-import javax.net.ssl.HttpsURLConnection;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -46,7 +45,7 @@ public class CommandWatch2Gether
 		try
 		{
 			ObjectMapper mapper = new ObjectMapper();
-			HttpsURLConnection connection = (HttpsURLConnection) new URL(API_URL + "create.json").openConnection();
+			HttpURLConnection connection = (HttpURLConnection) new URL(API_URL + "create.json").openConnection();
 			byte[] content = mapper.writeValueAsBytes(new Watch2Gether(TS3Bot.getInstance().getConfig().getApiWatch2Gether(), url));
 			
 			try

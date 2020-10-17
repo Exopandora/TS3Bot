@@ -1,9 +1,10 @@
 package net.kardexo.ts3bot.processors.url.impl;
 
 import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
 import java.net.URL;
-
-import javax.net.ssl.HttpsURLConnection;
+import java.util.Arrays;
+import java.util.Objects;
 
 import org.apache.logging.log4j.core.util.IOUtils;
 import org.jsoup.Jsoup;
@@ -20,14 +21,14 @@ public class DefaultURLProcessor implements IURLProcessor
 	{
 		try
 		{
-			HttpsURLConnection connection = (HttpsURLConnection) new URL(url).openConnection();
+			HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
 			connection.setRequestProperty("User-Agent", USER_AGENT);
 			connection.setRequestProperty("Accept", MIME_TYPE_TEXT_HTML);
 			connection.setRequestProperty("Accept-Charset", "UTF-8");
 			connection.setConnectTimeout(5000);
 			connection.connect();
 			
-			if(MIME_TYPE_TEXT_HTML.equals(connection.getContentType()))
+			if(Arrays.stream(Objects.requireNonNullElse(connection.getContentType(), "").split(";")).map(String::trim).anyMatch(MIME_TYPE_TEXT_HTML::equals))
 			{
 				try
 				{

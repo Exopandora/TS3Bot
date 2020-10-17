@@ -1,10 +1,9 @@
 package net.kardexo.ts3bot.processors.url.impl;
 
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import javax.net.ssl.HttpsURLConnection;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -30,11 +29,11 @@ public class TwitterURLProcessor implements IURLProcessor
 			query.append("&user.fields=name");
 			query.append("&expansions=author_id");
 			
-			HttpsURLConnection connection = null;
+			HttpURLConnection connection = null;
 			
 			try
 			{
-				connection = (HttpsURLConnection) new URL(query.toString()).openConnection();
+				connection = (HttpURLConnection) new URL(query.toString()).openConnection();
 				connection.setRequestProperty("Authorization", "Bearer " + TS3Bot.getInstance().getConfig().getApiTwitterBearerToken());
 				connection.setConnectTimeout(5000);
 				connection.connect();

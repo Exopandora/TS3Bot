@@ -1,11 +1,10 @@
 package net.kardexo.ts3bot.processors.url.impl;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import javax.net.ssl.HttpsURLConnection;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -52,7 +51,7 @@ public class TwitchURLProcessor implements IURLProcessor
 	
 	public static String twitchDetails(String user, boolean appendLink) throws IOException
 	{
-		HttpsURLConnection connection = (HttpsURLConnection) new URL(API_URL + user).openConnection();
+		HttpURLConnection connection = (HttpURLConnection) new URL(API_URL + user).openConnection();
 		
 		try
 		{

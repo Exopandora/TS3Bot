@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class GameServerManager extends Thread implements Closeable
 {
-	private static final String OS = System.getProperty("os.name").toLowerCase();
+	private static final String OS = String.valueOf(System.getProperty("os.name")).toLowerCase();
 	private static final Logger LOGGER = LogManager.getLogger(GameServerManager.class);
 	
 	private final ServerSocket server;
@@ -99,7 +99,7 @@ public class GameServerManager extends Thread implements Closeable
 		}
 	}
 	
-	public void startServer(String id) throws IOException
+	public int startServer(String id) throws IOException, InterruptedException
 	{
 		File file = this.servers.get(id);
 		StringBuilder command = new StringBuilder();
@@ -113,7 +113,7 @@ public class GameServerManager extends Thread implements Closeable
 			command.append(file.getAbsolutePath().replaceAll("[^\\] ", "\\ ") + " > nul 2>&1");
 		}
 		
-		Runtime.getRuntime().exec(command.toString(), null, file.getParentFile());
+		return new ProcessBuilder(command.toString()).directory(file.getParentFile()).inheritIO().start().waitFor();
 	}
 	
 	public void stopServer(String id)
