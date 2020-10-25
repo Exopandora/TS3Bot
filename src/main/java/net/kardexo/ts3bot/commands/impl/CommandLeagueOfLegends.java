@@ -5,6 +5,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Objects;
@@ -104,11 +105,20 @@ public class CommandLeagueOfLegends
 		
 		StringBuilder builder = new StringBuilder();
 		
+		Calendar calendar = Calendar.getInstance();
+		calendar.set(Calendar.HOUR_OF_DAY, 0);
+		calendar.set(Calendar.MINUTE, 0);
+		calendar.set(Calendar.SECOND, 0);
+		calendar.set(Calendar.MILLISECOND, 0);
+		
+		Date today = calendar.getTime();
+		
 		int wins = 0;
 		int totalKills = 0;
 		int totalDeaths = 0;
 		int totalAssists = 0;
 		long totalDuration = 0;
+		long playtimeToday = 0;
 		
 		for(int x = 0; x < history.size(); x++)
 		{
@@ -122,10 +132,11 @@ public class CommandLeagueOfLegends
 			int kills = stats.path("kills").asInt();
 			int deaths = stats.path("deaths").asInt();
 			int assists = stats.path("assists").asInt();
+			Date date = new Date(match.path("gameCreation").asLong());
 			
 			builder.append("\n[[color=" + (winner ? "green" : "#FF2345") + "]" + (x + 1) + "[/color]]");
 			builder.append(" " + match.path("gameMode").asText());
-			builder.append(" - " + DATE_FORMAT.format(new Date(match.path("gameCreation").asLong())));
+			builder.append(" - " + DATE_FORMAT.format(date));
 			builder.append(" - " + StringUtils.formatDuration(gameDuration));
 			builder.append(" - " + kills + "/" + deaths + "/" + assists);
 			builder.append(" - " + champion);
@@ -134,6 +145,11 @@ public class CommandLeagueOfLegends
 			totalDeaths += deaths;
 			totalAssists += assists;
 			totalDuration += gameDuration;
+			
+			if(!date.before(today))
+			{
+				playtimeToday += gameDuration;
+			}
 			
 			if(winner)
 			{
@@ -146,6 +162,7 @@ public class CommandLeagueOfLegends
 		builder.append("\nWinrate: " + Math.round(wins * 100 / matches) + "%");
 		builder.append(" - Average KAD: " + totalKills / matches + "/" + totalDeaths / matches + "/" + totalAssists / matches);
 		builder.append(" - Average Match Length: " + StringUtils.formatDuration((long) (totalDuration / matches)));
+		builder.append(" - Playtime Today: " + StringUtils.formatDuration(playtimeToday));
 		
 		context.getSource().sendFeedback(builder.toString());
 		
