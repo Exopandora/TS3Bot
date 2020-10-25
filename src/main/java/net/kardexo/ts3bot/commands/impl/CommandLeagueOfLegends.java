@@ -8,7 +8,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
-import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.StreamSupport;
 
@@ -42,6 +42,8 @@ public class CommandLeagueOfLegends
 	private static final String API_URL = "https://%s.api.riotgames.com/";
 	private static final String DDRAGON_API_URL = "https://ddragon.leagueoflegends.com/";
 	
+	private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+	
 	public static void register(CommandDispatcher<CommandSource> dispatcher)
 	{
 		dispatcher.register(Commands.literal("lol")
@@ -66,7 +68,7 @@ public class CommandLeagueOfLegends
 		{
 			if(x == participants.size() / 2)
 			{
-				builder.append("\n\t\t\t\t\t\t\t\t\tVS");
+				builder.append("\n" + StringUtils.repeat("\t", 8) + "VS");
 			}
 			
 			JsonNode participant = participants.get(x);
@@ -77,12 +79,12 @@ public class CommandLeagueOfLegends
 			{
 				String summonerId = CommandLeagueOfLegends.encodeSummonerName(participant.path("summonerId").asText());
 				
-				JsonNode league = CommandLeagueOfLegends.fetchLeague(summonerId, region);
-				builder.append(" - " + CommandLeagueOfLegends.getHighestRank(league));
+				JsonNode leagues = CommandLeagueOfLegends.fetchLeague(summonerId, region);
+				builder.append(" - " + CommandLeagueOfLegends.getHighestRank(leagues));
 				
 				try
 				{
-					JsonNode mastery = CommandLeagueOfLegends.fetchMasteryPoints(summonerId, participant.path("championId").asLong(), region);
+					JsonNode mastery = CommandLeagueOfLegends.fetchChampionMastery(summonerId, participant.path("championId").asLong(), region);
 					builder.append(" - Level " + mastery.path("championLevel").asInt() + ", " + mastery.path("championPoints").asInt() + " Points");
 				}
 				catch(CommandSyntaxException e)
@@ -173,7 +175,7 @@ public class CommandLeagueOfLegends
 	{
 		try
 		{
-			return new ObjectMapper().readTree(new URL(DDRAGON_API_URL + "api/versions.json")).get(0).asText();
+			return OBJECT_MAPPER.readTree(new URL(DDRAGON_API_URL + "api/versions.json")).get(0).asText();
 		}
 		catch(IOException e)
 		{
@@ -185,7 +187,7 @@ public class CommandLeagueOfLegends
 	{
 		try
 		{
-			return new ObjectMapper().readTree(new URL(DDRAGON_API_URL + "cdn/" + version + "/data/en_US/champion.json"));
+			return OBJECT_MAPPER.readTree(new URL(DDRAGON_API_URL + "cdn/" + version + "/data/en_US/champion.json"));
 		}
 		catch(IOException e)
 		{
@@ -211,13 +213,13 @@ public class CommandLeagueOfLegends
 		return null;
 	}
 	
-	private static JsonNode fetchMasteryPoints(String summonderId, long championId, Region region) throws CommandSyntaxException
+	private static JsonNode fetchChampionMastery(String summonderId, long championId, Region region) throws CommandSyntaxException
 	{
 		String query = region.getApiUrl() + "lol/champion-mastery/v4/champion-masteries/by-summoner/" + summonderId + "/by-champion/"+ championId + "?api_key=" + TS3Bot.getInstance().getConfig().getApiLeagueOfLegends();
 		
 		try
 		{
-			return new ObjectMapper().readTree(new URL(query));
+			return OBJECT_MAPPER.readTree(new URL(query));
 		}
 		catch(IOException e)
 		{
@@ -231,7 +233,7 @@ public class CommandLeagueOfLegends
 		
 		try
 		{
-			return new ObjectMapper().readTree(new URL(query));
+			return OBJECT_MAPPER.readTree(new URL(query));
 		}
 		catch(IOException e)
 		{
@@ -245,7 +247,7 @@ public class CommandLeagueOfLegends
 		
 		try
 		{
-			return new ObjectMapper().readTree(new URL(query));
+			return OBJECT_MAPPER.readTree(new URL(query));
 		}
 		catch(IOException e)
 		{
@@ -259,7 +261,7 @@ public class CommandLeagueOfLegends
 		
 		try
 		{
-			return new ObjectMapper().readTree(new URL(query));
+			return OBJECT_MAPPER.readTree(new URL(query));
 		}
 		catch(IOException e)
 		{
@@ -273,7 +275,7 @@ public class CommandLeagueOfLegends
 		
 		try
 		{
-			return new ObjectMapper().readTree(new URL(query));
+			return OBJECT_MAPPER.readTree(new URL(query));
 		}
 		catch(IOException e)
 		{
@@ -287,7 +289,7 @@ public class CommandLeagueOfLegends
 		
 		try
 		{
-			return new ObjectMapper().readTree(new URL(query));
+			return OBJECT_MAPPER.readTree(new URL(query));
 		}
 		catch(IOException e)
 		{
@@ -295,15 +297,28 @@ public class CommandLeagueOfLegends
 		}
 	}
 	
-	private static String getHighestRank(JsonNode league)
+	private static String getHighestRank(JsonNode leagues)
 	{
-		return StreamSupport.stream(league.spliterator(), false)
-			.map(node -> CommandLeagueOfLegends.trySupply(() -> new ObjectMapper().treeToValue(node, League.class)))
-			.filter(Objects::nonNull)
+		return StreamSupport.stream(leagues.spliterator(), false)
+			.map(CommandLeagueOfLegends::getRankFromLeague)
+			.filter(Optional::isPresent)
+			.map(Optional::get)
 			.sorted()
 			.findFirst()
 			.map(League::toString)
 			.orElse("Unranked");
+	}
+	
+	private static Optional<League> getRankFromLeague(JsonNode league)
+	{
+		try
+		{
+			return Optional.of(OBJECT_MAPPER.treeToValue(league, League.class));
+		}
+		catch(Throwable e)
+		{
+			return Optional.empty();
+		}
 	}
 	
 	private static int getParticinantId(JsonNode match, String summonerId)
@@ -349,18 +364,6 @@ public class CommandLeagueOfLegends
 		catch(UnsupportedEncodingException e)
 		{
 			throw ERROR_FETCHING_DATA.create();
-		}
-	}
-	
-	private static <T> T trySupply(ThrowableSupplier<T> supplier)
-	{
-		try
-		{
-			return supplier.get();
-		}
-		catch(Throwable e)
-		{
-			return null;
 		}
 	}
 	
@@ -605,10 +608,5 @@ public class CommandLeagueOfLegends
 		III,
 		IV,
 		V;
-	}
-	
-	public static interface ThrowableSupplier<T>
-	{
-		T get() throws Throwable;
 	}
 }
