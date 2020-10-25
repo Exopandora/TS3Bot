@@ -13,6 +13,7 @@ import net.kardexo.ts3bot.processors.url.IURLProcessor;
 
 public class DefaultURLProcessor implements IURLProcessor
 {
+	//Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:82.0) Gecko/20100101 Firefox/82.0
 	private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.246";
 	private static final String MIME_TYPE_TEXT_HTML = "text/html";
 	
