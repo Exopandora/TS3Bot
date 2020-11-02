@@ -5,11 +5,19 @@ import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -18,8 +26,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.MissingNode;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.LiteralMessage;
-import com.mojang.brigadier.StringReader;
-import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -43,6 +49,7 @@ public class CommandLeagueOfLegends
 	private static final String DDRAGON_API_URL = "https://ddragon.leagueoflegends.com/";
 	
 	private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+	private static final int MAX_RATING = Arrays.stream(Tier.VALUES).mapToInt(tier -> tier.hasRanks() ? Rank.VALUES.length : 1).sum();
 	
 	public static void register(CommandDispatcher<CommandSource> dispatcher)
 	{
@@ -63,39 +70,96 @@ public class CommandLeagueOfLegends
 		
 		StringBuilder builder = new StringBuilder();
 		JsonNode participants = match.path("participants");
+		Map<Integer, List<JsonNode>> teamsMap = new HashMap<Integer, List<JsonNode>>();
 		
 		for(int x = 0; x < participants.size(); x++)
 		{
-			if(x == participants.size() / 2)
+			JsonNode participant = participants.get(x);
+			List<JsonNode> team = teamsMap.computeIfAbsent(participant.path("teamId").asInt(), key -> new ArrayList<JsonNode>());
+			team.add(participant);
+		}
+		
+		List<Entry<Integer, List<JsonNode>>> teamsList = new ArrayList<Entry<Integer, List<JsonNode>>>(teamsMap.entrySet());
+		teamsList.sort((a, b) -> Integer.compare(a.getKey(), b.getKey()));
+		int[] teamRatings = new int[teamsList.size()];
+		
+		for(int x = 0; x < teamsList.size(); x++)
+		{
+			List<JsonNode> teamMembers = teamsList.get(x).getValue();
+			String color = x % 2 == 0 ? "blue" : "red";
+			
+			if(x > 0)
 			{
-				builder.append("\n" + StringUtils.repeat("\t", 8) + "VS");
+				builder.append("\n" + StringUtils.repeat("\t", 7) + "[b]VS[/b]");
 			}
 			
-			JsonNode participant = participants.get(x);
-			builder.append("\n[" + CommandLeagueOfLegends.getChampionById(participant.path("championId").asLong(), champions) + "]");
-			builder.append(" " + participant.path("summonerName").asText());
-			
-			if(!participant.path("bot").asBoolean())
+			if(!teamMembers.isEmpty())
 			{
-				String summonerId = CommandLeagueOfLegends.encodeSummonerName(participant.path("summonerId").asText());
+				int rankedTeamMembers = 0;
 				
-				JsonNode leagues = CommandLeagueOfLegends.fetchLeague(summonerId, region);
-				builder.append(" - " + CommandLeagueOfLegends.getHighestRank(leagues));
+				for(JsonNode participant : teamMembers)
+				{
+					builder.append("\n[[color=" + color + "]" + CommandLeagueOfLegends.getChampionById(participant.path("championId").asLong(), champions) + "[/color]]");
+					
+					String summonerName = participant.path("summonerName").asText();
+					
+					if(summonerName.equalsIgnoreCase(username))
+					{
+						builder.append(" [b]" + summonerName + "[/b]");
+					}
+					else
+					{
+						builder.append(" " + summonerName);
+					}
+					
+					if(!participant.path("bot").asBoolean())
+					{
+						String summonerId = CommandLeagueOfLegends.encodeSummonerName(participant.path("summonerId").asText());
+						JsonNode leagues = CommandLeagueOfLegends.fetchLeague(summonerId, region);
+						Optional<League> optional = CommandLeagueOfLegends.getHighestRank(leagues);
+						
+						if(optional.isPresent())
+						{
+							League league = optional.get();
+							teamRatings[x] += league.getRating();
+							rankedTeamMembers++;
+							builder.append(" - " + league.toString());
+						}
+						else
+						{
+							builder.append(" - Unranked");
+						}
+						
+						try
+						{
+							JsonNode mastery = CommandLeagueOfLegends.fetchChampionMastery(summonerId, participant.path("championId").asLong(), region);
+							builder.append(" - " + mastery.path("championPoints").asInt() + " (" + mastery.path("championLevel").asInt() + ")");
+						}
+						catch(CommandSyntaxException e)
+						{
+							builder.append(" - 0 (1)");
+						}
+					}
+				}
 				
-				try
-				{
-					JsonNode mastery = CommandLeagueOfLegends.fetchChampionMastery(summonerId, participant.path("championId").asLong(), region);
-					builder.append(" - Level " + mastery.path("championLevel").asInt() + ", " + mastery.path("championPoints").asInt() + " Points");
-				}
-				catch(CommandSyntaxException e)
-				{
-					builder.append(" - Level 1, 0 Points");
-				}
+				teamRatings[x] = Math.round((float) teamRatings[x] / (float) rankedTeamMembers);
+			}
+			else
+			{
+				builder.append("\nNone");
 			}
 		}
 		
-		context.getSource().sendFeedback(builder.toString());
+		String ranks = Arrays.stream(teamRatings)
+				.mapToObj(CommandLeagueOfLegends::ratingToLeague)
+				.map(league -> league.isPresent() ? league.get().toString() : "Unranked")
+				.collect(Collectors.joining(" - "));
 		
+		builder.append("\n" + match.path("gameMode").asText());
+		builder.append(" - " + StringUtils.formatDuration(match.path("gameLength").asLong()));
+		builder.append(" - Average Ranks: " + ranks);
+		
+		context.getSource().sendFeedback(builder.toString());
 		return participants.size();
 	}
 	
@@ -103,7 +167,7 @@ public class CommandLeagueOfLegends
 	{
 		JsonNode champions = CommandLeagueOfLegends.fetchChampions(CommandLeagueOfLegends.fetchVersion());
 		JsonNode summoner = CommandLeagueOfLegends.fetchSummoner(username, region);
-		JsonNode history = CommandLeagueOfLegends.fetchMatchHistory(summoner.path("accountId").asText(), region, 0, 10).path("matches");
+		JsonNode history = CommandLeagueOfLegends.fetchMatchHistory(summoner.path("accountId").asText(), region, 0, 15).path("matches");
 		
 		StringBuilder builder = new StringBuilder();
 		
@@ -162,7 +226,12 @@ public class CommandLeagueOfLegends
 		double matches = history.size();
 		
 		builder.append("\nWinrate: " + Math.round(wins * 100 / matches) + "%");
-		builder.append(" - Average KAD: " + totalKills / matches + "/" + totalDeaths / matches + "/" + totalAssists / matches);
+		
+		String kills = String.format(Locale.ENGLISH, "%.03f", totalKills / matches);
+		String deaths = String.format(Locale.ENGLISH, "%.03f", totalDeaths / matches);
+		String assists = String.format(Locale.ENGLISH, "%.03f", totalAssists / matches);
+		
+		builder.append(" - Average KDA: " + kills + "/" + deaths + "/" + assists);
 		builder.append(" - Average Match Length: " + StringUtils.formatDuration((long) (totalDuration / matches)));
 		builder.append(" - Playtime Today: " + StringUtils.formatDuration(playtimeToday));
 		
@@ -297,16 +366,14 @@ public class CommandLeagueOfLegends
 		}
 	}
 	
-	private static String getHighestRank(JsonNode leagues)
+	private static Optional<League> getHighestRank(JsonNode leagues)
 	{
 		return StreamSupport.stream(leagues.spliterator(), false)
 			.map(CommandLeagueOfLegends::getRankFromLeague)
 			.filter(Optional::isPresent)
 			.map(Optional::get)
 			.sorted()
-			.findFirst()
-			.map(League::toString)
-			.orElse("Unranked");
+			.findFirst();
 	}
 	
 	private static Optional<League> getRankFromLeague(JsonNode league)
@@ -367,6 +434,38 @@ public class CommandLeagueOfLegends
 		}
 	}
 	
+	private static Optional<League> ratingToLeague(int rating)
+	{
+		if(rating <= 0 || rating > MAX_RATING)
+		{
+			return Optional.empty();
+		}
+		
+		return Optional.of(CommandLeagueOfLegends.leagueFromRating(Tier.LOWEST, Rank.LOWEST, rating));
+	}
+	
+	private static League leagueFromRating(Tier tier, Rank rank, int rating)
+	{
+		if(rating == 1)
+		{
+			return new League(tier, rank);
+		}
+		
+		if(tier.hasRanks())
+		{
+			if(rating < Rank.VALUES.length + 1)
+			{
+				return new League(tier, Rank.VALUES[Rank.VALUES.length - rating]);
+			}
+			else
+			{
+				return CommandLeagueOfLegends.leagueFromRating(tier.next(), Rank.LOWEST, rating - 4);
+			}
+		}
+		
+		return CommandLeagueOfLegends.leagueFromRating(tier.next(), null, rating - 1);
+	}
+	
 	public static class League implements Comparable<League>
 	{
 		@JsonProperty("leagueId")
@@ -399,6 +498,12 @@ public class CommandLeagueOfLegends
 		public League()
 		{
 			super();
+		}
+		
+		public League(Tier tier, Rank rank)
+		{
+			this.tier = tier;
+			this.rank = rank;
 		}
 		
 		public UUID getLeagueId()
@@ -466,12 +571,17 @@ public class CommandLeagueOfLegends
 			return this.hotStreak;
 		}
 		
+		public int getRating()
+		{
+			return this.tier.rating(this.rank);
+		}
+		
 		@Override
 		public int compareTo(League league)
 		{
 			int tier = league.getTier().compareTo(this.tier);
 			
-			if(tier == 0)
+			if(tier == 0 && this.rank != null && league.getRank() != null)
 			{
 				return league.getRank().compareTo(this.rank);
 			}
@@ -482,7 +592,14 @@ public class CommandLeagueOfLegends
 		@Override
 		public String toString()
 		{
-			return this.tier.getName() + " " + this.rank;
+			StringBuilder builder = new StringBuilder(this.tier.getName());
+			
+			if(this.rank != null && this.tier.hasRanks())
+			{
+				builder.append(" " + this.rank);
+			}
+			
+			return builder.toString();
 		}
 	}
 	
@@ -537,27 +654,6 @@ public class CommandLeagueOfLegends
 		}
 	}
 	
-	public static class RegionArumentType implements ArgumentType<Region>
-	{
-		public static RegionArumentType region()
-		{
-			return new RegionArumentType();
-		}
-		
-		public static Region getRegion(CommandContext<?> context, String name)
-		{
-			return context.getArgument(name, Region.class);
-		}
-		
-		@Override
-		public Region parse(StringReader reader) throws CommandSyntaxException
-		{
-			reader.readUnquotedString();
-			
-			return null;
-		}
-	}
-	
 	public static enum Queue
 	{
 		RANKED_SOLO_5x5("Ranked Solo/Duo"),
@@ -578,26 +674,47 @@ public class CommandLeagueOfLegends
 	
 	public static enum Tier
 	{
-		IRON("Iron"),
-		BRONZE("Bronze"),
-		SILVER("Silver"),
-		GOLD("Gold"),
-		PLATINUM("Platinum"),
-		DIAMOND("Diamond"),
-		MASTER("Master"),
-		GRANDMASTER("Grandmaster"),
-		CHALLENGER("Challenger");
+		IRON("Iron", true),
+		BRONZE("Bronze", true),
+		SILVER("Silver", true),
+		GOLD("Gold", true),
+		PLATINUM("Platinum", true),
+		DIAMOND("Diamond", true),
+		MASTER("Master", false),
+		GRANDMASTER("Grandmaster", false),
+		CHALLENGER("Challenger", false);
+		
+		public static final Tier HIGHEST = Tier.CHALLENGER;
+		public static final Tier LOWEST = Tier.IRON;
+		public static final Tier[] VALUES = Tier.values();
 		
 		private final String name;
+		private final boolean hasRanks;
 		
-		private Tier(String name)
+		private Tier(String name, boolean hasRanks)
 		{
 			this.name = name;
+			this.hasRanks = hasRanks;
 		}
 		
 		public String getName()
 		{
 			return this.name;
+		}
+		
+		public boolean hasRanks()
+		{
+			return this.hasRanks;
+		}
+		
+		public int rating(Rank rank)
+		{
+			return (this.ordinal() > 0 ? VALUES[this.ordinal() - 1].rating(Rank.I) : 0) + (this.hasRanks ? rank.getRating() : 1);
+		}
+		
+		public Tier next()
+		{
+			return VALUES[(this.ordinal() + 1) % VALUES.length];
 		}
 	}
 	
@@ -606,7 +723,20 @@ public class CommandLeagueOfLegends
 		I,
 		II,
 		III,
-		IV,
-		V;
+		IV;
+		
+		public static final Rank HIGHEST = Rank.I;
+		public static final Rank LOWEST = Rank.IV;
+		public static final Rank[] VALUES = Rank.values();
+		
+		public int getRating()
+		{
+			return VALUES.length - this.ordinal();
+		}
+		
+		public Rank next()
+		{
+			return VALUES[(this.ordinal() + 1) % VALUES.length];
+		}
 	}
 }
