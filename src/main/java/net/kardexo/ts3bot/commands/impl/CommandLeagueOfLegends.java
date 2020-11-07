@@ -720,10 +720,10 @@ public class CommandLeagueOfLegends
 	
 	public static enum Rank
 	{
-		I,
-		II,
+		IV,
 		III,
-		IV;
+		II,
+		I;
 		
 		public static final Rank HIGHEST = Rank.I;
 		public static final Rank LOWEST = Rank.IV;
@@ -731,7 +731,7 @@ public class CommandLeagueOfLegends
 		
 		public int getRating()
 		{
-			return VALUES.length - this.ordinal();
+			return this.ordinal() + 1;
 		}
 		
 		public Rank next()
