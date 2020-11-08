@@ -209,7 +209,7 @@ public class TS3Bot extends TS3EventAdapter
 					}
 				}
 				
-				this.dispatcher.execute(reader, source);
+				this.dispatcher.execute(parse);
 			}
 			catch(CommandSyntaxException e)
 			{
