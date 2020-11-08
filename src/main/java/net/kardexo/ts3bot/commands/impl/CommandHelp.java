@@ -1,11 +1,18 @@
 package net.kardexo.ts3bot.commands.impl;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.LiteralMessage;
+import com.mojang.brigadier.ParseResults;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.context.ParsedCommandNode;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.tree.CommandNode;
 
 import net.kardexo.ts3bot.commands.CommandSource;
@@ -13,10 +20,14 @@ import net.kardexo.ts3bot.commands.Commands;
 
 public class CommandHelp
 {
+	private static final DynamicCommandExceptionType UNKNOWN_COMMAND = new DynamicCommandExceptionType(command -> new LiteralMessage("Unknown command " + command));
+	
 	public static void register(CommandDispatcher<CommandSource> dispatcher)
 	{
 		dispatcher.register(Commands.literal("help")
-				.executes(context -> help(context, dispatcher)));
+				.executes(context -> help(context, dispatcher))
+				.then(Commands.argument("command", StringArgumentType.greedyString())
+						.executes(context -> help(context, dispatcher, StringArgumentType.getString(context, "command")))));
 	}
 	
 	private static int help(CommandContext<CommandSource> context, CommandDispatcher<CommandSource> dispatcher) throws CommandSyntaxException
@@ -29,6 +40,40 @@ public class CommandHelp
 			if(command.getKey().canUse(context.getSource()))
 			{
 				builder.append("\n!" + command.getValue());
+			}
+		}
+		
+		context.getSource().sendFeedback(builder.toString());
+		return 0;
+	}
+	
+	private static int help(CommandContext<CommandSource> context, CommandDispatcher<CommandSource> dispatcher, String command) throws CommandSyntaxException
+	{
+		ParseResults<CommandSource> parse = dispatcher.parse(command, context.getSource());
+		
+		if(parse.getReader().canRead())
+		{
+			if(parse.getExceptions().size() == 1)
+			{
+				throw parse.getExceptions().values().iterator().next();
+			}
+			else if(parse.getContext().getRange().isEmpty())
+			{
+				throw UNKNOWN_COMMAND.create(command.split(" ")[0]);
+			}
+		}
+		
+		List<ParsedCommandNode<CommandSource>> nodes = parse.getContext().getLastChild().getNodes();
+		StringBuilder builder = new StringBuilder("Usage: !" + command);
+		
+		if(!nodes.isEmpty())
+		{
+			CommandNode<CommandSource> node = nodes.get(nodes.size() - 1).getNode();
+			String[] usage = dispatcher.getAllUsage(node, context.getSource(), true);
+			
+			if(usage.length > 0 && !usage[0].isEmpty())
+			{
+				builder.append(" " + Arrays.toString(usage));
 			}
 		}
 		
