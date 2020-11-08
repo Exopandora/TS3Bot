@@ -2,9 +2,11 @@ package net.kardexo.ts3bot;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -18,8 +20,11 @@ import com.github.theholywaffle.teamspeak3.api.event.TS3EventType;
 import com.github.theholywaffle.teamspeak3.api.event.TextMessageEvent;
 import com.github.theholywaffle.teamspeak3.api.wrapper.ClientInfo;
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.ParseResults;
 import com.mojang.brigadier.StringReader;
+import com.mojang.brigadier.context.ParsedCommandNode;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.tree.CommandNode;
 
 import net.kardexo.ts3bot.commands.CommandSource;
 import net.kardexo.ts3bot.commands.impl.CommandAmouranth;
@@ -188,13 +193,53 @@ public class TS3Bot extends TS3EventAdapter
 				return;
 			}
 			
+			ParseResults<CommandSource> parse = this.dispatcher.parse(reader, source);
+			
 			try
 			{
+				if(parse.getReader().canRead())
+				{
+					if(parse.getExceptions().size() == 1)
+					{
+						throw parse.getExceptions().values().iterator().next();
+					}
+					else if(parse.getContext().getRange().isEmpty())
+					{
+						throw CommandSyntaxException.BUILT_IN_EXCEPTIONS.dispatcherUnknownCommand().createWithContext(parse.getReader());
+					}
+				}
+				
 				this.dispatcher.execute(reader, source);
 			}
 			catch(CommandSyntaxException e)
 			{
-				this.api.sendTextMessage(event.getTargetMode(), event.getInvokerId(), e.getMessage());
+				if(e.getCursor() != -1)
+				{
+					List<ParsedCommandNode<CommandSource>> nodes = parse.getContext().getLastChild().getNodes();
+					
+					if(nodes.isEmpty())
+					{
+						this.api.sendTextMessage(event.getTargetMode(), event.getInvokerId(), e.getMessage());
+					}
+					else
+					{
+						CommandNode<CommandSource> lastNode = nodes.get(nodes.size() - 1).getNode();
+						String command = nodes.stream().map(node -> node.getNode().getName()).collect(Collectors.joining(" "));
+						String[] usage = this.dispatcher.getAllUsage(lastNode, source, true);
+						StringBuilder builder = new StringBuilder();
+						
+						if(usage.length > 0 && !usage[0].isEmpty())
+						{
+							builder.append(" " + Arrays.toString(usage));
+						}
+						
+						this.api.sendTextMessage(event.getTargetMode(), event.getInvokerId(), "Usage: !" + command + builder.toString());
+					}
+				}
+				else
+				{
+					this.api.sendTextMessage(event.getTargetMode(), event.getInvokerId(), e.getMessage());
+				}
 			}
 		}
 		else if(event.getTargetMode().equals(TextMessageTargetMode.CHANNEL))
