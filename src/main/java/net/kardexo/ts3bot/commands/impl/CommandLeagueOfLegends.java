@@ -579,14 +579,12 @@ public class CommandLeagueOfLegends
 		@Override
 		public int compareTo(League league)
 		{
-			int tier = league.getTier().compareTo(this.tier);
-			
-			if(tier == 0 && this.rank != null && league.getRank() != null)
+			if(this.queueType != null && league != null && league.getQueueType() != null)
 			{
-				return league.getRank().compareTo(this.rank);
+				return this.queueType.compareTo(league.getQueueType());
 			}
 			
-			return tier;
+			return 0;
 		}
 		
 		@Override
