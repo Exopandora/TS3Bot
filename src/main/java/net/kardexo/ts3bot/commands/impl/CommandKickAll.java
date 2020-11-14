@@ -25,15 +25,26 @@ public class CommandKickAll
 	
 	private static int kick(CommandContext<CommandSource> context) throws CommandSyntaxException
 	{
-		List<Client> clients = TS3Bot.getInstance().getApi().getClients();
-		TS3Bot.getInstance().getApi().kickClientFromServer((Client[]) clients.toArray());
-		return clients.size();
+		Client[] clients = CommandKickAll.getClients();
+		TS3Bot.getInstance().getApi().kickClientFromServer(clients);
+		return clients.length;
 	}
 	
 	private static int kick(CommandContext<CommandSource> context, String message) throws CommandSyntaxException
 	{
-		List<Client> clients = TS3Bot.getInstance().getApi().getClients();
-		TS3Bot.getInstance().getApi().kickClientFromServer(message, (Client[]) clients.toArray());
-		return clients.size();
+		Client[] clients = CommandKickAll.getClients();
+		TS3Bot.getInstance().getApi().kickClientFromServer(message, clients);
+		return clients.length;
+	}
+	
+	private static Client[] getClients()
+	{
+		List<Client> list = TS3Bot.getInstance().getApi().getClients();
+		list.removeIf(client -> client.getId() == TS3Bot.getInstance().getId());
+		
+		Client[] clients = new Client[list.size()];
+		list.toArray(clients);
+		
+		return clients;
 	}
 }
