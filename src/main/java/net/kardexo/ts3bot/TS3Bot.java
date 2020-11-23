@@ -182,7 +182,14 @@ public class TS3Bot extends TS3EventAdapter
 			return;
 		}
 		
-		StringReader reader = new StringReader(event.getMessage());
+		String message = event.getMessage().strip();
+		
+		if(message.isEmpty())
+		{
+			return;
+		}
+		
+		StringReader reader = new StringReader(message);
 		
 		if(reader.canRead() && reader.peek() == '!')
 		{
