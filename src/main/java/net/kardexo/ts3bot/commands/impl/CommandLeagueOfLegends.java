@@ -150,13 +150,15 @@ public class CommandLeagueOfLegends
 			}
 		}
 		
+		String gameMode = match.path("gameMode").asText();
 		String ranks = Arrays.stream(teamRatings)
 				.mapToObj(CommandLeagueOfLegends::ratingToLeague)
 				.map(league -> league.isPresent() ? league.get().toString() : "Unranked")
 				.collect(Collectors.joining(" - "));
+		long gameLength = match.path("gameLength").asLong();
 		
-		builder.append("\n" + match.path("gameMode").asText());
-		builder.append(" - " + StringUtils.formatDuration(match.path("gameLength").asLong()));
+		builder.append("\n" + gameMode);
+		builder.append(" - " + (gameLength < 0 ? "Loading Screen" : StringUtils.formatDuration(gameLength)));
 		builder.append(" - Average Ranks: " + ranks);
 		
 		context.getSource().sendFeedback(builder.toString());
