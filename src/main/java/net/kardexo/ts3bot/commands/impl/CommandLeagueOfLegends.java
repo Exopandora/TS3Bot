@@ -41,6 +41,7 @@ public class CommandLeagueOfLegends
 {
 	private static final DynamicCommandExceptionType SUMMONER_NOT_FOUND = new DynamicCommandExceptionType(summoner -> new LiteralMessage("Could not find summoner " + summoner));
 	private static final DynamicCommandExceptionType SUMMONER_NOT_IN_GAME = new DynamicCommandExceptionType(summoner -> new LiteralMessage(summoner + " is currently not in an active game"));
+	private static final DynamicCommandExceptionType CHAMPION_NOT_FOUND = new DynamicCommandExceptionType(champion -> new LiteralMessage("Could not find champion " + champion));
 	private static final SimpleCommandExceptionType ERROR_FETCHING_DATA = new SimpleCommandExceptionType(new LiteralMessage("Error fetching data"));
 	
 	private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd.MM");
@@ -56,13 +57,16 @@ public class CommandLeagueOfLegends
 		dispatcher.register(Commands.literal("lol")
 				.then(Commands.literal("match")
 						.then(Commands.argument("summoner", StringArgumentType.greedyString())
-								.executes(context -> match(context, dispatcher, StringArgumentType.getString(context, "summoner"), TS3Bot.getInstance().getConfig().getLoLRegion()))))
+								.executes(context -> match(context, StringArgumentType.getString(context, "summoner"), TS3Bot.getInstance().getConfig().getLoLRegion()))))
 				.then(Commands.literal("history")
 						.then(Commands.argument("summoner", StringArgumentType.greedyString())
-								.executes(context -> history(context, dispatcher, StringArgumentType.getString(context, "summoner"), TS3Bot.getInstance().getConfig().getLoLRegion())))));
+								.executes(context -> history(context, StringArgumentType.getString(context, "summoner"), TS3Bot.getInstance().getConfig().getLoLRegion()))))
+				.then(Commands.literal("lore")
+						.then(Commands.argument("champion", StringArgumentType.greedyString())
+								.executes(context -> lore(context, StringArgumentType.getString(context, "champion"))))));
 	}
 	
-	private static int match(CommandContext<CommandSource> context, CommandDispatcher<CommandSource> dispatcher, String username, Region region) throws CommandSyntaxException
+	private static int match(CommandContext<CommandSource> context, String username, Region region) throws CommandSyntaxException
 	{
 		JsonNode champions = CommandLeagueOfLegends.fetchChampions(CommandLeagueOfLegends.fetchVersion());
 		JsonNode summoner = CommandLeagueOfLegends.fetchSummoner(username, region);
@@ -165,7 +169,7 @@ public class CommandLeagueOfLegends
 		return participants.size();
 	}
 	
-	private static int history(CommandContext<CommandSource> context, CommandDispatcher<CommandSource> dispatcher, String username, Region region) throws CommandSyntaxException
+	private static int history(CommandContext<CommandSource> context, String username, Region region) throws CommandSyntaxException
 	{
 		JsonNode champions = CommandLeagueOfLegends.fetchChampions(CommandLeagueOfLegends.fetchVersion());
 		JsonNode summoner = CommandLeagueOfLegends.fetchSummoner(username, region);
@@ -242,6 +246,32 @@ public class CommandLeagueOfLegends
 		return wins;
 	}
 	
+	private static int lore(CommandContext<CommandSource> context, String champion) throws CommandSyntaxException
+	{
+		String version = CommandLeagueOfLegends.fetchVersion();
+		Iterator<JsonNode> iterator = CommandLeagueOfLegends.fetchChampions(version).path("data").iterator();
+		
+		while(iterator.hasNext())
+		{
+			JsonNode entry = iterator.next();
+			String name = entry.path("name").asText();
+			
+			if(name.replaceAll("[^A-Z a-z]", "").equalsIgnoreCase(champion))
+			{
+				JsonNode champ = CommandLeagueOfLegends.fetchChampion(version, name).path("data").path(name);
+				StringBuilder builder = new StringBuilder();
+				
+				builder.append("\n" + champ.path("name").asText() + " - " + champ.path("title").asText());
+				builder.append("\n" + champ.path("lore").asText());
+				
+				context.getSource().sendFeedback(builder.toString());
+				return champ.path("key").asInt();
+			}
+		}
+		
+		throw CHAMPION_NOT_FOUND.create(champion);
+	}
+	
 	private static String fetchVersion() throws CommandSyntaxException
 	{
 		try
@@ -263,6 +293,18 @@ public class CommandLeagueOfLegends
 		catch(IOException e)
 		{
 			throw ERROR_FETCHING_DATA.create();
+		}
+	}
+	
+	private static JsonNode fetchChampion(String version, String champion) throws CommandSyntaxException
+	{
+		try
+		{
+			return OBJECT_MAPPER.readTree(new URL(DDRAGON_API_URL + "cdn/" + version + "/data/en_US/champion/" + champion + ".json"));
+		}
+		catch(IOException e)
+		{
+			throw CHAMPION_NOT_FOUND.create(champion);
 		}
 	}
 	
