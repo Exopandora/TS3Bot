@@ -250,6 +250,7 @@ public class CommandLeagueOfLegends
 	
 	private static int lore(CommandContext<CommandSource> context, String champion) throws CommandSyntaxException
 	{
+		String normal = CommandLeagueOfLegends.normalizeChampion(champion);
 		String version = CommandLeagueOfLegends.fetchVersion();
 		Iterator<JsonNode> iterator = CommandLeagueOfLegends.fetchChampions(version).path("data").iterator();
 		
@@ -258,12 +259,12 @@ public class CommandLeagueOfLegends
 			JsonNode entry = iterator.next();
 			String name = entry.path("name").asText();
 			
-			if(name.replaceAll("[^A-Z a-z]", "").equalsIgnoreCase(champion))
+			if(CommandLeagueOfLegends.normalizeChampion(name).equals(normal))
 			{
 				JsonNode champ = CommandLeagueOfLegends.fetchChampion(version, name).path("data").path(name);
 				StringBuilder builder = new StringBuilder();
 				
-				builder.append("\n" + champ.path("name").asText() + " - " + champ.path("title").asText());
+				builder.append("\n" + champ.path("name").asText() + " " + champ.path("title").asText());
 				builder.append("\n" + champ.path("lore").asText());
 				
 				context.getSource().sendFeedback(builder.toString());
@@ -272,6 +273,11 @@ public class CommandLeagueOfLegends
 		}
 		
 		throw CHAMPION_NOT_FOUND.create(champion);
+	}
+	
+	private static String normalizeChampion(String champion)
+	{
+		return champion.replaceAll("[^A-Za-z]", "").toLowerCase();
 	}
 	
 	private static String fetchVersion() throws CommandSyntaxException
