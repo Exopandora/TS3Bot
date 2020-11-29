@@ -256,12 +256,12 @@ public class CommandLeagueOfLegends
 		
 		while(iterator.hasNext())
 		{
-			JsonNode entry = iterator.next();
-			String name = entry.path("name").asText();
+			JsonNode node = iterator.next();
 			
-			if(CommandLeagueOfLegends.normalizeChampion(name).equals(normal))
+			if(CommandLeagueOfLegends.normalizeChampion(node.path("name").asText()).equals(normal))
 			{
-				JsonNode champ = CommandLeagueOfLegends.fetchChampion(version, name).path("data").path(name);
+				String id = node.path("id").asText();
+				JsonNode champ = CommandLeagueOfLegends.fetchChampion(version, id).path("data").path(id);
 				StringBuilder builder = new StringBuilder();
 				
 				builder.append("\n" + champ.path("name").asText() + " " + champ.path("title").asText());
