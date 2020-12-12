@@ -12,15 +12,19 @@ public class Config
 {
 	@JsonProperty("host_address")
 	private String hostAddress;
-	@JsonProperty("login_name")
-	private String loginName;
-	@JsonProperty("login_password")
-	private String loginPassword;
+	@JsonProperty("host_port")
+	private int hostPort;
+	@JsonProperty("identity")
+	private String identity;
+	@JsonProperty("nickname")
+	private String nickname;
+	@JsonProperty("server_password")
+	private String serverPassword;
 	@JsonProperty("channel_name")
 	private String channelName;
+	@JsonProperty("channel_password")
+	private String channelPassword;
 	
-	@JsonProperty("virtual_server_id")
-	private int virtualServerId;
 	@JsonProperty("chat_history_size")
 	private int chatHistorySize;
 	
@@ -58,14 +62,24 @@ public class Config
 		return this.hostAddress;
 	}
 	
-	public String getLoginName()
+	public int getHostPort()
 	{
-		return this.loginName;
+		return this.hostPort;
 	}
 	
-	public String getLoginPassword()
+	public String getIdentity()
 	{
-		return this.loginPassword;
+		return this.identity;
+	}
+	
+	public String getNickname()
+	{
+		return this.nickname;
+	}
+	
+	public String getServerPassword()
+	{
+		return this.serverPassword;
 	}
 	
 	public String getChannelName()
@@ -73,9 +87,9 @@ public class Config
 		return this.channelName;
 	}
 	
-	public int getVirtualServerId()
+	public String getChannelPassword()
 	{
-		return this.virtualServerId;
+		return this.channelPassword;
 	}
 	
 	public int getChatHistorySize()

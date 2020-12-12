@@ -17,6 +17,7 @@ import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import net.kardexo.ts3bot.TS3Bot;
 import net.kardexo.ts3bot.commands.CommandSource;
 import net.kardexo.ts3bot.commands.Commands;
+import net.kardexo.ts3bot.util.TS3Utils;
 
 public class CommandTeams
 {
@@ -34,8 +35,8 @@ public class CommandTeams
 	
 	private static int teams(CommandContext<CommandSource> context, int teamCount) throws CommandSyntaxException
 	{
-		return teams(context, teamCount, TS3Bot.getInstance().getApi().getClients().stream()
-				.filter(client -> client.getChannelId() == context.getSource().getClientInfo().getChannelId() && client.getId() != TS3Bot.getInstance().getId())
+		return teams(context, teamCount, TS3Utils.getClients().stream()
+				.filter(client -> client.getChannelId() == context.getSource().getClient().getChannelId())
 				.map(client -> client.getNickname())
 				.collect(Collectors.toList()));
 	}

@@ -1,10 +1,9 @@
 package net.kardexo.ts3bot.processors.message;
 
-import com.github.theholywaffle.teamspeak3.TS3Api;
-import com.github.theholywaffle.teamspeak3.api.TextMessageTargetMode;
-import com.github.theholywaffle.teamspeak3.api.wrapper.ClientInfo;
+import com.github.manevolent.ts3j.api.Client;
+import com.github.manevolent.ts3j.api.TextMessageTargetMode;
 
 public interface IMessageProcessor
 {
-	boolean onMessage(String message, TS3Api api, ClientInfo clientInfo, TextMessageTargetMode target);
+	boolean onMessage(String message, Client invoker, TextMessageTargetMode target);
 }

@@ -56,11 +56,11 @@ public class CommandLeagueOfLegends
 	{
 		dispatcher.register(Commands.literal("lol")
 				.then(Commands.literal("match")
-						.executes(context -> match(context, context.getSource().getClientInfo().getNickname(), TS3Bot.getInstance().getConfig().getLoLRegion()))
+						.executes(context -> match(context, context.getSource().getClient().getNickname(), TS3Bot.getInstance().getConfig().getLoLRegion()))
 						.then(Commands.argument("summoner", StringArgumentType.greedyString())
 								.executes(context -> match(context, StringArgumentType.getString(context, "summoner"), TS3Bot.getInstance().getConfig().getLoLRegion()))))
 				.then(Commands.literal("history")
-						.executes(context -> history(context, context.getSource().getClientInfo().getNickname(), TS3Bot.getInstance().getConfig().getLoLRegion()))
+						.executes(context -> history(context, context.getSource().getClient().getNickname(), TS3Bot.getInstance().getConfig().getLoLRegion()))
 						.then(Commands.argument("summoner", StringArgumentType.greedyString())
 								.executes(context -> history(context, StringArgumentType.getString(context, "summoner"), TS3Bot.getInstance().getConfig().getLoLRegion()))))
 				.then(Commands.literal("lore")
@@ -242,7 +242,7 @@ public class CommandLeagueOfLegends
 		builder.append(" - Average KDA: " + kills + "/" + deaths + "/" + assists);
 		builder.append(" - Average Match Length: " + StringUtils.formatDuration((long) (totalDuration / matches)));
 		builder.append(" - Playtime Today: " + StringUtils.formatDuration(playtimeToday));
-		
+		System.out.println(builder.toString());
 		context.getSource().sendFeedback(builder.toString());
 		
 		return wins;

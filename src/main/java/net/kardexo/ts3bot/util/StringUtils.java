@@ -27,4 +27,9 @@ public class StringUtils
 		
 		return builder.toString();
 	}
+	
+	public static String emptyToNull(String string)
+	{
+		return string != null && !string.isEmpty() ? string : null;
+	}
 }

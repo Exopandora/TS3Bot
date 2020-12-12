@@ -3,9 +3,8 @@ package net.kardexo.ts3bot.processors.message.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.github.theholywaffle.teamspeak3.TS3Api;
-import com.github.theholywaffle.teamspeak3.api.TextMessageTargetMode;
-import com.github.theholywaffle.teamspeak3.api.wrapper.ClientInfo;
+import com.github.manevolent.ts3j.api.Client;
+import com.github.manevolent.ts3j.api.TextMessageTargetMode;
 
 import net.kardexo.ts3bot.processors.message.IMessageProcessor;
 import net.kardexo.ts3bot.processors.url.IURLProcessor;
@@ -15,6 +14,7 @@ import net.kardexo.ts3bot.processors.url.impl.TwitchURLProcessor;
 import net.kardexo.ts3bot.processors.url.impl.TwitterURLProcessor;
 import net.kardexo.ts3bot.processors.url.impl.Watch2GetherURLProcessor;
 import net.kardexo.ts3bot.processors.url.impl.YouTubeURLProcessor;
+import net.kardexo.ts3bot.util.TS3Utils;
 import net.kardexo.ts3bot.util.URLs;
 
 public class URLProcessor implements IMessageProcessor
@@ -32,7 +32,7 @@ public class URLProcessor implements IMessageProcessor
 	}
 	
 	@Override
-	public boolean onMessage(String message, TS3Api api, ClientInfo clientInfo, TextMessageTargetMode target)
+	public boolean onMessage(String message, Client invoker, TextMessageTargetMode target)
 	{
 		String url = URLs.extract(message);
 		
@@ -40,19 +40,19 @@ public class URLProcessor implements IMessageProcessor
 		{
 			for(IURLProcessor processor : URL_PROCESSORS)
 			{
-				if(this.process(processor, url, api, clientInfo, target))
+				if(this.process(processor, url, invoker, target))
 				{
 					return true;
 				}
 			}
 			
-			return this.process(DEFAULT_URL_PROCESSOR, url, api, clientInfo, target);
+			return this.process(DEFAULT_URL_PROCESSOR, url, invoker, target);
 		}
 		
 		return false;
 	}
 	
-	private boolean process(IURLProcessor processor, String url, TS3Api api, ClientInfo clientInfo, TextMessageTargetMode target)
+	private boolean process(IURLProcessor processor, String url, Client invoker, TextMessageTargetMode target)
 	{
 		if(processor.isApplicable(url))
 		{
@@ -62,7 +62,7 @@ public class URLProcessor implements IMessageProcessor
 			{
 				if(!response.isEmpty())
 				{
-					api.sendTextMessage(target, clientInfo.getId(), response);
+					TS3Utils.sendMessage(target, invoker, response);
 				}
 				
 				return true;

@@ -1,16 +1,13 @@
 package net.kardexo.ts3bot.commands.impl;
 
-import java.util.List;
-
-import com.github.theholywaffle.teamspeak3.api.wrapper.Client;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
-import net.kardexo.ts3bot.TS3Bot;
 import net.kardexo.ts3bot.commands.CommandSource;
 import net.kardexo.ts3bot.commands.Commands;
+import net.kardexo.ts3bot.util.TS3Utils;
 
 public class CommandKickAll
 {
@@ -25,26 +22,11 @@ public class CommandKickAll
 	
 	private static int kick(CommandContext<CommandSource> context) throws CommandSyntaxException
 	{
-		Client[] clients = CommandKickAll.getClients();
-		TS3Bot.getInstance().getApi().kickClientFromServer(clients);
-		return clients.length;
+		return CommandKickAll.kick(context, "");
 	}
 	
 	private static int kick(CommandContext<CommandSource> context, String message) throws CommandSyntaxException
 	{
-		Client[] clients = CommandKickAll.getClients();
-		TS3Bot.getInstance().getApi().kickClientFromServer(message, clients);
-		return clients.length;
-	}
-	
-	private static Client[] getClients()
-	{
-		List<Client> list = TS3Bot.getInstance().getApi().getClients();
-		list.removeIf(client -> client.getId() == TS3Bot.getInstance().getId());
-		
-		Client[] clients = new Client[list.size()];
-		list.toArray(clients);
-		
-		return clients;
+		return TS3Utils.kick(client -> true, message);
 	}
 }

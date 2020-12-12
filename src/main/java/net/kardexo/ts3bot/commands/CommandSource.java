@@ -3,26 +3,26 @@ package net.kardexo.ts3bot.commands;
 import java.util.Iterator;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.github.theholywaffle.teamspeak3.TS3Api;
-import com.github.theholywaffle.teamspeak3.api.TextMessageTargetMode;
-import com.github.theholywaffle.teamspeak3.api.wrapper.ClientInfo;
+import com.github.manevolent.ts3j.api.Client;
+import com.github.manevolent.ts3j.api.TextMessageTargetMode;
 
 import net.kardexo.ts3bot.TS3Bot;
+import net.kardexo.ts3bot.util.TS3Utils;
 
 public class CommandSource
 {
-	private final ClientInfo clientInfo;
+	private final Client client;
 	private final TextMessageTargetMode target;
 	
-	public CommandSource(TS3Api api, ClientInfo clientInfo, TextMessageTargetMode target)
+	public CommandSource(Client client, TextMessageTargetMode target)
 	{
-		this.clientInfo = clientInfo;
+		this.client = client;
 		this.target = target;
 	}
 	
-	public ClientInfo getClientInfo()
+	public Client getClient()
 	{
-		return this.clientInfo;
+		return this.client;
 	}
 	
 	public TextMessageTargetMode getTarget()
@@ -32,12 +32,12 @@ public class CommandSource
 	
 	public void sendFeedback(String message)
 	{
-		TS3Bot.getInstance().getApi().sendTextMessage(this.target, this.getClientInfo().getId(), message);
+		TS3Utils.sendMessage(this.target, this.client, message);
 	}
 	
 	public void sendPrivateMessage(String message)
 	{
-		TS3Bot.getInstance().getApi().sendPrivateMessage(this.getClientInfo().getId(), message);
+		TS3Utils.sendMessage(TextMessageTargetMode.CLIENT, this.client, message);
 	}
 	
 	public boolean hasPermission(String permission)
@@ -46,7 +46,7 @@ public class CommandSource
 		
 		if(group != null)
 		{
-			String uid = this.getClientInfo().getUniqueIdentifier();
+			String uid = this.client.getUniqueIdentifier();
 			Iterator<JsonNode> iterator = group.iterator();
 			
 			while(iterator.hasNext())

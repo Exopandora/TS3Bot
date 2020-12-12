@@ -1,24 +1,30 @@
 package net.kardexo.ts3bot;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 import java.util.Scanner;
+import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.github.theholywaffle.teamspeak3.TS3Api;
-import com.github.theholywaffle.teamspeak3.TS3Config;
-import com.github.theholywaffle.teamspeak3.TS3Query;
-import com.github.theholywaffle.teamspeak3.api.TextMessageTargetMode;
-import com.github.theholywaffle.teamspeak3.api.event.TS3EventAdapter;
-import com.github.theholywaffle.teamspeak3.api.event.TS3EventType;
-import com.github.theholywaffle.teamspeak3.api.event.TextMessageEvent;
-import com.github.theholywaffle.teamspeak3.api.wrapper.ClientInfo;
+import com.github.manevolent.ts3j.api.Channel;
+import com.github.manevolent.ts3j.api.Client;
+import com.github.manevolent.ts3j.api.TextMessageTargetMode;
+import com.github.manevolent.ts3j.command.CommandException;
+import com.github.manevolent.ts3j.event.ClientJoinEvent;
+import com.github.manevolent.ts3j.event.TS3Listener;
+import com.github.manevolent.ts3j.event.TextMessageEvent;
+import com.github.manevolent.ts3j.identity.LocalIdentity;
+import com.github.manevolent.ts3j.protocol.socket.client.LocalTeamspeakClientSocket;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.ParseResults;
 import com.mojang.brigadier.StringReader;
@@ -47,8 +53,10 @@ import net.kardexo.ts3bot.gameservers.GameServerManager;
 import net.kardexo.ts3bot.processors.message.IMessageProcessor;
 import net.kardexo.ts3bot.processors.message.impl.URLProcessor;
 import net.kardexo.ts3bot.util.ChatHistory;
+import net.kardexo.ts3bot.util.StringUtils;
+import net.kardexo.ts3bot.util.TS3Utils;
 
-public class TS3Bot extends TS3EventAdapter
+public class TS3Bot implements TS3Listener
 {
 	public static final Random RANDOM = new Random();
 	
@@ -61,8 +69,7 @@ public class TS3Bot extends TS3EventAdapter
 	private final CommandDispatcher<CommandSource> dispatcher = new CommandDispatcher<CommandSource>();
 	private final List<IMessageProcessor> messageProcessors = new ArrayList<IMessageProcessor>();
 	private final GameServerManager gameserverManager;
-	private TS3Query query;
-	private TS3Api api;
+	private LocalTeamspeakClientSocket client;
 	private boolean silent;
 	
 	public TS3Bot(Config config) throws IOException
@@ -73,13 +80,19 @@ public class TS3Bot extends TS3EventAdapter
 		this.gameserverManager = new GameServerManager(this.config.getGameservers());
 	}
 	
-	public void start() throws InterruptedException
+	public void start() throws InterruptedException, IOException, TimeoutException, CommandException
 	{
 		Runtime.getRuntime().addShutdownHook(new Thread(this::exit));
-		TS3Config config = new TS3Config().setHost(this.config.getHostAddress());
 		
-		this.query = new TS3Query(config);
+		this.registerCommands();
+		this.registerMessageProcessors();
+		
 		this.gameserverManager.start();
+		
+		this.client = new LocalTeamspeakClientSocket();
+		this.client.setIdentity(LocalIdentity.read(new File(this.config.getIdentity())));
+		this.client.addListener(this);
+		this.client.setNickname(this.config.getNickname());
 		
 		while(!this.connect())
 		{
@@ -88,24 +101,8 @@ public class TS3Bot extends TS3EventAdapter
 		
 		TS3Bot.LOGGER.info("Connected to " + this.config.getHostAddress());
 		
-		this.registerCommands();
-		this.registerMessageProcessors();
-		this.api = this.query.getApi();
-		
-		while(!this.login())
-		{
-			Thread.sleep(10000);
-		}
-		
-		TS3Bot.LOGGER.info("Logged in as " + this.config.getLoginName());
-		
-		this.api.selectVirtualServerById(this.config.getVirtualServerId(), this.config.getLoginName());
-		this.id = this.api.whoAmI().getId();
-		this.api.moveClient(this.id, this.api.getChannelByNameExact(this.config.getChannelName(), true).getId());
-		this.api.registerEvent(TS3EventType.TEXT_CHANNEL);
-		this.api.registerEvent(TS3EventType.TEXT_PRIVATE);
-		this.api.registerEvent(TS3EventType.TEXT_SERVER);
-		this.api.addTS3Listeners(this);
+		this.id = this.client.getClientId();
+		this.client.subscribeAll();
 		
 		Scanner scanner = new Scanner(System.in);
 		
@@ -126,26 +123,13 @@ public class TS3Bot extends TS3EventAdapter
 	{
 		try
 		{
-			this.query.connect();
+			InetSocketAddress address = new InetSocketAddress(InetAddress.getByName(this.config.getHostAddress()), this.config.getHostPort());
+			this.client.connect(address, StringUtils.emptyToNull(this.config.getServerPassword()), 10000L);
 			return true;
 		}
 		catch(Exception e)
 		{
 			TS3Bot.LOGGER.error("Connection failed");
-			return false;
-		}
-	}
-	
-	private boolean login()
-	{
-		try
-		{
-			this.api.login(this.config.getLoginName(), this.config.getLoginPassword());
-			return true;
-		}
-		catch(Exception e)
-		{
-			TS3Bot.LOGGER.error("Login failed");
 			return false;
 		}
 	}
@@ -189,13 +173,20 @@ public class TS3Bot extends TS3EventAdapter
 			return;
 		}
 		
+		Optional<Client> client = TS3Utils.findClientById(event.getInvokerId());
+		
+		if(client.isEmpty())
+		{
+			return;
+		}
+		
 		StringReader reader = new StringReader(message);
 		
 		if(reader.canRead() && reader.peek() == '!')
 		{
 			reader.skip();
 			
-			CommandSource source = new CommandSource(this.api, this.api.getClientInfo(event.getInvokerId()), event.getTargetMode());
+			CommandSource source = new CommandSource(client.get(), event.getTargetMode());
 			
 			if(this.silent && !source.hasPermission("admin"))
 			{
@@ -228,7 +219,7 @@ public class TS3Bot extends TS3EventAdapter
 					
 					if(nodes.isEmpty())
 					{
-						this.api.sendTextMessage(event.getTargetMode(), event.getInvokerId(), e.getMessage());
+						TS3Utils.sendMessage(event.getTargetMode(), client.get(), e.getMessage());
 					}
 					else
 					{
@@ -242,43 +233,60 @@ public class TS3Bot extends TS3EventAdapter
 							builder.append(" " + Arrays.toString(usage));
 						}
 						
-						this.api.sendTextMessage(event.getTargetMode(), event.getInvokerId(), "Usage: !" + command + builder.toString());
+						TS3Utils.sendMessage(event.getTargetMode(), client.get(), "Usage: !" + command + builder.toString());
 					}
 				}
 				else
 				{
-					this.api.sendTextMessage(event.getTargetMode(), event.getInvokerId(), e.getMessage());
+					TS3Utils.sendMessage(event.getTargetMode(), client.get(), e.getMessage());
 				}
 			}
 		}
 		else if(event.getTargetMode().equals(TextMessageTargetMode.CHANNEL))
 		{
-			ClientInfo info = this.api.getClientInfo(event.getInvokerId());
-			
 			if(this.history.appendAndCheckIfNew(reader.getString(), 10000))
 			{
 				for(IMessageProcessor processor : this.messageProcessors)
 				{
-					if(processor.onMessage(reader.getString(), this.api, info, event.getTargetMode()))
+					if(processor.onMessage(reader.getString(), client.get(), event.getTargetMode()))
 					{
 						break;
 					}
 				}
 			}
 		}
+		
+		TS3Utils.sendMessage(event.getTargetMode(), client.get(), event.getMessage());
+	}
+	
+	@Override
+	public void onClientJoin(ClientJoinEvent event)
+	{
+		Optional<Channel> channel = TS3Utils.findChannelByName(this.config.getChannelName());
+		
+		if(channel.isPresent())
+		{
+			TS3Utils.executeSilently(() -> TS3Utils.moveClient(this.getId(), channel.get().getId(), this.config.getChannelPassword()));
+		}
+		else
+		{
+			TS3Bot.LOGGER.error("Could not find channel " + this.config.getChannelName());
+		}
 	}
 	
 	public void exit()
 	{
-		if(this.api != null)
+		if(this.client != null)
 		{
-			this.api.logout();
-			TS3Bot.LOGGER.info("Logged out");
-		}
-		
-		if(this.query != null)
-		{
-			this.query.exit();
+			try
+			{
+				this.client.disconnect();
+			}
+			catch(Exception e)
+			{
+				e.printStackTrace();
+			}
+			
 			TS3Bot.LOGGER.info("Disconnected");
 		}
 		
@@ -300,19 +308,14 @@ public class TS3Bot extends TS3EventAdapter
 		return this.config;
 	}
 	
-	public TS3Api getApi()
+	public LocalTeamspeakClientSocket getClient()
 	{
-		return this.api;
+		return this.client;
 	}
 	
 	public int getId()
 	{
 		return this.id;
-	}
-	
-	public TS3Query getQuery()
-	{
-		return this.query;
 	}
 	
 	public GameServerManager getGameserverManager()
