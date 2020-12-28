@@ -33,6 +33,7 @@ import net.kardexo.ts3bot.commands.impl.CommandBot;
 import net.kardexo.ts3bot.commands.impl.CommandCoinflip;
 import net.kardexo.ts3bot.commands.impl.CommandExit;
 import net.kardexo.ts3bot.commands.impl.CommandGameServers;
+import net.kardexo.ts3bot.commands.impl.CommandHeldDerSteine;
 import net.kardexo.ts3bot.commands.impl.CommandHelp;
 import net.kardexo.ts3bot.commands.impl.CommandKick;
 import net.kardexo.ts3bot.commands.impl.CommandKickAll;
@@ -167,6 +168,7 @@ public class TS3Bot extends TS3EventAdapter
 		CommandCoinflip.register(this.dispatcher);
 		CommandKick.register(this.dispatcher);
 		CommandKickAll.register(this.dispatcher);
+		CommandHeldDerSteine.register(this.dispatcher);
 	}
 	
 	private void registerMessageProcessors()
