@@ -6,7 +6,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import net.kardexo.ts3bot.TS3Bot;
 import net.kardexo.ts3bot.processors.url.IURLProcessor;
@@ -38,7 +37,7 @@ public class TwitterURLProcessor implements IURLProcessor
 				connection.setConnectTimeout(5000);
 				connection.connect();
 				
-				JsonNode node = new ObjectMapper().readTree(connection.getInputStream());
+				JsonNode node = TS3Bot.getInstance().getObjectMapper().readTree(connection.getInputStream());
 				JsonNode data = node.path("data");
 				JsonNode users = node.path("includes").path("users");
 				

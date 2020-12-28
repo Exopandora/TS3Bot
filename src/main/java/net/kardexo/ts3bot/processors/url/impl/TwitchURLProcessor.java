@@ -60,7 +60,7 @@ public class TwitchURLProcessor implements IURLProcessor
 			connection.setConnectTimeout(5000);
 			connection.connect();
 			
-			JsonNode node = new ObjectMapper().readTree(connection.getInputStream());
+			JsonNode node = TS3Bot.getInstance().getObjectMapper().readTree(connection.getInputStream());
 			JsonNode data = node.path("data");
 			
 			if(data != null && data.size() > 0)

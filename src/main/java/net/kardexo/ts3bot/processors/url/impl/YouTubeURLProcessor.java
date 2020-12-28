@@ -7,7 +7,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import net.kardexo.ts3bot.TS3Bot;
 import net.kardexo.ts3bot.processors.url.IURLProcessor;
@@ -36,7 +35,7 @@ public class YouTubeURLProcessor implements IURLProcessor
 			
 			try
 			{
-				JsonNode node = new ObjectMapper().readTree(new URL(query.toString()));
+				JsonNode node = TS3Bot.getInstance().getObjectMapper().readTree(new URL(query.toString()));
 				JsonNode items = node.path("items");
 				
 				if(items.size() == 1)

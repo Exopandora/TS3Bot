@@ -5,7 +5,6 @@ import java.net.URL;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.LiteralMessage;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -44,9 +43,8 @@ public class CommandWatch2Gether
 	{
 		try
 		{
-			ObjectMapper mapper = new ObjectMapper();
 			HttpURLConnection connection = (HttpURLConnection) new URL(API_URL + "create.json").openConnection();
-			byte[] content = mapper.writeValueAsBytes(new Watch2Gether(TS3Bot.getInstance().getConfig().getApiWatch2Gether(), url));
+			byte[] content = TS3Bot.getInstance().getObjectMapper().writeValueAsBytes(new Watch2Gether(TS3Bot.getInstance().getConfig().getApiWatch2Gether(), url));
 			
 			try
 			{
@@ -58,7 +56,7 @@ public class CommandWatch2Gether
 				connection.getOutputStream().write(content);
 				connection.connect();
 				
-				JsonNode node = mapper.readTree(connection.getInputStream());
+				JsonNode node = TS3Bot.getInstance().getObjectMapper().readTree(connection.getInputStream());
 				context.getSource().sendFeedback(API_URL + node.path("streamkey").asText());
 			}
 			finally

@@ -1,5 +1,6 @@
 package net.kardexo.ts3bot;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -11,6 +12,7 @@ import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.theholywaffle.teamspeak3.TS3Api;
 import com.github.theholywaffle.teamspeak3.TS3Config;
 import com.github.theholywaffle.teamspeak3.TS3Query;
@@ -59,6 +61,7 @@ public class TS3Bot extends TS3EventAdapter
 	private int id;
 	private final Config config;
 	private final ChatHistory history;
+	private final ObjectMapper objectMapper = new ObjectMapper();
 	private final CommandDispatcher<CommandSource> dispatcher = new CommandDispatcher<CommandSource>();
 	private final List<IMessageProcessor> messageProcessors = new ArrayList<IMessageProcessor>();
 	private final GameServerManager gameserverManager;
@@ -66,10 +69,10 @@ public class TS3Bot extends TS3EventAdapter
 	private TS3Api api;
 	private boolean silent;
 	
-	public TS3Bot(Config config) throws IOException
+	public TS3Bot(File config) throws IOException
 	{
 		TS3Bot.instance = this;
-		this.config = config;
+		this.config = this.objectMapper.readValue(config, Config.class);
 		this.history = new ChatHistory(this.config.getChatHistorySize());
 		this.gameserverManager = new GameServerManager(this.config.getGameservers());
 	}
@@ -300,6 +303,11 @@ public class TS3Bot extends TS3EventAdapter
 	public Config getConfig()
 	{
 		return this.config;
+	}
+	
+	public ObjectMapper getObjectMapper()
+	{
+		return this.objectMapper;
 	}
 	
 	public TS3Api getApi()

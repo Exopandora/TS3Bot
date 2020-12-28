@@ -84,7 +84,7 @@ public class CommandHeldDerSteine
 		
 		try
 		{
-			JsonNode node = new ObjectMapper().readTree(new URL(query.toString()));
+			JsonNode node = TS3Bot.getInstance().getObjectMapper().readTree(new URL(query.toString()));
 			JsonNode items = node.path("items");
 			
 			if(items.size() == 1)
@@ -110,7 +110,7 @@ public class CommandHeldDerSteine
 		
 		try
 		{
-			JsonNode node = new ObjectMapper().readTree(new URL(query.toString()));
+			JsonNode node = TS3Bot.getInstance().getObjectMapper().readTree(new URL(query.toString()));
 			JsonNode items = node.path("items");
 			
 			if(items.size() == 1)
@@ -146,7 +146,7 @@ public class CommandHeldDerSteine
 		
 		try
 		{
-			return new ObjectMapper().readTree(new URL(query.toString()));
+			return TS3Bot.getInstance().getObjectMapper().readTree(new URL(query.toString()));
 		}
 		catch(Exception e)
 		{

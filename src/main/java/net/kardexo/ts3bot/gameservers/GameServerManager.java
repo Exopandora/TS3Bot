@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import net.kardexo.ts3bot.TS3Bot;
 
 public class GameServerManager extends Thread implements Closeable
 {
@@ -63,7 +63,7 @@ public class GameServerManager extends Thread implements Closeable
 		{
 			Socket socket = this.server.accept();
 			BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-			GameServer server = new ObjectMapper().readValue(input.readLine(), GameServer.class);
+			GameServer server = TS3Bot.getInstance().getObjectMapper().readValue(input.readLine(), GameServer.class);
 			
 			if(!this.isServerRunning(server.getId()))
 			{

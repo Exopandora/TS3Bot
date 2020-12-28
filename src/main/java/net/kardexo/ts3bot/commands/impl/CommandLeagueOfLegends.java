@@ -22,7 +22,6 @@ import java.util.stream.StreamSupport;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.MissingNode;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.LiteralMessage;
@@ -50,7 +49,6 @@ public class CommandLeagueOfLegends
 	private static final String DDRAGON_API_URL = "https://ddragon.leagueoflegends.com/";
 	private static final String STATIC_DOC_API_URL = "http://static.developer.riotgames.com/docs/";
 	
-	private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 	private static final int MAX_RATING = Arrays.stream(Tier.VALUES).mapToInt(tier -> tier.hasRanks() ? Rank.VALUES.length : 1).sum();
 	
 	public static void register(CommandDispatcher<CommandSource> dispatcher)
@@ -288,7 +286,7 @@ public class CommandLeagueOfLegends
 	{
 		try
 		{
-			return OBJECT_MAPPER.readTree(new URL(DDRAGON_API_URL + "api/versions.json")).get(0).asText();
+			return TS3Bot.getInstance().getObjectMapper().readTree(new URL(DDRAGON_API_URL + "api/versions.json")).get(0).asText();
 		}
 		catch(IOException e)
 		{
@@ -300,7 +298,7 @@ public class CommandLeagueOfLegends
 	{
 		try
 		{
-			return OBJECT_MAPPER.readTree(new URL(STATIC_DOC_API_URL + "lol/queues.json"));
+			return TS3Bot.getInstance().getObjectMapper().readTree(new URL(STATIC_DOC_API_URL + "lol/queues.json"));
 		}
 		catch(IOException e)
 		{
@@ -312,7 +310,7 @@ public class CommandLeagueOfLegends
 	{
 		try
 		{
-			return OBJECT_MAPPER.readTree(new URL(DDRAGON_API_URL + "cdn/" + version + "/data/en_US/champion.json"));
+			return TS3Bot.getInstance().getObjectMapper().readTree(new URL(DDRAGON_API_URL + "cdn/" + version + "/data/en_US/champion.json"));
 		}
 		catch(IOException e)
 		{
@@ -324,7 +322,7 @@ public class CommandLeagueOfLegends
 	{
 		try
 		{
-			return OBJECT_MAPPER.readTree(new URL(DDRAGON_API_URL + "cdn/" + version + "/data/en_US/champion/" + champion + ".json"));
+			return TS3Bot.getInstance().getObjectMapper().readTree(new URL(DDRAGON_API_URL + "cdn/" + version + "/data/en_US/champion/" + champion + ".json"));
 		}
 		catch(IOException e)
 		{
@@ -356,7 +354,7 @@ public class CommandLeagueOfLegends
 		
 		try
 		{
-			return OBJECT_MAPPER.readTree(new URL(query));
+			return TS3Bot.getInstance().getObjectMapper().readTree(new URL(query));
 		}
 		catch(IOException e)
 		{
@@ -370,7 +368,7 @@ public class CommandLeagueOfLegends
 		
 		try
 		{
-			return OBJECT_MAPPER.readTree(new URL(query));
+			return TS3Bot.getInstance().getObjectMapper().readTree(new URL(query));
 		}
 		catch(IOException e)
 		{
@@ -384,7 +382,7 @@ public class CommandLeagueOfLegends
 		
 		try
 		{
-			return OBJECT_MAPPER.readTree(new URL(query));
+			return TS3Bot.getInstance().getObjectMapper().readTree(new URL(query));
 		}
 		catch(IOException e)
 		{
@@ -398,7 +396,7 @@ public class CommandLeagueOfLegends
 		
 		try
 		{
-			return OBJECT_MAPPER.readTree(new URL(query));
+			return TS3Bot.getInstance().getObjectMapper().readTree(new URL(query));
 		}
 		catch(IOException e)
 		{
@@ -412,7 +410,7 @@ public class CommandLeagueOfLegends
 		
 		try
 		{
-			return OBJECT_MAPPER.readTree(new URL(query));
+			return TS3Bot.getInstance().getObjectMapper().readTree(new URL(query));
 		}
 		catch(IOException e)
 		{
@@ -426,7 +424,7 @@ public class CommandLeagueOfLegends
 		
 		try
 		{
-			return OBJECT_MAPPER.readTree(new URL(query));
+			return TS3Bot.getInstance().getObjectMapper().readTree(new URL(query));
 		}
 		catch(IOException e)
 		{
@@ -448,7 +446,7 @@ public class CommandLeagueOfLegends
 	{
 		try
 		{
-			return Optional.of(OBJECT_MAPPER.treeToValue(league, League.class));
+			return Optional.of(TS3Bot.getInstance().getObjectMapper().treeToValue(league, League.class));
 		}
 		catch(Throwable e)
 		{
