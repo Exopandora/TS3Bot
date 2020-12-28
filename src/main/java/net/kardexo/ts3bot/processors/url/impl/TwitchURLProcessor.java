@@ -7,7 +7,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import net.kardexo.ts3bot.TS3Bot;
 import net.kardexo.ts3bot.processors.url.IURLProcessor;
