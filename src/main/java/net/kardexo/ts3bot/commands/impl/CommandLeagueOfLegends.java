@@ -48,6 +48,7 @@ public class CommandLeagueOfLegends
 	
 	private static final String API_URL = "https://%s.api.riotgames.com/";
 	private static final String DDRAGON_API_URL = "https://ddragon.leagueoflegends.com/";
+	private static final String STATIC_DOC_API_URL = "http://static.developer.riotgames.com/docs/";
 	
 	private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 	private static final int MAX_RATING = Arrays.stream(Tier.VALUES).mapToInt(tier -> tier.hasRanks() ? Rank.VALUES.length : 1).sum();
@@ -73,6 +74,7 @@ public class CommandLeagueOfLegends
 		JsonNode champions = CommandLeagueOfLegends.fetchChampions(CommandLeagueOfLegends.fetchVersion());
 		JsonNode summoner = CommandLeagueOfLegends.fetchSummoner(username, region);
 		JsonNode match = CommandLeagueOfLegends.fetchActiveMatch(username, summoner.path("id").asText(), region);
+		JsonNode queues = CommandLeagueOfLegends.fetchQueues();
 		
 		StringBuilder builder = new StringBuilder();
 		JsonNode participants = match.path("participants");
@@ -156,14 +158,14 @@ public class CommandLeagueOfLegends
 			}
 		}
 		
-		String gameMode = match.path("gameMode").asText();
+		String queue = CommandLeagueOfLegends.formatQueue(queues, match.path("gameQueueConfigId").asInt());
 		String ranks = Arrays.stream(teamRatings)
 				.mapToObj(CommandLeagueOfLegends::ratingToLeague)
 				.map(league -> league.isPresent() ? league.get().toString() : "Unranked")
 				.collect(Collectors.joining(" - "));
 		long gameLength = match.path("gameLength").asLong();
 		
-		builder.append("\n" + gameMode);
+		builder.append("\n" + queue);
 		builder.append(" - " + (gameLength < 0 ? "Loading Screen" : StringUtils.formatDuration(gameLength)));
 		builder.append(" - Average Ranks: " + ranks);
 		
@@ -176,6 +178,7 @@ public class CommandLeagueOfLegends
 		JsonNode champions = CommandLeagueOfLegends.fetchChampions(CommandLeagueOfLegends.fetchVersion());
 		JsonNode summoner = CommandLeagueOfLegends.fetchSummoner(username, region);
 		JsonNode history = CommandLeagueOfLegends.fetchMatchHistory(summoner.path("accountId").asText(), region, 0, 15).path("matches");
+		JsonNode queues = CommandLeagueOfLegends.fetchQueues();
 		
 		StringBuilder builder = new StringBuilder();
 		
@@ -197,6 +200,7 @@ public class CommandLeagueOfLegends
 		for(int x = 0; x < history.size(); x++)
 		{
 			JsonNode match = CommandLeagueOfLegends.fetchMatch(history.get(x).path("gameId").asLong(), region);
+			
 			int participantId = CommandLeagueOfLegends.getParticinantId(match, summoner.path("id").asText());
 			JsonNode participant = CommandLeagueOfLegends.getParticipant(match, participantId);
 			JsonNode stats = participant.path("stats");
@@ -209,7 +213,7 @@ public class CommandLeagueOfLegends
 			Date date = new Date(match.path("gameCreation").asLong());
 			
 			builder.append("\n[[color=" + (winner ? "green" : "#FF2345") + "]" + (x + 1) + "[/color]]");
-			builder.append(" " + match.path("gameMode").asText());
+			builder.append(" " + CommandLeagueOfLegends.formatQueue(queues, match.path("queueId").asInt()));
 			builder.append(" - " + DATE_FORMAT.format(date));
 			builder.append(" - " + StringUtils.formatDuration(gameDuration));
 			builder.append(" - " + kills + "/" + deaths + "/" + assists);
@@ -285,6 +289,18 @@ public class CommandLeagueOfLegends
 		try
 		{
 			return OBJECT_MAPPER.readTree(new URL(DDRAGON_API_URL + "api/versions.json")).get(0).asText();
+		}
+		catch(IOException e)
+		{
+			throw ERROR_FETCHING_DATA.create();
+		}
+	}
+	
+	private static JsonNode fetchQueues() throws CommandSyntaxException
+	{
+		try
+		{
+			return OBJECT_MAPPER.readTree(new URL(STATIC_DOC_API_URL + "lol/queues.json"));
 		}
 		catch(IOException e)
 		{
@@ -518,12 +534,27 @@ public class CommandLeagueOfLegends
 		return CommandLeagueOfLegends.leagueFromRating(tier.next(), null, rating - 1);
 	}
 	
+	private static String formatQueue(JsonNode queues, int queueId)
+	{
+		for(int x = 0; x < queues.size(); x++)
+		{
+			JsonNode queue = queues.get(x);
+			
+			if(queue.path("queueId").asInt() == queueId)
+			{
+				return queue.path("description").asText().replaceFirst("^[0-9]v[0-9] ", "").replaceFirst(" games$", "");
+			}
+		}
+		
+		return "Unknown Queue";
+	}
+	
 	public static class League implements Comparable<League>
 	{
 		@JsonProperty("leagueId")
 		private UUID leagueId;
 		@JsonProperty("queueType")
-		private Queue queueType;
+		private QueueType queueType;
 		@JsonProperty("tier")
 		private Tier tier;
 		@JsonProperty("rank")
@@ -563,7 +594,7 @@ public class CommandLeagueOfLegends
 			return this.leagueId;
 		}
 		
-		public Queue getQueueType()
+		public QueueType getQueueType()
 		{
 			return this.queueType;
 		}
@@ -704,14 +735,14 @@ public class CommandLeagueOfLegends
 		}
 	}
 	
-	public static enum Queue
+	public static enum QueueType
 	{
 		RANKED_SOLO_5x5("Ranked Solo/Duo"),
 		RANKED_FLEX_SR("Ranked Flex");
 		
 		private final String name;
 		
-		private Queue(String name)
+		private QueueType(String name)
 		{
 			this.name = name;
 		}
