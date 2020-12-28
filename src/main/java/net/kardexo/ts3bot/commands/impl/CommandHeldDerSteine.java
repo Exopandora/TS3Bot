@@ -51,20 +51,23 @@ public class CommandHeldDerSteine
 				playlistItems = CommandHeldDerSteine.fetchPlaylistItems(playlist, pageToken, "snippet", last);
 			}
 		}
-		while(retrieved < index && playlistItems.hasNonNull("nextPageToken"));
+		while(retrieved < index && playlistItems != null && playlistItems.hasNonNull("nextPageToken"));
 		
-		JsonNode items = playlistItems.path("items");
-		
-		if(items.size() == last)
+		if(playlistItems != null)
 		{
-			JsonNode snippet = items.get(last - 1).path("snippet");
-			String channelTitle = snippet.path("channelTitle").asText();
-			String title = snippet.path("title").asText();
-			String videoId = snippet.path("resourceId").path("videoId").asText();
+			JsonNode items = playlistItems.path("items");
 			
-			if(channelTitle != null && !channelTitle.isEmpty() && title != null && !title.isEmpty() && videoId != null && !videoId.isEmpty())
+			if(items.size() == last)
 			{
-				context.getSource().sendFeedback(channelTitle + ": \"" + title + "\" " + YOUTUBE_URL + videoId);
+				JsonNode snippet = items.get(last - 1).path("snippet");
+				String channelTitle = snippet.path("channelTitle").asText();
+				String title = snippet.path("title").asText();
+				String videoId = snippet.path("resourceId").path("videoId").asText();
+				
+				if(channelTitle != null && !channelTitle.isEmpty() && title != null && !title.isEmpty() && videoId != null && !videoId.isEmpty())
+				{
+					context.getSource().sendFeedback(channelTitle + ": \"" + title + "\" " + YOUTUBE_URL + videoId);
+				}
 			}
 		}
 		
