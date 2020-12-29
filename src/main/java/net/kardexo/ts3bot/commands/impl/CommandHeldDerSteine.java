@@ -29,19 +29,42 @@ public class CommandHeldDerSteine
 	
 	private static int held(CommandContext<CommandSource> context) throws CommandSyntaxException
 	{
+		JsonNode video = CommandHeldDerSteine.fetchRandomVideo();
+		
+		if(video != null)
+		{
+			JsonNode snippet = video.path("snippet");
+			String channelTitle = snippet.path("channelTitle").asText();
+			String title = snippet.path("title").asText();
+			String videoId = snippet.path("resourceId").path("videoId").asText();
+			
+			if(channelTitle != null && !channelTitle.isEmpty() && title != null && !title.isEmpty() && videoId != null && !videoId.isEmpty())
+			{
+				context.getSource().sendFeedback(channelTitle + ": \"" + title + "\" " + YOUTUBE_URL + videoId);
+			}
+			
+			return snippet.path("position").asInt() + 1;
+		}
+		
+		return 0;
+	}
+	
+	public static JsonNode fetchRandomVideo() throws CommandSyntaxException
+	{
 		String playlist = CommandHeldDerSteine.fetchUploadsPlaylistId();
 		long length = CommandHeldDerSteine.fetchPlaylistLength(playlist);
 		long index = ThreadLocalRandom.current().nextLong(length);
-		long retrieved = 0;
-		int last = (int) (index % MAX_RESULTS);
+		long fetched = 0;
+		
 		JsonNode playlistItems = null;
+		int last = (int) (index % MAX_RESULTS);
 		
 		do
 		{
 			String pageToken = playlistItems != null ? playlistItems.path("nextPageToken").asText() : null;
-			retrieved += MAX_RESULTS;
+			fetched += MAX_RESULTS;
 			
-			if(retrieved < index)
+			if(fetched < index)
 			{
 				playlistItems = CommandHeldDerSteine.fetchPlaylistItems(playlist, pageToken, null, MAX_RESULTS);
 			}
@@ -50,7 +73,7 @@ public class CommandHeldDerSteine
 				playlistItems = CommandHeldDerSteine.fetchPlaylistItems(playlist, pageToken, "snippet", last);
 			}
 		}
-		while(retrieved < index && playlistItems != null && playlistItems.hasNonNull("nextPageToken"));
+		while(fetched < index && playlistItems != null && playlistItems.hasNonNull("nextPageToken"));
 		
 		if(playlistItems != null)
 		{
@@ -58,19 +81,11 @@ public class CommandHeldDerSteine
 			
 			if(items.size() == last)
 			{
-				JsonNode snippet = items.get(last - 1).path("snippet");
-				String channelTitle = snippet.path("channelTitle").asText();
-				String title = snippet.path("title").asText();
-				String videoId = snippet.path("resourceId").path("videoId").asText();
-				
-				if(channelTitle != null && !channelTitle.isEmpty() && title != null && !title.isEmpty() && videoId != null && !videoId.isEmpty())
-				{
-					context.getSource().sendFeedback(channelTitle + ": \"" + title + "\" " + YOUTUBE_URL + videoId);
-				}
+				return items.get(last - 1);
 			}
 		}
 		
-		return (int) index;
+		return null;
 	}
 	
 	private static String fetchUploadsPlaylistId() throws CommandSyntaxException

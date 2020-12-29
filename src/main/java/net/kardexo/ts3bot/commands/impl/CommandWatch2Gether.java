@@ -21,6 +21,7 @@ import net.kardexo.ts3bot.util.URLs;
 public class CommandWatch2Gether
 {
 	private static final String API_URL = "https://w2g.tv/rooms/";
+	private static final String YOUTUBE_URL = "https://youtu.be/";
 	private static final SimpleCommandExceptionType WATCH2GETHER_SERVICE_UNAVAILABLE = new SimpleCommandExceptionType(new LiteralMessage("Watch2Gether is currently unavailable"));
 	
 	public static void register(CommandDispatcher<CommandSource> dispatcher)
@@ -28,7 +29,9 @@ public class CommandWatch2Gether
 		LiteralCommandNode<CommandSource> watch2gether = dispatcher.register(Commands.literal("watch2gether")
 				.executes(context -> watch2gether(context))
 				.then(Commands.argument("url", StringArgumentType.greedyString())
-						.executes(context -> watch2gether(context, URLs.extract(StringArgumentType.getString(context, "url"))))));
+						.executes(context -> watch2gether(context, URLs.extract(StringArgumentType.getString(context, "url")))))
+				.then(Commands.literal("held")
+						.executes(context -> watch2gether(context, YOUTUBE_URL + CommandHeldDerSteine.fetchRandomVideo().path("snippet").path("resourceId").path("videoId").asText()))));
 		dispatcher.register(Commands.literal("w2g")
 				.executes(context -> watch2gether(context))
 				.redirect(watch2gether));
