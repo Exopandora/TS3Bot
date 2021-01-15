@@ -5,7 +5,7 @@
 
 !/gradle/
 !/launchwrapper/
-!/src/
+!/src/main/
 !.gitignore
 !build.gradle
 !gradlew
