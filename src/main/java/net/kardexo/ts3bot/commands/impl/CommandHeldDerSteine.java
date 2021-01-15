@@ -94,7 +94,7 @@ public class CommandHeldDerSteine
 		
 		query.append("?forUsername=HeldderSteine");
 		query.append("&part=contentDetails");
-		query.append("&key=" + TS3Bot.getInstance().getConfig().getApiYouTube());
+		query.append("&key=" + TS3Bot.getInstance().getApiKeyManager().requestKey(TS3Bot.API_KEY_YOUTUBE));
 		
 		try
 		{
@@ -120,7 +120,7 @@ public class CommandHeldDerSteine
 		
 		query.append("?id=" + playlist);
 		query.append("&part=contentDetails");
-		query.append("&key=" + TS3Bot.getInstance().getConfig().getApiYouTube());
+		query.append("&key=" + TS3Bot.getInstance().getApiKeyManager().requestKey(TS3Bot.API_KEY_YOUTUBE));
 		
 		try
 		{
@@ -145,7 +145,7 @@ public class CommandHeldDerSteine
 		StringBuilder query = new StringBuilder(API_URL + "playlistItems");
 		
 		query.append("?playlistId=" + playlist);
-		query.append("&key=" + TS3Bot.getInstance().getConfig().getApiYouTube());
+		query.append("&key=" + TS3Bot.getInstance().getApiKeyManager().requestKey(TS3Bot.API_KEY_YOUTUBE));
 		query.append("&maxResults=" + maxResults);
 		
 		if(part != null)

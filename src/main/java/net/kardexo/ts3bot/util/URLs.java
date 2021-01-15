@@ -26,6 +26,11 @@ public class URLs
 		return null;
 	}
 	
+	public static String wrap(String url)
+	{
+		return "[URL]" + url + "[/URL]";
+	}
+	
 	public static Map<String, String> queryToMap(String query)
 	{
 		Map<String, String> result = new HashMap<String, String>();
@@ -41,5 +46,5 @@ public class URLs
 		}
 		
 		return result;
-	}
+	}	
 }

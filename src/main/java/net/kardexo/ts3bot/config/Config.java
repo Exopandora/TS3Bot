@@ -1,6 +1,7 @@
 package net.kardexo.ts3bot.config;
 
 import java.io.File;
+import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -24,18 +25,8 @@ public class Config
 	@JsonProperty("chat_history_size")
 	private int chatHistorySize;
 	
-	@JsonProperty("api_watch_2_gether")
-	private String apiWatch2Gether;
-	@JsonProperty("api_twitch_client_id")
-	private String apiTwitchClientId;
-	@JsonProperty("api_twitch_oauth_token")
-	private String apiTwitchOAuthToken;
-	@JsonProperty("api_youtube")
-	private String apiYouTube;
-	@JsonProperty("api_twitter_bearer_token")
-	private String apiTwitterBearerToken;
-	@JsonProperty("api_league_of_legends")
-	private String apiLeagueOfLegends;
+	@JsonProperty("api_keys")
+	private Map<String, APIKey> apiKeys;
 	
 	@JsonProperty("permissions")
 	private JsonNode permissions;
@@ -83,34 +74,9 @@ public class Config
 		return this.chatHistorySize;
 	}
 	
-	public String getApiWatch2Gether()
+	public Map<String, APIKey> getApiKeys()
 	{
-		return this.apiWatch2Gether;
-	}
-	
-	public String getApiTwitchClientId()
-	{
-		return this.apiTwitchClientId;
-	}
-	
-	public String getApiTwitchOAuthToken()
-	{
-		return this.apiTwitchOAuthToken;
-	}
-	
-	public String getApiYouTube()
-	{
-		return this.apiYouTube;
-	}
-	
-	public String getApiTwitterBearerToken()
-	{
-		return this.apiTwitterBearerToken;
-	}
-	
-	public String getApiLeagueOfLegends()
-	{
-		return this.apiLeagueOfLegends;
+		return this.apiKeys;
 	}
 	
 	public JsonNode getPermissions()
@@ -141,5 +107,63 @@ public class Config
 	public Map<String, File> getGameservers()
 	{
 		return this.gameservers;
+	}
+	
+	public static class APIKey
+	{
+		@JsonProperty("tokens")
+		private JsonNode tokens;
+		@JsonProperty("limits")
+		private List<Limit> limits;
+		
+		public APIKey()
+		{
+			super();
+		}
+		
+		public APIKey(JsonNode tokens, List<Limit> limits)
+		{
+			this.tokens = tokens;
+			this.limits = limits;
+		}
+		
+		public JsonNode getTokens()
+		{
+			return this.tokens;
+		}
+		
+		public List<Limit> getLimits()
+		{
+			return this.limits;
+		}
+		
+		public static class Limit
+		{
+			@JsonProperty("limit")
+			private int limit;
+			@JsonProperty("duration")
+			private long duration;
+			
+			public Limit()
+			{
+				super();
+			}
+			
+			public Limit(int limit, long duration)
+			{
+				this.limit = limit;
+				this.duration = duration;
+			}
+			
+			public int getLimit()
+			{
+				return this.limit;
+			}
+			
+			public long getDuration()
+			{
+				return this.duration;
+			}
+		}
 	}
 }

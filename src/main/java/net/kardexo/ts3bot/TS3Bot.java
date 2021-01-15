@@ -2,7 +2,6 @@ package net.kardexo.ts3bot;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
@@ -20,7 +19,6 @@ import com.github.theholywaffle.teamspeak3.api.TextMessageTargetMode;
 import com.github.theholywaffle.teamspeak3.api.event.TS3EventAdapter;
 import com.github.theholywaffle.teamspeak3.api.event.TS3EventType;
 import com.github.theholywaffle.teamspeak3.api.event.TextMessageEvent;
-import com.github.theholywaffle.teamspeak3.api.wrapper.ClientInfo;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.ParseResults;
 import com.mojang.brigadier.StringReader;
@@ -47,12 +45,19 @@ import net.kardexo.ts3bot.commands.impl.CommandTeams;
 import net.kardexo.ts3bot.commands.impl.CommandWatch2Gether;
 import net.kardexo.ts3bot.config.Config;
 import net.kardexo.ts3bot.gameservers.GameServerManager;
-import net.kardexo.ts3bot.processors.message.IMessageProcessor;
-import net.kardexo.ts3bot.processors.message.impl.URLProcessor;
+import net.kardexo.ts3bot.messageprocessors.IMessageProcessor;
+import net.kardexo.ts3bot.messageprocessors.impl.URLMessageProcessor;
+import net.kardexo.ts3bot.util.APIKeyManager;
 import net.kardexo.ts3bot.util.ChatHistory;
 
 public class TS3Bot extends TS3EventAdapter
 {
+	public static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.246";
+	public static final String API_KEY_WATCH_2_GETHER = "watch_2_gether";
+	public static final String API_KEY_TWITCH = "twitch";
+	public static final String API_KEY_YOUTUBE = "youtube";
+	public static final String API_KEY_TWITTER = "twitter";
+	public static final String API_KEY_LEAGUE_OF_LEGENDS = "league_of_legends";
 	public static final Random RANDOM = new Random();
 	
 	private static final Logger LOGGER = LogManager.getLogger(TS3Bot.class);
@@ -61,10 +66,11 @@ public class TS3Bot extends TS3EventAdapter
 	private int id;
 	private final Config config;
 	private final ChatHistory history;
+	private final List<IMessageProcessor> messageProcessors = Arrays.asList(new URLMessageProcessor());
 	private final ObjectMapper objectMapper = new ObjectMapper();
 	private final CommandDispatcher<CommandSource> dispatcher = new CommandDispatcher<CommandSource>();
-	private final List<IMessageProcessor> messageProcessors = new ArrayList<IMessageProcessor>();
 	private final GameServerManager gameserverManager;
+	private final APIKeyManager apiKeyManager;
 	private TS3Query query;
 	private TS3Api api;
 	private boolean silent;
@@ -75,6 +81,7 @@ public class TS3Bot extends TS3EventAdapter
 		this.config = this.objectMapper.readValue(config, Config.class);
 		this.history = new ChatHistory(this.config.getChatHistorySize());
 		this.gameserverManager = new GameServerManager(this.config.getGameservers());
+		this.apiKeyManager = new APIKeyManager(this.config.getApiKeys());
 	}
 	
 	public void start() throws InterruptedException
@@ -93,7 +100,6 @@ public class TS3Bot extends TS3EventAdapter
 		TS3Bot.LOGGER.info("Connected to " + this.config.getHostAddress());
 		
 		this.registerCommands();
-		this.registerMessageProcessors();
 		this.api = this.query.getApi();
 		
 		while(!this.login())
@@ -174,11 +180,6 @@ public class TS3Bot extends TS3EventAdapter
 		CommandHeldDerSteine.register(this.dispatcher);
 	}
 	
-	private void registerMessageProcessors()
-	{
-		this.messageProcessors.add(new URLProcessor());
-	}
-	
 	@Override
 	public void onTextMessage(TextMessageEvent event)
 	{
@@ -196,7 +197,7 @@ public class TS3Bot extends TS3EventAdapter
 		
 		StringReader reader = new StringReader(message);
 		
-		if(reader.canRead() && reader.peek() == '!')
+		if(reader.canRead() && reader.peek() == '!' && !reader.getString().matches("!+"))
 		{
 			reader.skip();
 			
@@ -233,7 +234,7 @@ public class TS3Bot extends TS3EventAdapter
 					
 					if(nodes.isEmpty())
 					{
-						this.api.sendTextMessage(event.getTargetMode(), event.getInvokerId(), e.getMessage());
+						this.api.sendTextMessage(event.getTargetMode(), event.getInvokerId(), e.getRawMessage().getString());
 					}
 					else
 					{
@@ -252,23 +253,18 @@ public class TS3Bot extends TS3EventAdapter
 				}
 				else
 				{
-					this.api.sendTextMessage(event.getTargetMode(), event.getInvokerId(), e.getMessage());
+					this.api.sendTextMessage(event.getTargetMode(), event.getInvokerId(), e.getRawMessage().getString());
 				}
 			}
 		}
 		else if(event.getTargetMode().equals(TextMessageTargetMode.CHANNEL))
 		{
-			ClientInfo info = this.api.getClientInfo(event.getInvokerId());
+			String response = this.generateResponseMessage(reader.getString(), true);
 			
-			if(this.history.appendAndCheckIfNew(reader.getString(), 10000))
+			if(response != null)
 			{
-				for(IMessageProcessor processor : this.messageProcessors)
-				{
-					if(processor.onMessage(reader.getString(), this.api, info, event.getTargetMode()))
-					{
-						break;
-					}
-				}
+				this.api.sendTextMessage(event.getTargetMode(), event.getInvokerId(), response);
+				TS3Bot.LOGGER.info(reader.getString() + " -> " + response);
 			}
 		}
 	}
@@ -300,6 +296,24 @@ public class TS3Bot extends TS3EventAdapter
 		}
 	}
 	
+	public String generateResponseMessage(String message, boolean checkHistory)
+	{
+		if(!checkHistory || this.history.appendAndCheckIfNew(message, 10000))
+		{
+			for(IMessageProcessor processor : this.messageProcessors)
+			{
+				String response = processor.process(message);
+				
+				if(response != null)
+				{
+					return response;
+				}
+			}
+		}
+		
+		return null;
+	}
+	
 	public Config getConfig()
 	{
 		return this.config;
@@ -328,6 +342,11 @@ public class TS3Bot extends TS3EventAdapter
 	public GameServerManager getGameserverManager()
 	{
 		return this.gameserverManager;
+	}
+	
+	public APIKeyManager getApiKeyManager()
+	{
+		return this.apiKeyManager;
 	}
 	
 	public void setSilent(boolean silent)

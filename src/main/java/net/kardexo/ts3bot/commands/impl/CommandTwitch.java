@@ -6,7 +6,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 
 import net.kardexo.ts3bot.commands.CommandSource;
-import net.kardexo.ts3bot.processors.url.impl.TwitchURLProcessor;
+import net.kardexo.ts3bot.messageprocessors.url.impl.TwitchURLProcessor;
 
 public class CommandTwitch
 {

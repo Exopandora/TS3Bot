@@ -1,4 +1,4 @@
-package net.kardexo.ts3bot.processors.url.impl;
+package net.kardexo.ts3bot.messageprocessors.url.impl;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import net.kardexo.ts3bot.TS3Bot;
-import net.kardexo.ts3bot.processors.url.IURLProcessor;
+import net.kardexo.ts3bot.messageprocessors.url.IURLProcessor;
 
 public class TwitchURLProcessor implements IURLProcessor
 {
@@ -54,8 +54,8 @@ public class TwitchURLProcessor implements IURLProcessor
 		
 		try
 		{
-			connection.setRequestProperty("Client-ID", TS3Bot.getInstance().getConfig().getApiTwitchClientId());
-			connection.setRequestProperty("Authorization", "Bearer " + TS3Bot.getInstance().getConfig().getApiTwitchOAuthToken());
+			connection.setRequestProperty("Client-ID", TS3Bot.getInstance().getApiKeyManager().requestToken(TS3Bot.API_KEY_TWITCH, "client_id"));
+			connection.setRequestProperty("Authorization", "Bearer " + TS3Bot.getInstance().getApiKeyManager().requestToken(TS3Bot.API_KEY_TWITCH, "oauth_token"));
 			connection.setConnectTimeout(5000);
 			connection.connect();
 			

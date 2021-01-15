@@ -1,4 +1,4 @@
-package net.kardexo.ts3bot.processors.url.impl;
+package net.kardexo.ts3bot.messageprocessors.url.impl;
 
 import java.net.URL;
 import java.util.HashMap;
@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import net.kardexo.ts3bot.TS3Bot;
-import net.kardexo.ts3bot.processors.url.IURLProcessor;
+import net.kardexo.ts3bot.messageprocessors.url.IURLProcessor;
 import net.kardexo.ts3bot.util.StringUtils;
 import net.kardexo.ts3bot.util.URLs;
 
@@ -31,7 +31,7 @@ public class YouTubeURLProcessor implements IURLProcessor
 			
 			query.append("?id=" + id);
 			query.append("&part=snippet");
-			query.append("&key=" + TS3Bot.getInstance().getConfig().getApiYouTube());
+			query.append("&key=" + TS3Bot.getInstance().getApiKeyManager().requestKey(TS3Bot.API_KEY_YOUTUBE));
 			
 			try
 			{

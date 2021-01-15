@@ -5,12 +5,44 @@
 	"channel_name": "CHANNEL",
 	"virtual_server_id": 1,
 	"chat_history_size": 100,
-	"api_watch_2_gether": "API_KEY",
-	"api_twitch_client_id": "CLIENT_ID",
-	"api_twitch_oauth_token": "OAUTH_TOKEN",
-	"api_youtube": "API_KEY",
-	"api_twitter_bearer_token": "BEARER_TOKEN",
-	"api_league_of_legends": "API_KEY",
+	"api_keys": {
+		"watch_2_gether": {
+			"tokens": {
+				"api_key": "API_KEY"
+			}
+		},
+		"twitch": {
+			"tokens": {
+				"client_id": "CLIENT_ID",
+				"oauth_token": "OAUTH_TOKEN"
+			}
+		},
+		"youtube": {
+			"tokens": {
+				"api_key": "API_KEY"
+			}
+		},
+		"twitter": {
+			"tokens": {
+				"bearer_token": "BEARER_TOKEN"
+			}
+		},
+		"league_of_legends": {
+			"tokens": {
+				"api_key": "API_KEY"
+			},
+			"limits": [
+				{
+					"limit": 20,
+					"duration": 1000
+				},
+				{
+					"limit": 100,
+					"duration": 120000
+				}
+			]
+		}
+	},
 	"default_watch2gether_share": "URL",
 	"league_of_legends_region": "REGION_CODE",
 	"permissions": {

@@ -47,7 +47,7 @@ public class CommandWatch2Gether
 		try
 		{
 			HttpURLConnection connection = (HttpURLConnection) new URL(API_URL + "create.json").openConnection();
-			byte[] content = TS3Bot.getInstance().getObjectMapper().writeValueAsBytes(new Watch2Gether(TS3Bot.getInstance().getConfig().getApiWatch2Gether(), url));
+			byte[] content = TS3Bot.getInstance().getObjectMapper().writeValueAsBytes(new Watch2Gether(TS3Bot.getInstance().getApiKeyManager().requestKey(TS3Bot.API_KEY_WATCH_2_GETHER), url));
 			
 			try
 			{
@@ -60,7 +60,21 @@ public class CommandWatch2Gether
 				connection.connect();
 				
 				JsonNode node = TS3Bot.getInstance().getObjectMapper().readTree(connection.getInputStream());
-				context.getSource().sendFeedback(API_URL + node.path("streamkey").asText());
+				StringBuilder builder = new StringBuilder(); 
+				
+				if(url != null)
+				{
+					String response = TS3Bot.getInstance().generateResponseMessage(URLs.wrap(url), false);
+					
+					if(response != null)
+					{
+						builder.append(response + " ");
+					}
+				}
+				
+				builder.append(API_URL + node.path("streamkey").asText());
+				
+				context.getSource().sendFeedback(builder.toString());
 			}
 			finally
 			{
