@@ -22,24 +22,51 @@ public class CommandRandom
 	{
 		if(argument.matches("[0-9]+"))
 		{
-			int max = Integer.parseInt(argument);
-			int result = TS3Bot.RANDOM.nextInt(max + 1);
-			context.getSource().sendFeedback(String.valueOf(result));
-			return result;
+			return CommandRandom.randomBound(context, argument);
 		}
 		else if(argument.matches("[0-9]+-[0-9]+"))
 		{
-			String[] split = argument.split("-", 2);
-			int min = Integer.parseInt(split[0]);
-			int max = Integer.parseInt(split[1]);
-			int result = min + TS3Bot.RANDOM.nextInt(max - min + 1);
-			context.getSource().sendFeedback(String.valueOf(result));
-			return result;
+			return CommandRandom.randomRange(context, argument);
 		}
 		
-		String[] split = argument.split(" ");
+		return CommandRandom.randomWord(context, argument);
+	}
+	
+	private static int randomRange(CommandContext<CommandSource> context, String argument) throws CommandSyntaxException
+	{
+		String[] split = argument.split("-", 2);
+		int min = CommandRandom.parseInt(split[0]);
+		int max = CommandRandom.parseInt(split[1]);
+		int result = min + TS3Bot.RANDOM.nextInt(max - min + 1);
+		context.getSource().sendFeedback(String.valueOf(result));
+		return result;
+	}
+	
+	private static int randomBound(CommandContext<CommandSource> context, String argument) throws CommandSyntaxException
+	{
+		int max = CommandRandom.parseInt(argument);
+		int result = TS3Bot.RANDOM.nextInt(max + 1);
+		context.getSource().sendFeedback(String.valueOf(result));
+		return result;
+	}
+	
+	private static int randomWord(CommandContext<CommandSource> context, String argument) throws CommandSyntaxException
+	{
+		String[] split = argument.split(" +");
 		int rand = TS3Bot.RANDOM.nextInt(split.length);
 		context.getSource().sendFeedback(split[rand]);
 		return rand + 1;
+	}
+	
+	private static int parseInt(String integer) throws CommandSyntaxException
+	{
+		try
+		{
+			return Integer.parseInt(integer);
+		}
+		catch(NumberFormatException e)
+		{
+			throw CommandSyntaxException.BUILT_IN_EXCEPTIONS.readerInvalidInt().create(integer);
+		}
 	}
 }
