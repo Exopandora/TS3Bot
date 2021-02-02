@@ -1,6 +1,6 @@
 package net.kardexo.ts3bot.commands.impl;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -68,16 +68,28 @@ public class CommandHelp
 		
 		if(!nodes.isEmpty())
 		{
-			CommandNode<CommandSource> node = nodes.get(nodes.size() - 1).getNode();
-			String[] usage = dispatcher.getAllUsage(node, context.getSource(), true);
-			
-			if(usage.length > 0 && !usage[0].isEmpty())
-			{
-				builder.append(" " + Arrays.toString(usage));
-			}
+			CommandHelp.appendAllUsage(builder, dispatcher, nodes, context.getSource(), true);
 		}
 		
 		context.getSource().sendFeedback(builder.toString());
 		return 0;
+	}
+	
+	public static void appendAllUsage(StringBuilder builder, CommandDispatcher<CommandSource> dispatcher, List<ParsedCommandNode<CommandSource>> nodes, CommandSource source, boolean restriced)
+	{
+		List<String> usages = new ArrayList<String>();
+		
+		for(String usage : dispatcher.getAllUsage(nodes.get(nodes.size() - 1).getNode(), source, true))
+		{
+			if(!usage.isEmpty())
+			{
+				usages.add(usage);
+			}
+		}
+		
+		if(!usages.isEmpty())
+		{
+			builder.append(" [" + String.join(" ", usages) + "]");
+		}
 	}
 }

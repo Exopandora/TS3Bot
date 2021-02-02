@@ -24,7 +24,6 @@ import com.mojang.brigadier.ParseResults;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.context.ParsedCommandNode;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import com.mojang.brigadier.tree.CommandNode;
 
 import net.kardexo.ts3bot.commands.CommandSource;
 import net.kardexo.ts3bot.commands.impl.CommandAmouranth;
@@ -238,16 +237,9 @@ public class TS3Bot extends TS3EventAdapter
 					}
 					else
 					{
-						CommandNode<CommandSource> lastNode = nodes.get(nodes.size() - 1).getNode();
-						String command = nodes.stream().map(node -> node.getNode().getName()).collect(Collectors.joining(" "));
-						String[] usage = this.dispatcher.getAllUsage(lastNode, source, true);
 						StringBuilder builder = new StringBuilder();
-						
-						if(usage.length > 0 && !usage[0].isEmpty())
-						{
-							builder.append(" " + Arrays.toString(usage));
-						}
-						
+						String command = nodes.stream().map(node -> node.getNode().getName()).collect(Collectors.joining(" "));
+						CommandHelp.appendAllUsage(builder, this.dispatcher, nodes, source, true);
 						this.api.sendTextMessage(event.getTargetMode(), event.getInvokerId(), "Usage: !" + command + builder.toString());
 					}
 				}
