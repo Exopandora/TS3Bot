@@ -13,7 +13,7 @@ import net.kardexo.ts3bot.messageprocessors.url.IURLProcessor;
 public class TwitterURLProcessor implements IURLProcessor
 {
 	private static final String API_URL = "https://api.twitter.com/labs/2/";
-	private static final Pattern TWITTER_STATUS_URL = Pattern.compile("https:\\/\\/(www\\.)?twitter\\.com\\/([^/]+)/status/([0-9]+)");
+	private static final Pattern TWITTER_STATUS_URL = Pattern.compile("https:\\/\\/(www\\.)?twitter\\.com\\/([^/]+)\\/status\\/([0-9]+).*");
 	private static final Pattern TWITTER_PROFILE_URL = Pattern.compile("https:\\/\\/(www\\.)?twitter\\.com\\/([^/]+)");
 	
 	@Override
