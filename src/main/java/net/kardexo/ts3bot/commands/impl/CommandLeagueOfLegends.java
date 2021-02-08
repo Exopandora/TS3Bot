@@ -1,5 +1,6 @@
 package net.kardexo.ts3bot.commands.impl;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
@@ -214,14 +215,23 @@ public class CommandLeagueOfLegends
 		
 		try
 		{
+			if(summonerFuture.get().isEmpty())
+			{
+				championsFuture.cancel(true);
+				historyFuture.cancel(true);
+				queuesFuture.cancel(true);
+				
+				throw SUMMONER_NOT_FOUND.create(username);
+			}
+			
 			if(championsFuture.get().isEmpty() || historyFuture.get().isEmpty())
 			{
 				throw ERROR_FETCHING_DATA.create();
 			}
 			
 			JsonNode champions = championsFuture.get().get();
-			JsonNode history = historyFuture.get().get().path("matches");
 			JsonNode summoner = summonerFuture.get().get();
+			JsonNode history = historyFuture.get().get().path("matches");
 			
 			List<CompletableFuture<Optional<JsonNode>>> matches = new ArrayList<CompletableFuture<Optional<JsonNode>>>(history.size());
 			
@@ -516,6 +526,10 @@ public class CommandLeagueOfLegends
 				connection.connect();
 				
 				return Optional.of(TS3Bot.getInstance().getObjectMapper().readTree(connection.getInputStream()));
+			}
+			catch(FileNotFoundException e)
+			{
+				return Optional.empty();
 			}
 			catch(IOException e)
 			{
