@@ -5,9 +5,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 
 import net.kardexo.ts3bot.config.Config.APIKey;
 import net.kardexo.ts3bot.config.Config.APIKey.Limit;
@@ -42,20 +39,25 @@ public class APIKeyManager
 		
 		if(apiKey.getLimits() != null)
 		{
-			try
+			long waitingTime = this.schedule(apiKey);
+			
+			if(waitingTime > 0)
 			{
-				return this.schedule(apiKey, result).get();
-			}
-			catch(InterruptedException | ExecutionException e)
-			{
-				e.printStackTrace();
+				try
+				{
+					Thread.sleep(waitingTime);
+				}
+				catch(InterruptedException e)
+				{
+					e.printStackTrace();
+				}
 			}
 		}
 		
 		return result;
 	}
 	
-	private synchronized CompletableFuture<String> schedule(APIKey apiKey, String result)
+	private synchronized long schedule(APIKey apiKey)
 	{
 		LinkedList<Long> requests = this.requests.computeIfAbsent(apiKey, api -> new LinkedList<Long>());
 		long time = System.currentTimeMillis();
@@ -65,11 +67,11 @@ public class APIKeyManager
 		{
 			long waitingTime = this.computeWaitingTime(time, apiKey.getLimits(), requests);
 			requests.add(time + waitingTime);
-			return CompletableFuture.supplyAsync(result::toString, CompletableFuture.delayedExecutor(waitingTime, TimeUnit.MILLISECONDS));
+			return waitingTime;
 		}
 		
 		requests.add(time);
-		return CompletableFuture.supplyAsync(result::toString);
+		return 0;
 	}
 	
 	private void removeExpired(long time, List<Limit> limits, LinkedList<Long> requests)
