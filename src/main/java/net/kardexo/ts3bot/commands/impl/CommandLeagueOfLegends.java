@@ -155,12 +155,13 @@ public class CommandLeagueOfLegends
 							builder.append(" | Unranked");
 						}
 						
-						try
+						Optional<JsonNode> mastery = CommandLeagueOfLegends.fetchChampionMastery(summonerId, participant.path("championId").asLong(), region);
+						
+						if(mastery.isPresent())
 						{
-							JsonNode mastery = CommandLeagueOfLegends.fetchChampionMastery(summonerId, participant.path("championId").asLong(), region).get();
-							builder.append(" | " + mastery.path("championPoints").asInt() + " (" + mastery.path("championLevel").asInt() + ")");
+							builder.append(" | " + mastery.get().path("championPoints").asInt() + " (" + mastery.get().path("championLevel").asInt() + ")");
 						}
-						catch(CommandSyntaxException e)
+						else
 						{
 							builder.append(" | 0 (1)");
 						}
@@ -553,9 +554,9 @@ public class CommandLeagueOfLegends
 		
 		if(tier.hasRanks())
 		{
-			if(rating < Rank.VALUES.length + 1)
+			if(rating - 1 < Rank.VALUES.length)
 			{
-				return new League(tier, Rank.VALUES[Rank.VALUES.length - rating]);
+				return new League(tier, Rank.VALUES[rating - 1]);
 			}
 			else
 			{
