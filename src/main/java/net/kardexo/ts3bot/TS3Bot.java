@@ -39,6 +39,7 @@ import net.kardexo.ts3bot.commands.impl.CommandKickAll;
 import net.kardexo.ts3bot.commands.impl.CommandLeagueOfLegends;
 import net.kardexo.ts3bot.commands.impl.CommandMove;
 import net.kardexo.ts3bot.commands.impl.CommandRandom;
+import net.kardexo.ts3bot.commands.impl.CommandRules;
 import net.kardexo.ts3bot.commands.impl.CommandSilent;
 import net.kardexo.ts3bot.commands.impl.CommandTeams;
 import net.kardexo.ts3bot.commands.impl.CommandWatch2Gether;
@@ -177,6 +178,7 @@ public class TS3Bot extends TS3EventAdapter
 		CommandKick.register(this.dispatcher);
 		CommandKickAll.register(this.dispatcher);
 		CommandHeldDerSteine.register(this.dispatcher);
+		CommandRules.register(this.dispatcher);
 	}
 	
 	@Override

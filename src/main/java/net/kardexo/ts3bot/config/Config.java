@@ -39,6 +39,9 @@ public class Config
 	@JsonProperty("gameservers")
 	private Map<String, File> gameservers;
 	
+	@JsonProperty("rules")
+	private List<String> rules;
+	
 	public Config()
 	{
 		super();
@@ -107,6 +110,11 @@ public class Config
 	public Map<String, File> getGameservers()
 	{
 		return this.gameservers;
+	}
+	
+	public List<String> getRules()
+	{
+		return this.rules;
 	}
 	
 	public static class APIKey

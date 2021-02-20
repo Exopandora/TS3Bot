@@ -52,5 +52,9 @@
 	},
 	"gameservers": {
 		"server_id": "PATH_TO_LAUNCHWRAPPER"
-	}
+	},
+	"rules": [
+		"RULE1",
+		"RULE2"
+	]
 }
