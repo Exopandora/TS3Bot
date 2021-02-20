@@ -13,7 +13,6 @@ import org.jsoup.Jsoup;
 
 import net.kardexo.ts3bot.TS3Bot;
 import net.kardexo.ts3bot.messageprocessors.url.IURLProcessor;
-import net.kardexo.ts3bot.util.StringUtils;
 
 public class DefaultURLProcessor implements IURLProcessor
 {
@@ -58,7 +57,7 @@ public class DefaultURLProcessor implements IURLProcessor
 			
 			if(host != null)
 			{
-				return StringUtils.capitalize(host.replaceAll("www.", ""));
+				return host.replaceAll("www\\.", "");
 			}
 			
 			return host;
