@@ -4,7 +4,6 @@
 # Except
 
 !/gradle/
-!/launchwrapper/
 !/src/main/
 !.gitignore
 !build.gradle
