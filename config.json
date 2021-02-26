@@ -41,6 +41,11 @@
 					"duration": 120000
 				}
 			]
+		},
+		"imagga": {
+			"tokens": {
+				"bearer_token": "API_KEY"
+			}
 		}
 	},
 	"default_watch2gether_share": "URL",

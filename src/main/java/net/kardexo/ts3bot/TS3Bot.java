@@ -58,6 +58,7 @@ public class TS3Bot extends TS3EventAdapter
 	public static final String API_KEY_YOUTUBE = "youtube";
 	public static final String API_KEY_TWITTER = "twitter";
 	public static final String API_KEY_LEAGUE_OF_LEGENDS = "league_of_legends";
+	public static final String API_KEY_IMAGGA = "imagga";
 	public static final Random RANDOM = new Random();
 	
 	private static final Logger LOGGER = LogManager.getLogger(TS3Bot.class);
