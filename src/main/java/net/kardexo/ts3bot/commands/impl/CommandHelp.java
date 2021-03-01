@@ -89,7 +89,7 @@ public class CommandHelp
 		
 		if(!usages.isEmpty())
 		{
-			builder.append(" [" + String.join(" ", usages) + "]");
+			builder.append(" [" + String.join(", ", usages) + "]");
 		}
 	}
 }
