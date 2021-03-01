@@ -1,6 +1,7 @@
 package net.kardexo.ts3bot.commands.impl;
 
 import java.io.IOException;
+import java.util.List;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.LiteralMessage;
@@ -87,20 +88,27 @@ public class CommandGameServers
 		StringBuilder builder = new StringBuilder();
 		
 		builder.append("\nRunning gameservers:");
+		CommandGameServers.appendServers(builder, manager.getRunningServerIds());
 		
-		for(String server : manager.getRunningServerIds())
-		{
-			builder.append("\n\t" + server);
-		}
-		
-		builder.append("\n\nAvailable gameservers:");
-		
-		for(String server : manager.getAvailableServerIds())
-		{
-			builder.append("\n\t" + server);
-		}
+		builder.append("\nAvailable gameservers:");
+		CommandGameServers.appendServers(builder, manager.getAvailableServerIds());
 		
 		context.getSource().sendFeedback(builder.toString());
 		return 0;
+	}
+	
+	private static void appendServers(StringBuilder builder, List<String> servers)
+	{
+		if(servers.isEmpty())
+		{
+			builder.append("\n\t(None)");
+		}
+		else
+		{
+			for(String server : servers)
+			{
+				builder.append("\n\t" + server);
+			}
+		}
 	}
 }
