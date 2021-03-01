@@ -93,7 +93,7 @@ public class TwitterURLProcessor implements IURLProcessor
 					
 					if(text != null && !text.isEmpty() && user != null && !user.isEmpty())
 					{
-						return user + ": " + text.substring(0, text.length() - 24);
+						return user + ": \"" + text.substring(0, text.length() - 24) + "\"";
 					}
 				}
 			}
