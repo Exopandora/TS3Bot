@@ -3,7 +3,9 @@ package net.kardexo.ts3bot;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.stream.Collectors;
@@ -19,6 +21,9 @@ import com.github.theholywaffle.teamspeak3.api.TextMessageTargetMode;
 import com.github.theholywaffle.teamspeak3.api.event.TS3EventAdapter;
 import com.github.theholywaffle.teamspeak3.api.event.TS3EventType;
 import com.github.theholywaffle.teamspeak3.api.event.TextMessageEvent;
+import com.github.theholywaffle.teamspeak3.api.reconnect.ConnectionHandler;
+import com.github.theholywaffle.teamspeak3.api.reconnect.ReconnectStrategy;
+import com.github.theholywaffle.teamspeak3.api.wrapper.Channel;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.ParseResults;
 import com.mojang.brigadier.StringReader;
@@ -40,6 +45,7 @@ import net.kardexo.ts3bot.commands.impl.CommandLeagueOfLegends;
 import net.kardexo.ts3bot.commands.impl.CommandMove;
 import net.kardexo.ts3bot.commands.impl.CommandRandom;
 import net.kardexo.ts3bot.commands.impl.CommandRules;
+import net.kardexo.ts3bot.commands.impl.CommandSay;
 import net.kardexo.ts3bot.commands.impl.CommandSilent;
 import net.kardexo.ts3bot.commands.impl.CommandTeams;
 import net.kardexo.ts3bot.commands.impl.CommandWatch2Gether;
@@ -50,7 +56,7 @@ import net.kardexo.ts3bot.messageprocessors.impl.URLMessageProcessor;
 import net.kardexo.ts3bot.util.APIKeyManager;
 import net.kardexo.ts3bot.util.ChatHistory;
 
-public class TS3Bot extends TS3EventAdapter
+public class TS3Bot extends TS3EventAdapter implements ConnectionHandler
 {
 	public static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.246";
 	public static final String API_KEY_WATCH_2_GETHER = "watch_2_gether";
@@ -60,8 +66,8 @@ public class TS3Bot extends TS3EventAdapter
 	public static final String API_KEY_LEAGUE_OF_LEGENDS = "league_of_legends";
 	public static final String API_KEY_IMAGGA = "imagga";
 	public static final Random RANDOM = new Random();
+	public static final Logger LOGGER = LogManager.getLogger(TS3Bot.class);
 	
-	private static final Logger LOGGER = LogManager.getLogger(TS3Bot.class);
 	private static TS3Bot instance;
 	
 	private int id;
@@ -72,8 +78,8 @@ public class TS3Bot extends TS3EventAdapter
 	private final CommandDispatcher<CommandSource> dispatcher = new CommandDispatcher<CommandSource>();
 	private final GameServerManager gameserverManager;
 	private final APIKeyManager apiKeyManager;
-	private TS3Query query;
 	private TS3Api api;
+	private TS3Query query;
 	private boolean silent;
 	
 	public TS3Bot(File config) throws IOException
@@ -88,76 +94,27 @@ public class TS3Bot extends TS3EventAdapter
 	public void start() throws InterruptedException
 	{
 		Runtime.getRuntime().addShutdownHook(new Thread(this::exit));
-		TS3Config config = new TS3Config().setHost(this.config.getHostAddress());
+		
+		TS3Config config = new TS3Config();
+		config.setHost(this.config.getHostAddress());
+		config.setReconnectStrategy(ReconnectStrategy.constantBackoff());
+		config.setConnectionHandler(this);
+		
+		this.gameserverManager.start();
+		this.registerCommands();
 		
 		this.query = new TS3Query(config);
-		this.gameserverManager.start();
+		this.query.connect();
 		
-		while(!this.connect())
+		try(Scanner scanner = new Scanner(System.in))
 		{
-			Thread.sleep(10000);
-		}
-		
-		TS3Bot.LOGGER.info("Connected to " + this.config.getHostAddress());
-		
-		this.registerCommands();
-		this.api = this.query.getApi();
-		
-		while(!this.login())
-		{
-			Thread.sleep(10000);
-		}
-		
-		TS3Bot.LOGGER.info("Logged in as " + this.config.getLoginName());
-		
-		this.api.selectVirtualServerById(this.config.getVirtualServerId(), this.config.getLoginName());
-		this.id = this.api.whoAmI().getId();
-		this.api.moveClient(this.id, this.api.getChannelByNameExact(this.config.getChannelName(), true).getId());
-		this.api.registerEvent(TS3EventType.TEXT_CHANNEL);
-		this.api.registerEvent(TS3EventType.TEXT_PRIVATE);
-		this.api.registerEvent(TS3EventType.TEXT_SERVER);
-		this.api.addTS3Listeners(this);
-		
-		Scanner scanner = new Scanner(System.in);
-		
-		while(scanner.hasNextLine())
-		{
-			String line = scanner.nextLine();
-			
-			if(line.equals("exit"))
+			while(scanner.hasNextLine())
 			{
-				System.exit(0);
+				Map<String, String> map = new HashMap<String, String>();
+				map.put("msg", scanner.nextLine().replaceFirst("^!*", "!"));
+				map.put("invokerid", String.valueOf(-1));
+				this.onTextMessage(new TextMessageEvent(map));
 			}
-		}
-		
-		scanner.close();
-	}
-	
-	private boolean connect()
-	{
-		try
-		{
-			this.query.connect();
-			return true;
-		}
-		catch(Exception e)
-		{
-			TS3Bot.LOGGER.error("Connection failed");
-			return false;
-		}
-	}
-	
-	private boolean login()
-	{
-		try
-		{
-			this.api.login(this.config.getLoginName(), this.config.getLoginPassword());
-			return true;
-		}
-		catch(Exception e)
-		{
-			TS3Bot.LOGGER.error("Login failed");
-			return false;
 		}
 	}
 	
@@ -180,11 +137,17 @@ public class TS3Bot extends TS3EventAdapter
 		CommandKickAll.register(this.dispatcher);
 		CommandHeldDerSteine.register(this.dispatcher);
 		CommandRules.register(this.dispatcher);
+		CommandSay.register(this.dispatcher);
 	}
 	
 	@Override
 	public void onTextMessage(TextMessageEvent event)
 	{
+		if(this.api == null)
+		{
+			return;
+		}
+		
 		if(event.getInvokerId() == this.id)
 		{
 			return;
@@ -203,9 +166,9 @@ public class TS3Bot extends TS3EventAdapter
 		{
 			reader.skip();
 			
-			CommandSource source = new CommandSource(this.api, this.api.getClientInfo(event.getInvokerId()), event.getTargetMode());
+			CommandSource source = new CommandSource(this.api, this.api.getClientInfo(event.getInvokerId() == -1 ? this.id : event.getInvokerId()), event.getTargetMode());
 			
-			if(this.silent && !source.hasPermission("admin"))
+			if(this.silent && (!source.hasPermission("admin") || event.getInvokerId() != -1))
 			{
 				return;
 			}
@@ -236,32 +199,75 @@ public class TS3Bot extends TS3EventAdapter
 					
 					if(nodes.isEmpty())
 					{
-						this.api.sendTextMessage(event.getTargetMode(), event.getInvokerId(), e.getRawMessage().getString());
+						source.sendFeedback(e.getRawMessage().getString());
 					}
 					else
 					{
 						StringBuilder builder = new StringBuilder();
 						String command = nodes.stream().map(node -> node.getNode().getName()).collect(Collectors.joining(" "));
 						CommandHelp.appendAllUsage(builder, this.dispatcher, nodes, source, true);
-						this.api.sendTextMessage(event.getTargetMode(), event.getInvokerId(), "Usage: !" + command + builder.toString());
+						source.sendFeedback("Usage: !" + command + builder.toString());
 					}
 				}
 				else
 				{
-					this.api.sendTextMessage(event.getTargetMode(), event.getInvokerId(), e.getRawMessage().getString());
+					source.sendFeedback(e.getRawMessage().getString());
 				}
 			}
 		}
-		else if(event.getTargetMode().equals(TextMessageTargetMode.CHANNEL))
+		else if(event.getTargetMode() == TextMessageTargetMode.CHANNEL && event.getInvokerId() != this.id && event.getInvokerId() != -1)
 		{
 			String response = this.generateResponseMessage(reader.getString(), true);
 			
 			if(response != null)
 			{
 				this.api.sendTextMessage(event.getTargetMode(), event.getInvokerId(), response);
-				TS3Bot.LOGGER.info(reader.getString() + " -> " + response);
 			}
 		}
+	}
+	
+	@Override
+	public void onConnect(TS3Query ts3Query)
+	{
+		TS3Bot.LOGGER.info("Connected to " + this.config.getHostAddress());
+		
+		this.api = ts3Query.getApi();
+		
+		try
+		{
+			this.api.login(this.config.getLoginName(), this.config.getLoginPassword());
+			this.api.selectVirtualServerById(this.config.getVirtualServerId(), this.config.getLoginName());
+			
+			this.id = this.api.whoAmI().getId();
+			
+			Channel channel = this.api.getChannelByNameExact(this.config.getChannelName(), true);
+			
+			if(channel != null)
+			{
+				this.api.moveClient(this.id, channel.getId());
+			}
+			else
+			{
+				TS3Bot.LOGGER.error("Could not move to channel " + this.config.getChannelName());
+			}
+			
+			this.api.registerEvent(TS3EventType.TEXT_CHANNEL);
+			this.api.registerEvent(TS3EventType.TEXT_PRIVATE);
+			this.api.registerEvent(TS3EventType.TEXT_SERVER);
+			this.api.addTS3Listeners(this);
+			
+			TS3Bot.LOGGER.info("Logged in as " + this.config.getLoginName());
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+	}
+	
+	@Override
+	public void onDisconnect(TS3Query ts3Query)
+	{
+		
 	}
 	
 	public void exit()
@@ -269,14 +275,16 @@ public class TS3Bot extends TS3EventAdapter
 		if(this.api != null)
 		{
 			this.api.logout();
-			TS3Bot.LOGGER.info("Logged out");
 		}
+		
+		TS3Bot.LOGGER.info("Logged out");
 		
 		if(this.query != null)
 		{
 			this.query.exit();
-			TS3Bot.LOGGER.info("Disconnected");
 		}
+		
+		TS3Bot.LOGGER.info("Disconnected");
 		
 		if(this.gameserverManager != null)
 		{
@@ -327,11 +335,6 @@ public class TS3Bot extends TS3EventAdapter
 	public int getId()
 	{
 		return this.id;
-	}
-	
-	public TS3Query getQuery()
-	{
-		return this.query;
 	}
 	
 	public GameServerManager getGameserverManager()

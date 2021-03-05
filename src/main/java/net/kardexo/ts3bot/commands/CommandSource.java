@@ -32,16 +32,35 @@ public class CommandSource
 	
 	public void sendFeedback(String message)
 	{
-		TS3Bot.getInstance().getApi().sendTextMessage(this.target, this.getClientInfo().getId(), message);
+		if(this.getClientInfo().getId() == TS3Bot.getInstance().getId())
+		{
+			TS3Bot.LOGGER.info(message);
+		}
+		else
+		{
+			TS3Bot.getInstance().getApi().sendTextMessage(this.target, this.getClientInfo().getId(), message);
+		}
 	}
 	
 	public void sendPrivateMessage(String message)
 	{
-		TS3Bot.getInstance().getApi().sendPrivateMessage(this.getClientInfo().getId(), message);
+		if(this.getClientInfo().getId() == TS3Bot.getInstance().getId())
+		{
+			TS3Bot.LOGGER.info(message);
+		}
+		else
+		{
+			TS3Bot.getInstance().getApi().sendPrivateMessage(this.getClientInfo().getId(), message);
+		}
 	}
 	
 	public boolean hasPermission(String permission)
 	{
+		if(this.getClientInfo().getId() == TS3Bot.getInstance().getId())
+		{
+			return true;
+		}
+		
 		JsonNode group = TS3Bot.getInstance().getConfig().getPermissions().get(permission);
 		
 		if(group != null)

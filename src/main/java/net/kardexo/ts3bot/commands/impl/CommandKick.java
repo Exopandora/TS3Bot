@@ -19,6 +19,7 @@ public class CommandKick
 	public static void register(CommandDispatcher<CommandSource> dispatcher)
 	{
 		dispatcher.register(Commands.literal("kick")
+				.requires(source -> source.getClientInfo().getId() != TS3Bot.getInstance().getId())
 				.executes(context -> kick(context))
 				.then(Commands.argument("username", StringArgumentType.greedyString())
 						.requires(source -> source.hasPermission("admin"))
