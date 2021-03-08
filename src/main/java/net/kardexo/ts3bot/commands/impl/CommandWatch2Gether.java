@@ -55,14 +55,13 @@ public class CommandWatch2Gether
 				connection.setRequestMethod("POST");
 				connection.setRequestProperty("Content-Type", "application/json");
 				connection.setRequestProperty("Content-Length", String.valueOf(content.length));
-				
 				connection.getOutputStream().write(content);
 				connection.connect();
 				
 				JsonNode node = TS3Bot.getInstance().getObjectMapper().readTree(connection.getInputStream());
 				StringBuilder builder = new StringBuilder(); 
 				
-				if(url != null)
+				if(url != null && !url.isBlank())
 				{
 					String response = TS3Bot.getInstance().generateResponseMessage(URLs.wrap(url), false);
 					
@@ -73,7 +72,6 @@ public class CommandWatch2Gether
 				}
 				
 				builder.append(API_URL + node.path("streamkey").asText());
-				
 				context.getSource().sendFeedback(builder.toString());
 			}
 			finally
