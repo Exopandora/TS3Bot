@@ -244,11 +244,14 @@ public class TS3Bot extends TS3EventAdapter implements ConnectionHandler
 			
 			if(channel != null)
 			{
-				this.api.moveClient(this.id, channel.getId());
+				if(this.api.getClientInfo(this.id).getChannelId() != channel.getId())
+				{
+					this.api.moveClient(this.id, channel.getId());
+				}
 			}
 			else
 			{
-				TS3Bot.LOGGER.error("Could not move to channel " + this.config.getChannelName());
+				TS3Bot.LOGGER.error("Channel " + this.config.getChannelName() + " does not exist");
 			}
 			
 			this.api.registerEvent(TS3EventType.TEXT_CHANNEL);
