@@ -49,6 +49,8 @@
 		}
 	},
 	"default_watch2gether_share": "URL",
+	"default_watch2gether_bg_color": "#FFFFFF",
+	"default_watch2gether_bg_opacity": "100",
 	"league_of_legends_region": "REGION_CODE",
 	"permissions": {
 		"admin": [

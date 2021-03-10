@@ -47,7 +47,13 @@ public class CommandWatch2Gether
 		try
 		{
 			HttpURLConnection connection = (HttpURLConnection) new URL(API_URL + "create.json").openConnection();
-			byte[] content = TS3Bot.getInstance().getObjectMapper().writeValueAsBytes(new Watch2Gether(TS3Bot.getInstance().getApiKeyManager().requestKey(TS3Bot.API_KEY_WATCH_2_GETHER), url));
+			
+			Watch2Gether watch2gether = new Watch2Gether(TS3Bot.getInstance().getApiKeyManager().requestKey(TS3Bot.API_KEY_WATCH_2_GETHER));
+			watch2gether.setShare(url);
+			watch2gether.setBackgroundColor(TS3Bot.getInstance().getConfig().getDefaultW2GBGColor());
+			watch2gether.setBackgroundOpacity(TS3Bot.getInstance().getConfig().getDefaultW2GBGOpacity());
+			
+			byte[] content = TS3Bot.getInstance().getObjectMapper().writeValueAsBytes(watch2gether);
 			
 			try
 			{
@@ -93,16 +99,19 @@ public class CommandWatch2Gether
 		private String apiKey;
 		@JsonProperty("share")
 		private String share;
+		@JsonProperty("bg_color")
+		private String backgroundColor;
+		@JsonProperty("bg_opacity")
+		private int backgroundOpacity;
 		
 		public Watch2Gether()
 		{
 			super();
 		}
 		
-		public Watch2Gether(String apiKey, String share)
+		public Watch2Gether(String apiKey)
 		{
 			this.apiKey = apiKey;
-			this.share = share;
 		}
 		
 		public String getApiKey()
@@ -123,6 +132,26 @@ public class CommandWatch2Gether
 		public void setShare(String share)
 		{
 			this.share = share;
+		}
+		
+		public String getBackgroundColor()
+		{
+			return this.backgroundColor;
+		}
+		
+		public void setBackgroundColor(String backgroundColor)
+		{
+			this.backgroundColor = backgroundColor;
+		}
+		
+		public int getBackgroundOpacity()
+		{
+			return this.backgroundOpacity;
+		}
+		
+		public void setBackgroundOpacity(int backgroundOpacity)
+		{
+			this.backgroundOpacity = Math.max(0, Math.min(backgroundOpacity, 100));
 		}
 	}
 }

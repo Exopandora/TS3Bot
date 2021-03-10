@@ -33,6 +33,10 @@ public class Config
 	
 	@JsonProperty("default_watch2gether_share")
 	private String defaultW2GShare;
+	@JsonProperty("default_watch2gether_bg_color")
+	private String defaultW2GBGColor;
+	@JsonProperty("default_watch2gether_bg_opacity")
+	private int defaultW2GBGOpacity;
 	@JsonProperty("league_of_legends_region")
 	private Region lolRegion;
 	
@@ -92,9 +96,14 @@ public class Config
 		return this.defaultW2GShare;
 	}
 	
-	public void setDefaultW2GShare(String defaultW2GShare)
+	public String getDefaultW2GBGColor()
 	{
-		this.defaultW2GShare = defaultW2GShare;
+		return this.defaultW2GBGColor;
+	}
+	
+	public int getDefaultW2GBGOpacity()
+	{
+		return this.defaultW2GBGOpacity;
 	}
 	
 	public Region getLoLRegion()
