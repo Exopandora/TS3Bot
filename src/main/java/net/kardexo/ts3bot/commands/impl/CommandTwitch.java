@@ -14,11 +14,13 @@ public class CommandTwitch
 	
 	public static int twitch(CommandContext<CommandSource> context, String user) throws CommandSyntaxException
 	{
-		try
+		String details = TwitchURLProcessor.twitchDetails(user, true);
+		
+		if(details != null)
 		{
-			context.getSource().sendFeedback(TwitchURLProcessor.twitchDetails(user, true));
+			context.getSource().sendFeedback(details);
 		}
-		catch(Exception e)
+		else
 		{
 			throw TWITCH_SERVICE_UNAVAILABLE.create();
 		}
