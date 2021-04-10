@@ -1,9 +1,14 @@
 package net.kardexo.ts3bot.commands.impl;
 
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.LiteralMessage;
@@ -16,11 +21,11 @@ import com.mojang.brigadier.tree.LiteralCommandNode;
 import net.kardexo.ts3bot.TS3Bot;
 import net.kardexo.ts3bot.commands.CommandSource;
 import net.kardexo.ts3bot.commands.Commands;
-import net.kardexo.ts3bot.util.URLs;
+import net.kardexo.ts3bot.util.Util;
 
 public class CommandWatch2Gether
 {
-	private static final String API_URL = "https://w2g.tv/rooms/";
+	private static final URI API_URL = URI.create("https://w2g.tv/rooms/");
 	private static final String YOUTUBE_URL = "https://youtu.be/";
 	private static final SimpleCommandExceptionType WATCH2GETHER_SERVICE_UNAVAILABLE = new SimpleCommandExceptionType(new LiteralMessage("Watch2Gether is currently unavailable"));
 	
@@ -29,7 +34,7 @@ public class CommandWatch2Gether
 		LiteralCommandNode<CommandSource> watch2gether = dispatcher.register(Commands.literal("watch2gether")
 				.executes(context -> watch2gether(context))
 				.then(Commands.argument("url", StringArgumentType.greedyString())
-						.executes(context -> watch2gether(context, URLs.extract(StringArgumentType.getString(context, "url")))))
+						.executes(context -> watch2gether(context, Util.extract(StringArgumentType.getString(context, "url")))))
 				.then(Commands.literal("held")
 						.executes(context -> watch2gether(context, YOUTUBE_URL + CommandHeldDerSteine.fetchRandomVideo().path("snippet").path("resourceId").path("videoId").asText()))));
 		dispatcher.register(Commands.literal("w2g")
@@ -44,45 +49,34 @@ public class CommandWatch2Gether
 	
 	public static int watch2gether(CommandContext<CommandSource> context, String url) throws CommandSyntaxException
 	{
-		try
+		try(CloseableHttpClient client = Util.httpClient())
 		{
-			HttpURLConnection connection = (HttpURLConnection) new URL(API_URL + "create.json").openConnection();
+			Map<String, Object> watch2gether = new HashMap<String, Object>();
+			watch2gether.put("w2g_api_key", TS3Bot.getInstance().getApiKeyManager().requestKey(TS3Bot.API_KEY_WATCH_2_GETHER));
+			watch2gether.put("share", url);
+			watch2gether.put("bg_color", TS3Bot.getInstance().getConfig().getDefaultW2GBGColor());
+			watch2gether.put("bg_opacity", TS3Bot.getInstance().getConfig().getDefaultW2GBGOpacity());
 			
-			Watch2Gether watch2gether = new Watch2Gether(TS3Bot.getInstance().getApiKeyManager().requestKey(TS3Bot.API_KEY_WATCH_2_GETHER));
-			watch2gether.setShare(url);
-			watch2gether.setBackgroundColor(TS3Bot.getInstance().getConfig().getDefaultW2GBGColor());
-			watch2gether.setBackgroundOpacity(TS3Bot.getInstance().getConfig().getDefaultW2GBGOpacity());
+			HttpPost httpPost = new HttpPost(API_URL.resolve("create.json"));
+			httpPost.addHeader("Content-Type", "application/json");
+			httpPost.setEntity(new StringEntity(TS3Bot.getInstance().getObjectMapper().writeValueAsString(watch2gether)));
 			
-			byte[] content = TS3Bot.getInstance().getObjectMapper().writeValueAsBytes(watch2gether);
-			
-			try
+			try(CloseableHttpResponse response = client.execute(httpPost))
 			{
-				connection.setDoOutput(true);
-				connection.setRequestMethod("POST");
-				connection.setRequestProperty("Content-Type", "application/json");
-				connection.setRequestProperty("Content-Length", String.valueOf(content.length));
-				connection.getOutputStream().write(content);
-				connection.connect();
-				
-				JsonNode node = TS3Bot.getInstance().getObjectMapper().readTree(connection.getInputStream());
+				JsonNode node = TS3Bot.getInstance().getObjectMapper().readTree(response.getEntity().getContent());
 				StringBuilder builder = new StringBuilder(); 
 				
 				if(url != null && !url.isBlank())
 				{
-					String response = TS3Bot.getInstance().generateResponseMessage(URLs.wrap(url), false);
+					String result = TS3Bot.getInstance().generateResponseMessage(Util.wrap(url), false);
 					
-					if(response != null)
+					if(result != null)
 					{
-						builder.append(response + " ");
+						builder.append(result + " ");
 					}
 				}
 				
-				builder.append(API_URL + node.path("streamkey").asText());
-				context.getSource().sendFeedback(builder.toString());
-			}
-			finally
-			{
-				connection.disconnect();
+				context.getSource().sendFeedback(builder.append(API_URL.resolve(node.path("streamkey").asText())).toString());
 			}
 		}
 		catch(Exception e)
@@ -91,67 +85,5 @@ public class CommandWatch2Gether
 		}
 		
 		return 0;
-	}
-	
-	public static class Watch2Gether
-	{
-		@JsonProperty("w2g_api_key")
-		private String apiKey;
-		@JsonProperty("share")
-		private String share;
-		@JsonProperty("bg_color")
-		private String backgroundColor;
-		@JsonProperty("bg_opacity")
-		private int backgroundOpacity;
-		
-		public Watch2Gether()
-		{
-			super();
-		}
-		
-		public Watch2Gether(String apiKey)
-		{
-			this.apiKey = apiKey;
-		}
-		
-		public String getApiKey()
-		{
-			return this.apiKey;
-		}
-		
-		public void setApiKey(String apiKey)
-		{
-			this.apiKey = apiKey;
-		}
-		
-		public String getShare()
-		{
-			return this.share;
-		}
-		
-		public void setShare(String share)
-		{
-			this.share = share;
-		}
-		
-		public String getBackgroundColor()
-		{
-			return this.backgroundColor;
-		}
-		
-		public void setBackgroundColor(String backgroundColor)
-		{
-			this.backgroundColor = backgroundColor;
-		}
-		
-		public int getBackgroundOpacity()
-		{
-			return this.backgroundOpacity;
-		}
-		
-		public void setBackgroundOpacity(int backgroundOpacity)
-		{
-			this.backgroundOpacity = Math.max(0, Math.min(backgroundOpacity, 100));
-		}
 	}
 }

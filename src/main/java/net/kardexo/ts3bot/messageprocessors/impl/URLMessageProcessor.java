@@ -11,7 +11,7 @@ import net.kardexo.ts3bot.messageprocessors.url.impl.TwitchURLProcessor;
 import net.kardexo.ts3bot.messageprocessors.url.impl.TwitterURLProcessor;
 import net.kardexo.ts3bot.messageprocessors.url.impl.Watch2GetherURLProcessor;
 import net.kardexo.ts3bot.messageprocessors.url.impl.YouTubeURLProcessor;
-import net.kardexo.ts3bot.util.URLs;
+import net.kardexo.ts3bot.util.Util;
 
 public class URLMessageProcessor implements IMessageProcessor
 {
@@ -30,7 +30,7 @@ public class URLMessageProcessor implements IMessageProcessor
 	@Override
 	public String process(String message)
 	{
-		String url = URLs.extract(message);
+		String url = Util.extract(message);
 		
 		if(url != null)
 		{

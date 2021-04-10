@@ -1,11 +1,11 @@
 package net.kardexo.ts3bot.commands.impl;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -17,12 +17,19 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.util.EntityUtils;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -38,7 +45,7 @@ import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import net.kardexo.ts3bot.TS3Bot;
 import net.kardexo.ts3bot.commands.CommandSource;
 import net.kardexo.ts3bot.commands.Commands;
-import net.kardexo.ts3bot.util.StringUtils;
+import net.kardexo.ts3bot.util.Util;
 
 public class CommandLeagueOfLegends
 {
@@ -50,8 +57,8 @@ public class CommandLeagueOfLegends
 	private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd.MM");
 	
 	private static final String API_URL = "https://%s.api.riotgames.com/";
-	private static final String DDRAGON_API_URL = "https://ddragon.leagueoflegends.com/";
-	private static final String STATIC_DOC_API_URL = "http://static.developer.riotgames.com/docs/";
+	private static final URI DDRAGON_API_URL = URI.create("https://ddragon.leagueoflegends.com/");
+	private static final URI STATIC_DOC_API_URL = URI.create("http://static.developer.riotgames.com/docs/");
 	
 	private static final int MAX_RATING = Arrays.stream(Tier.VALUES).mapToInt(tier -> tier.hasRanks() ? Rank.VALUES.length : 1).sum();
 	private static final int HTTP_RETRIES = 10;
@@ -74,25 +81,22 @@ public class CommandLeagueOfLegends
 	
 	private static int match(CommandContext<CommandSource> context, String username, Region region) throws CommandSyntaxException
 	{
-		JsonNode champions = CommandLeagueOfLegends.fetchChampions(CommandLeagueOfLegends.fetchVersion().get()).get();
-		Optional<JsonNode> summonerOptional = CommandLeagueOfLegends.fetchSummoner(username, region);
+		JsonNode champions = CommandLeagueOfLegends.fetchChampions(CommandLeagueOfLegends.fetchVersion());
+		JsonNode summoner = CommandLeagueOfLegends.fetchSummoner(username, region);
 		
-		if(summonerOptional.isEmpty())
+		if(summoner == null)
 		{
 			throw SUMMONER_NOT_FOUND.create(username);
 		}
 		
-		JsonNode summoner = summonerOptional.get();
-		Optional<JsonNode> matchOptional = CommandLeagueOfLegends.fetchActiveMatch(username, summoner.path("id").asText(), region);
+		JsonNode match = CommandLeagueOfLegends.fetchActiveMatch(summoner.path("id").asText(), region);
 		
-		if(matchOptional.isEmpty())
+		if(match == null)
 		{
 			throw SUMMONER_NOT_IN_GAME.create(username);
 		}
 		
-		JsonNode match = matchOptional.get();
-		JsonNode queues = CommandLeagueOfLegends.fetchQueues().get();
-		
+		JsonNode queues = CommandLeagueOfLegends.fetchQueues();
 		StringBuilder builder = new StringBuilder();
 		JsonNode participants = match.path("participants");
 		Map<Integer, List<JsonNode>> teamsMap = new HashMap<Integer, List<JsonNode>>();
@@ -115,7 +119,7 @@ public class CommandLeagueOfLegends
 			
 			if(x > 0)
 			{
-				builder.append("\n" + StringUtils.repeat("\t", 7) + "[b]VS[/b]");
+				builder.append("\n" + Util.repeat("\t", 7) + "[b]VS[/b]");
 			}
 			
 			if(!teamMembers.isEmpty())
@@ -124,8 +128,7 @@ public class CommandLeagueOfLegends
 				
 				for(JsonNode participant : teamMembers)
 				{
-					builder.append("\n[[color=" + color + "]" + CommandLeagueOfLegends.getChampionById(participant.path("championId").asLong(), champions) + "[/color]]");
-					
+					builder.append("\n[[color=" + color + "]" + CommandLeagueOfLegends.championById(participant.path("championId").asLong(), champions) + "[/color]]");
 					String summonerName = participant.path("summonerName").asText();
 					
 					if(summonerName.equalsIgnoreCase(username))
@@ -140,8 +143,8 @@ public class CommandLeagueOfLegends
 					if(!participant.path("bot").asBoolean())
 					{
 						String summonerId = CommandLeagueOfLegends.encodeSummonerName(participant.path("summonerId").asText());
-						JsonNode leagues = CommandLeagueOfLegends.fetchLeague(summonerId, region).get();
-						Optional<League> optional = CommandLeagueOfLegends.getHighestRank(leagues);
+						JsonNode leagues = CommandLeagueOfLegends.fetchLeague(summonerId, region);
+						Optional<League> optional = CommandLeagueOfLegends.highestRank(leagues);
 						
 						if(optional.isPresent())
 						{
@@ -155,11 +158,11 @@ public class CommandLeagueOfLegends
 							builder.append(" | Unranked");
 						}
 						
-						Optional<JsonNode> mastery = CommandLeagueOfLegends.fetchChampionMastery(summonerId, participant.path("championId").asLong(), region);
+						JsonNode mastery = CommandLeagueOfLegends.fetchChampionMastery(summonerId, participant.path("championId").asLong(), region);
 						
-						if(mastery.isPresent())
+						if(mastery != null)
 						{
-							builder.append(" | " + mastery.get().path("championPoints").asInt() + " (" + mastery.get().path("championLevel").asInt() + ")");
+							builder.append(" | " + mastery.path("championPoints").asInt() + " (" + mastery.path("championLevel").asInt() + ")");
 						}
 						else
 						{
@@ -184,7 +187,7 @@ public class CommandLeagueOfLegends
 		long gameLength = match.path("gameLength").asLong();
 		
 		builder.append("\n" + queue);
-		builder.append(" | " + (gameLength < 0 ? "Loading Screen" : StringUtils.formatDuration(gameLength)));
+		builder.append(" | " + (gameLength < 0 ? "Loading Screen" : Util.formatDuration(gameLength)));
 		builder.append(" | Average Ranks: " + ranks);
 		
 		context.getSource().sendFeedback(builder.toString());
@@ -193,30 +196,20 @@ public class CommandLeagueOfLegends
 	
 	private static int history(CommandContext<CommandSource> context, String username, Region region) throws CommandSyntaxException
 	{
-		CompletableFuture<Optional<JsonNode>> championsFuture = CompletableFuture.supplyAsync(CommandLeagueOfLegends::fetchVersion).thenCompose(optional ->
+		CompletableFuture<JsonNode> championsFuture = CompletableFuture.supplyAsync(CommandLeagueOfLegends::fetchVersion).thenApply(version ->
 		{
-			if(optional.isPresent())
-			{
-				return CompletableFuture.supplyAsync(() -> CommandLeagueOfLegends.fetchChampions(optional.get()));
-			}
-			
-			return CompletableFuture.completedFuture(Optional.empty());
+			return version != null ? CommandLeagueOfLegends.fetchChampions(version) : null;
 		});
-		CompletableFuture<Optional<JsonNode>> queuesFuture = CompletableFuture.supplyAsync(CommandLeagueOfLegends::fetchQueues);
-		CompletableFuture<Optional<JsonNode>> summonerFuture = CompletableFuture.supplyAsync(() -> CommandLeagueOfLegends.fetchSummoner(username, region));
-		CompletableFuture<Optional<JsonNode>> historyFuture = summonerFuture.thenCompose(optional ->
+		CompletableFuture<JsonNode> queuesFuture = CompletableFuture.supplyAsync(CommandLeagueOfLegends::fetchQueues);
+		CompletableFuture<JsonNode> summonerFuture = CompletableFuture.supplyAsync(() -> CommandLeagueOfLegends.fetchSummoner(username, region));
+		CompletableFuture<JsonNode> historyFuture = summonerFuture.thenApply(summoner ->
 		{
-			if(optional.isPresent())
-			{
-				return CompletableFuture.supplyAsync(() -> CommandLeagueOfLegends.fetchMatchHistory(optional.get().path("accountId").asText(), region, 0, 20));
-			}
-			
-			return CompletableFuture.completedFuture(Optional.empty());
+			return summoner != null ? CommandLeagueOfLegends.fetchMatchHistory(summoner.path("accountId").asText(), region, 0, 20) : null;
 		});
 		
 		try
 		{
-			if(summonerFuture.get().isEmpty())
+			if(summonerFuture.get() == null)
 			{
 				championsFuture.cancel(true);
 				historyFuture.cancel(true);
@@ -225,16 +218,16 @@ public class CommandLeagueOfLegends
 				throw SUMMONER_NOT_FOUND.create(username);
 			}
 			
-			if(championsFuture.get().isEmpty() || historyFuture.get().isEmpty())
+			if(championsFuture.get() == null || historyFuture.get() == null)
 			{
 				throw ERROR_FETCHING_DATA.create();
 			}
 			
-			JsonNode champions = championsFuture.get().get();
-			JsonNode summoner = summonerFuture.get().get();
-			JsonNode history = historyFuture.get().get().path("matches");
+			JsonNode champions = championsFuture.get();
+			JsonNode summoner = summonerFuture.get();
+			JsonNode history = historyFuture.get().path("matches");
 			
-			List<CompletableFuture<Optional<JsonNode>>> matches = new ArrayList<CompletableFuture<Optional<JsonNode>>>(history.size());
+			List<CompletableFuture<JsonNode>> matches = new ArrayList<CompletableFuture<JsonNode>>(history.size());
 			
 			for(JsonNode match : history)
 			{
@@ -258,28 +251,26 @@ public class CommandLeagueOfLegends
 			long totalDuration = 0;
 			long playtimeToday = 0;
 			
-			JsonNode queues = queuesFuture.get().get();
+			JsonNode queues = queuesFuture.get();
 			
-			if(queuesFuture.get().isEmpty())
+			if(queues == null)
 			{
 				throw ERROR_FETCHING_DATA.create();
 			}
 			
 			for(int x = 0; x < history.size(); x++)
 			{
-				Optional<JsonNode> optional = matches.get(x).get();
+				JsonNode match = matches.get(x).get();
 				
-				if(optional.isEmpty())
+				if(match == null)
 				{
 					throw ERROR_FETCHING_DATA.create();
 				}
 				
-				JsonNode match = optional.get();
-				
-				int participantId = CommandLeagueOfLegends.getParticinantId(match, summoner.path("id").asText());
-				JsonNode participant = CommandLeagueOfLegends.getParticipant(match, participantId);
+				int participantId = CommandLeagueOfLegends.particinantId(match, summoner.path("id").asText());
+				JsonNode participant = CommandLeagueOfLegends.participant(match, participantId);
 				JsonNode stats = participant.path("stats");
-				String champion = CommandLeagueOfLegends.getChampionById(participant.path("championId").asLong(), champions);
+				String champion = CommandLeagueOfLegends.championById(participant.path("championId").asLong(), champions);
 				long gameDuration = match.path("gameDuration").asLong();
 				boolean winner = stats.path("win").asBoolean();
 				int kills = stats.path("kills").asInt();
@@ -288,7 +279,7 @@ public class CommandLeagueOfLegends
 				Date date = new Date(match.path("gameCreation").asLong());
 				
 				builder.append("\n[[color=" + (winner ? "green" : "#FF2345") + "]" + (x + 1) + "[/color]]");
-				builder.append(" " + StringUtils.formatDuration(gameDuration));
+				builder.append(" " + Util.formatDuration(gameDuration));
 				builder.append(" | " + DATE_FORMAT.format(date));
 				builder.append(" | " + CommandLeagueOfLegends.formatQueue(queues, match.path("queueId").asInt()));
 				builder.append(" | " + kills + "/" + deaths + "/" + assists);
@@ -311,19 +302,16 @@ public class CommandLeagueOfLegends
 			}
 			
 			double matchCount = history.size();
-			
-			builder.append("\nWinrate: " + Math.round(wins * 100 / matchCount) + "%");
-			
 			String kills = String.format(Locale.ENGLISH, "%.01f", totalKills / matchCount);
 			String deaths = String.format(Locale.ENGLISH, "%.01f", totalDeaths / matchCount);
 			String assists = String.format(Locale.ENGLISH, "%.01f", totalAssists / matchCount);
 			
+			builder.append("\nWinrate: " + Math.round(wins * 100 / matchCount) + "%");
 			builder.append(" | Average KDA: " + kills + "/" + deaths + "/" + assists);
-			builder.append(" | Average Match Length: " + StringUtils.formatDuration((long) (totalDuration / matchCount)));
-			builder.append(" | Playtime Today: " + StringUtils.formatDuration(playtimeToday));
+			builder.append(" | Average Match Length: " + Util.formatDuration((long) (totalDuration / matchCount)));
+			builder.append(" | Playtime Today: " + Util.formatDuration(playtimeToday));
 			
 			context.getSource().sendFeedback(builder.toString());
-			
 			return wins;
 		}
 		catch(InterruptedException | ExecutionException e)
@@ -335,8 +323,21 @@ public class CommandLeagueOfLegends
 	private static int lore(CommandContext<CommandSource> context, String champion) throws CommandSyntaxException
 	{
 		String normal = CommandLeagueOfLegends.normalizeChampionName(champion);
-		Optional<String> version = CommandLeagueOfLegends.fetchVersion();
-		Iterator<JsonNode> iterator = CommandLeagueOfLegends.fetchChampions(version.get()).get().path("data").iterator();
+		String version = CommandLeagueOfLegends.fetchVersion();
+		
+		if(version == null)
+		{
+			throw ERROR_FETCHING_DATA.create();
+		}
+		
+		JsonNode champions = CommandLeagueOfLegends.fetchChampions(version);
+		
+		if(champions == null)
+		{
+			throw ERROR_FETCHING_DATA.create();
+		}
+		
+		Iterator<JsonNode> iterator = champions.path("data").iterator();
 		
 		while(iterator.hasNext())
 		{
@@ -345,14 +346,20 @@ public class CommandLeagueOfLegends
 			if(CommandLeagueOfLegends.normalizeChampionName(node.path("name").asText()).equals(normal))
 			{
 				String id = node.path("id").asText();
-				JsonNode champ = CommandLeagueOfLegends.fetchChampion(version.get(), id).get().path("data").path(id);
+				JsonNode champ = CommandLeagueOfLegends.fetchChampion(version, id);
+				
+				if(champ == null)
+				{
+					throw ERROR_FETCHING_DATA.create();
+				}
+				
+				JsonNode data = champ.path("data").path(id);
 				StringBuilder builder = new StringBuilder();
-				
-				builder.append("\n" + champ.path("name").asText() + " " + champ.path("title").asText());
-				builder.append("\n" + champ.path("lore").asText());
-				
+				builder.append("\n" + data.path("name").asText() + " " + data.path("title").asText());
+				builder.append("\n" + data.path("lore").asText());
 				context.getSource().sendFeedback(builder.toString());
-				return champ.path("key").asInt();
+				
+				return data.path("key").asInt();
 			}
 		}
 		
@@ -364,27 +371,35 @@ public class CommandLeagueOfLegends
 		return champion.replaceAll("[^A-Za-z]", "").toLowerCase();
 	}
 	
-	private static Optional<String> fetchVersion()
+	private static String fetchVersion()
 	{
-		return Optional.of(CommandLeagueOfLegends.readJson(DDRAGON_API_URL + "api/versions.json").get().get(0).asText());
+		URI uri = DDRAGON_API_URL
+			.resolve("api/versions.json");
+		return CommandLeagueOfLegends.readJson(uri).get(0).asText();
 	}
 	
-	private static Optional<JsonNode> fetchQueues()
+	private static JsonNode fetchQueues()
 	{
-		return CommandLeagueOfLegends.readJson(STATIC_DOC_API_URL + "lol/queues.json");
+		URI uri = STATIC_DOC_API_URL
+			.resolve("lol/queues.json");
+		return CommandLeagueOfLegends.readJson(uri);
 	}
 	
-	private static Optional<JsonNode> fetchChampions(String version)
+	private static JsonNode fetchChampions(String version)
 	{
-		return CommandLeagueOfLegends.readJson(DDRAGON_API_URL + "cdn/" + version + "/data/en_US/champion.json");
+		URI uri = DDRAGON_API_URL
+			.resolve("cdn/" + version + "/data/en_US/champion.json");
+		return CommandLeagueOfLegends.readJson(uri);
 	}
 	
-	private static Optional<JsonNode> fetchChampion(String version, String champion) throws CommandSyntaxException
+	private static JsonNode fetchChampion(String version, String champion) throws CommandSyntaxException
 	{
-		return CommandLeagueOfLegends.readJson(DDRAGON_API_URL + "cdn/" + version + "/data/en_US/champion/" + champion + ".json");
+		URI uri = DDRAGON_API_URL
+			.resolve("cdn/" + version + "/data/en_US/" + champion + ".json");
+		return CommandLeagueOfLegends.readJson(uri);
 	}
 	
-	private static String getChampionById(long championId, JsonNode champions)
+	private static String championById(long championId, JsonNode champions)
 	{
 		JsonNode data = champions.path("data");
 		Iterator<JsonNode> iterator = data.elements();
@@ -402,59 +417,81 @@ public class CommandLeagueOfLegends
 		return null;
 	}
 	
-	private static Optional<JsonNode> fetchChampionMastery(String summonderId, long championId, Region region) throws CommandSyntaxException
+	private static JsonNode fetchChampionMastery(String summonderId, long championId, Region region) throws CommandSyntaxException
 	{
-		return CommandLeagueOfLegends.readJson(region.getApiUrl() + "lol/champion-mastery/v4/champion-masteries/by-summoner/" + summonderId + "/by-champion/"+ championId + "?api_key=" + TS3Bot.getInstance().getApiKeyManager().requestKey(TS3Bot.API_KEY_LEAGUE_OF_LEGENDS));
+		URI uri = region.getApiUrl()
+			.resolve("lol/champion-mastery/v4/champion-masteries/by-summoner/" + summonderId + "/by-champion/" + championId);
+		return CommandLeagueOfLegends.readJson(uri, true);
 	}
 	
-	private static Optional<JsonNode> fetchSummoner(String summonerName, Region region)
+	private static JsonNode fetchSummoner(String summonerName, Region region)
 	{
-		return CommandLeagueOfLegends.readJson(region.getApiUrl() + "lol/summoner/v4/summoners/by-name/" + CommandLeagueOfLegends.encodeSummonerName(summonerName) + "?api_key=" + TS3Bot.getInstance().getApiKeyManager().requestKey(TS3Bot.API_KEY_LEAGUE_OF_LEGENDS));
+		URI uri = region.getApiUrl()
+			.resolve("lol/summoner/v4/summoners/by-name/" + CommandLeagueOfLegends.encodeSummonerName(summonerName));
+		return CommandLeagueOfLegends.readJson(uri, true);
 	}
 	
-	private static Optional<JsonNode> fetchLeague(String summonerId, Region region) throws CommandSyntaxException
+	private static JsonNode fetchLeague(String summonerId, Region region) throws CommandSyntaxException
 	{
-		return CommandLeagueOfLegends.readJson(region.getApiUrl() + "lol/league/v4/entries/by-summoner/" + summonerId + "?api_key=" + TS3Bot.getInstance().getApiKeyManager().requestKey(TS3Bot.API_KEY_LEAGUE_OF_LEGENDS));
+		URI uri = region.getApiUrl()
+			.resolve("lol/league/v4/entries/by-summoner/" + summonerId);
+		return CommandLeagueOfLegends.readJson(uri, true);
 	}
 	
-	private static Optional<JsonNode> fetchActiveMatch(String summonerName, String summonerId, Region region) throws CommandSyntaxException
+	private static JsonNode fetchActiveMatch(String summonerId, Region region) throws CommandSyntaxException
 	{
-		return CommandLeagueOfLegends.readJson(region.getApiUrl() + "lol/spectator/v4/active-games/by-summoner/" + summonerId + "?api_key=" + TS3Bot.getInstance().getApiKeyManager().requestKey(TS3Bot.API_KEY_LEAGUE_OF_LEGENDS));
+		URI uri = region.getApiUrl()
+			.resolve("lol/spectator/v4/active-games/by-summoner/" + summonerId);
+		return CommandLeagueOfLegends.readJson(uri, true);
 	}
 	
-	private static Optional<JsonNode> fetchMatchHistory(String summonerId, Region region, int beginIndex, int endIndex)
+	private static JsonNode fetchMatchHistory(String summonerId, Region region, int beginIndex, int endIndex)
 	{
-		return CommandLeagueOfLegends.readJson(region.getApiUrl() + "lol/match/v4/matchlists/by-account/" + summonerId + "?api_key=" + TS3Bot.getInstance().getApiKeyManager().requestKey(TS3Bot.API_KEY_LEAGUE_OF_LEGENDS) + "&beginIndex=" + beginIndex + "&endIndex=" + endIndex);
+		try
+		{
+			URI uri = new URIBuilder(region.getApiUrl().resolve("lol/match/v4/matchlists/by-account/" + summonerId))
+				.addParameter("beginIndex", String.valueOf(beginIndex))
+				.addParameter("endIndex", String.valueOf(endIndex))
+				.build();
+			return CommandLeagueOfLegends.readJson(uri, true);
+		}
+		catch(URISyntaxException e)
+		{
+			e.printStackTrace();
+		}
+		
+		return null;
 	}
 	
-	private static Optional<JsonNode> fetchMatch(long matchId, Region region)
+	private static JsonNode fetchMatch(long matchId, Region region)
 	{
-		return CommandLeagueOfLegends.readJson(region.getApiUrl() + "lol/match/v4/matches/" + matchId + "?api_key=" + TS3Bot.getInstance().getApiKeyManager().requestKey(TS3Bot.API_KEY_LEAGUE_OF_LEGENDS));
+		URI uri = region.getApiUrl()
+			.resolve("lol/match/v4/matches/" + matchId);
+		return CommandLeagueOfLegends.readJson(uri, true);
 	}
 	
-	private static Optional<League> getHighestRank(JsonNode leagues)
+	private static Optional<League> highestRank(JsonNode leagues)
 	{
 		return StreamSupport.stream(leagues.spliterator(), false)
-			.map(CommandLeagueOfLegends::getRankFromLeague)
-			.filter(Optional::isPresent)
-			.map(Optional::get)
+			.map(CommandLeagueOfLegends::rankFromLeague)
+			.filter(Objects::nonNull)
 			.sorted()
 			.findFirst();
 	}
 	
-	private static Optional<League> getRankFromLeague(JsonNode league)
+	private static League rankFromLeague(JsonNode league)
 	{
 		try
 		{
-			return Optional.of(TS3Bot.getInstance().getObjectMapper().treeToValue(league, League.class));
+			return TS3Bot.getInstance().getObjectMapper().treeToValue(league, League.class);
 		}
 		catch(Throwable e)
 		{
-			return Optional.empty();
+			return null;
 		}
 	}
 	
-	private static int getParticinantId(JsonNode match, String summonerId)
+	private static int particinantId(JsonNode match, String summonerId)
 	{
 		JsonNode participantIdentities = match.path("participantIdentities");
 		
@@ -471,7 +508,7 @@ public class CommandLeagueOfLegends
 		return -1;
 	}
 	
-	private static JsonNode getParticipant(JsonNode match, int participantId)
+	private static JsonNode participant(JsonNode match, int participantId)
 	{
 		JsonNode participants = match.path("participants");
 		
@@ -512,37 +549,49 @@ public class CommandLeagueOfLegends
 		return Optional.of(CommandLeagueOfLegends.leagueFromRating(Tier.LOWEST, Rank.LOWEST, rating));
 	}
 	
-	private static Optional<JsonNode> readJson(String url)
+	private static JsonNode readJson(URI uri)
 	{
-		HttpURLConnection connection = null;
-		
-		for(int x = 0; x < HTTP_RETRIES; x++)
+		return CommandLeagueOfLegends.readJson(uri, false);
+	}
+	
+	private static JsonNode readJson(URI uri, boolean apikey)
+	{
+		try(CloseableHttpClient client = Util.httpClient())
 		{
-			try
+			URIBuilder builder = new URIBuilder(uri);
+			
+			if(apikey)
 			{
-				connection = (HttpURLConnection) new URL(url).openConnection();
-				connection.setRequestProperty("User-Agent", TS3Bot.USER_AGENT);
-				connection.setRequestProperty("Accept-Charset", "UTF-8");
-				connection.setConnectTimeout(5000);
-				connection.connect();
-				
-				return Optional.of(TS3Bot.getInstance().getObjectMapper().readTree(connection.getInputStream()));
+				builder.addParameter("api_key", TS3Bot.getInstance().getApiKeyManager().requestKey(TS3Bot.API_KEY_LEAGUE_OF_LEGENDS));
 			}
-			catch(FileNotFoundException e)
+			
+			HttpGet httpGet = new HttpGet(builder.build());
+			httpGet.addHeader("User-Agent", TS3Bot.USER_AGENT);
+			httpGet.addHeader("Accept-Charset", StandardCharsets.UTF_8.toString());
+			
+			for(int x = 0; x < HTTP_RETRIES; x++)
 			{
-				return Optional.empty();
-			}
-			catch(IOException e)
-			{
-				e.printStackTrace();
-			}
-			finally
-			{
-				connection.disconnect();
+				try(CloseableHttpResponse response = client.execute(httpGet))
+				{
+					JsonNode node = TS3Bot.getInstance().getObjectMapper().readTree(EntityUtils.toString(response.getEntity()));
+					
+					if(!node.hasNonNull("status"))
+					{
+						return node;
+					}
+				}
+				catch(IOException e)
+				{
+					e.printStackTrace();
+				}
 			}
 		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
 		
-		return Optional.empty();
+		return null;
 	}
 	
 	private static League leagueFromRating(Tier tier, Rank rank, int rating)
@@ -743,9 +792,9 @@ public class CommandLeagueOfLegends
 			return this.id;
 		}
 		
-		public String getApiUrl()
+		public URI getApiUrl()
 		{
-			return String.format(API_URL, this.id);
+			return URI.create(String.format(API_URL, this.id));
 		}
 		
 		@Override

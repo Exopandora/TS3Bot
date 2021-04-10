@@ -1,21 +1,22 @@
 package net.kardexo.ts3bot.messageprocessors.url.impl;
 
-import java.net.URL;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.http.client.utils.URIBuilder;
+
 import com.fasterxml.jackson.databind.JsonNode;
 
 import net.kardexo.ts3bot.TS3Bot;
 import net.kardexo.ts3bot.messageprocessors.url.IURLProcessor;
-import net.kardexo.ts3bot.util.StringUtils;
-import net.kardexo.ts3bot.util.URLs;
+import net.kardexo.ts3bot.util.Util;
 
 public class YouTubeURLProcessor implements IURLProcessor
 {
-	private static final String API_URL = "https://www.googleapis.com/youtube/v3/";
+	private static final URI API_URL = URI.create("https://www.googleapis.com/youtube/v3/");
 	private static final Pattern YOUTUBE_URL = Pattern.compile("https:\\/\\/(www\\.)?youtube\\.com\\/watch\\?(.*)");
 	private static final Pattern YOUTUBE_URL_2 = Pattern.compile("https:\\/\\/(www\\.)?youtu\\.be\\/(.*)");
 	
@@ -27,40 +28,47 @@ public class YouTubeURLProcessor implements IURLProcessor
 		
 		if(id != null)
 		{
-			StringBuilder query = new StringBuilder(API_URL + "videos");
+			return this.watch(id, parameters.get("t"));
+		}
+		
+		return null;
+	}
+	
+	private String watch(String id, String timestamp)
+	{
+		try
+		{
+			URI uri = new URIBuilder(API_URL.resolve("videos"))
+				.addParameter("id", id)
+				.addParameter("part", "snippet")
+				.addParameter("key", TS3Bot.getInstance().getApiKeyManager().requestKey(TS3Bot.API_KEY_YOUTUBE))
+				.build();
 			
-			query.append("?id=" + id);
-			query.append("&part=snippet");
-			query.append("&key=" + TS3Bot.getInstance().getApiKeyManager().requestKey(TS3Bot.API_KEY_YOUTUBE));
+			JsonNode node = TS3Bot.getInstance().getObjectMapper().readTree(uri.toURL());
+			JsonNode items = node.path("items");
 			
-			try
+			if(items.size() == 1)
 			{
-				JsonNode node = TS3Bot.getInstance().getObjectMapper().readTree(new URL(query.toString()));
-				JsonNode items = node.path("items");
+				JsonNode snippet = items.get(0).path("snippet");
+				String channelTitle = snippet.path("channelTitle").asText();
+				String title = snippet.path("title").asText();
 				
-				if(items.size() == 1)
+				if(channelTitle != null && !channelTitle.isEmpty() && title != null && !title.isEmpty())
 				{
-					JsonNode snippet = items.get(0).path("snippet");
-					String channelTitle = snippet.path("channelTitle").asText();
-					String title = snippet.path("title").asText();
+					StringBuilder builder = new StringBuilder(channelTitle + ": \"" + title + "\"");
 					
-					if(channelTitle != null && !channelTitle.isEmpty() && title != null && !title.isEmpty())
+					if(timestamp != null)
 					{
-						StringBuilder builder = new StringBuilder(channelTitle + ": \"" + title + "\"");
-						
-						if(parameters.containsKey("t"))
-						{
-							builder.append(" [" + StringUtils.formatDuration(Long.parseLong(parameters.get("t"))) + "]");
-						}
-						
-						return builder.toString();
+						builder.append(" [" + Util.formatDuration(Long.parseLong(timestamp)) + "]");
 					}
+					
+					return builder.toString();
 				}
 			}
-			catch(Exception e)
-			{
-				e.printStackTrace();
-			}
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
 		}
 		
 		return null;
@@ -78,14 +86,14 @@ public class YouTubeURLProcessor implements IURLProcessor
 		
 		if(matcher.matches() && matcher.group(2) != null)
 		{
-			return URLs.queryToMap(matcher.group(2));
+			return Util.queryToMap(matcher.group(2));
 		}
 		
 		matcher = YOUTUBE_URL_2.matcher(url);
 		
 		if(matcher.matches() && matcher.group(2) != null)
 		{
-			return URLs.queryToMap("v=" + matcher.group(2));
+			return Util.queryToMap("v=" + matcher.group(2));
 		}
 		
 		return new HashMap<String, String>();

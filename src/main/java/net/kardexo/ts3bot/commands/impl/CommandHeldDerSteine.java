@@ -1,7 +1,9 @@
 package net.kardexo.ts3bot.commands.impl;
 
-import java.net.URL;
+import java.net.URI;
 import java.util.concurrent.ThreadLocalRandom;
+
+import org.apache.http.client.utils.URIBuilder;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.mojang.brigadier.CommandDispatcher;
@@ -17,7 +19,7 @@ import net.kardexo.ts3bot.commands.Commands;
 public class CommandHeldDerSteine
 {
 	private static final String YOUTUBE_URL = "https://youtu.be/";
-	private static final String API_URL = "https://www.googleapis.com/youtube/v3/";
+	private static final URI API_URL = URI.create("https://www.googleapis.com/youtube/v3/");
 	private static final SimpleCommandExceptionType ERROR_FETCHING_DATA = new SimpleCommandExceptionType(new LiteralMessage("Error fetching data"));
 	private static final int MAX_RESULTS = 50;
 	
@@ -90,15 +92,14 @@ public class CommandHeldDerSteine
 	
 	private static String fetchUploadsPlaylistId() throws CommandSyntaxException
 	{
-		StringBuilder query = new StringBuilder(API_URL + "channels");
-		
-		query.append("?forUsername=HeldderSteine");
-		query.append("&part=contentDetails");
-		query.append("&key=" + TS3Bot.getInstance().getApiKeyManager().requestKey(TS3Bot.API_KEY_YOUTUBE));
-		
 		try
 		{
-			JsonNode node = TS3Bot.getInstance().getObjectMapper().readTree(new URL(query.toString()));
+			URI uri = new URIBuilder(API_URL.resolve("channels"))
+				.addParameter("forUsername", "HeldderSteine")
+				.addParameter("part", "contentDetails")
+				.addParameter("key", TS3Bot.getInstance().getApiKeyManager().requestKey(TS3Bot.API_KEY_YOUTUBE))
+				.build();
+			JsonNode node = TS3Bot.getInstance().getObjectMapper().readTree(uri.toURL());
 			JsonNode items = node.path("items");
 			
 			if(items.size() == 1)
@@ -116,15 +117,14 @@ public class CommandHeldDerSteine
 	
 	private static long fetchPlaylistLength(String playlist) throws CommandSyntaxException
 	{
-		StringBuilder query = new StringBuilder(API_URL + "playlists");
-		
-		query.append("?id=" + playlist);
-		query.append("&part=contentDetails");
-		query.append("&key=" + TS3Bot.getInstance().getApiKeyManager().requestKey(TS3Bot.API_KEY_YOUTUBE));
-		
 		try
 		{
-			JsonNode node = TS3Bot.getInstance().getObjectMapper().readTree(new URL(query.toString()));
+			URI uri = new URIBuilder(API_URL.resolve("playlists"))
+				.addParameter("id", playlist)
+				.addParameter("part", "contentDetails")
+				.addParameter("key", TS3Bot.getInstance().getApiKeyManager().requestKey(TS3Bot.API_KEY_YOUTUBE))
+				.build();
+			JsonNode node = TS3Bot.getInstance().getObjectMapper().readTree(uri.toURL());
 			JsonNode items = node.path("items");
 			
 			if(items.size() == 1)
@@ -142,25 +142,24 @@ public class CommandHeldDerSteine
 	
 	private static JsonNode fetchPlaylistItems(String playlist, String pageToken, String part, int maxResults)
 	{
-		StringBuilder query = new StringBuilder(API_URL + "playlistItems");
-		
-		query.append("?playlistId=" + playlist);
-		query.append("&key=" + TS3Bot.getInstance().getApiKeyManager().requestKey(TS3Bot.API_KEY_YOUTUBE));
-		query.append("&maxResults=" + maxResults);
-		
-		if(part != null)
-		{
-			query.append("&part=" + part);
-		}
-		
-		if(pageToken != null)
-		{
-			query.append("&pageToken=" + pageToken);
-		}
-		
 		try
 		{
-			return TS3Bot.getInstance().getObjectMapper().readTree(new URL(query.toString()));
+			URIBuilder builder = new URIBuilder(API_URL.resolve("playlists"))
+				.addParameter("id", playlist)
+				.addParameter("part", "contentDetails")
+				.addParameter("key", TS3Bot.getInstance().getApiKeyManager().requestKey(TS3Bot.API_KEY_YOUTUBE));
+			
+			if(part != null)
+			{
+				builder.addParameter("part", part);
+			}
+			
+			if(pageToken != null)
+			{
+				builder.addParameter("pageToken", pageToken);
+			}
+			
+			return TS3Bot.getInstance().getObjectMapper().readTree(builder.build().toURL());
 		}
 		catch(Exception e)
 		{

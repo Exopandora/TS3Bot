@@ -1,18 +1,23 @@
 package net.kardexo.ts3bot.messageprocessors.url.impl;
 
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.net.URI;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.impl.client.CloseableHttpClient;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
 import net.kardexo.ts3bot.TS3Bot;
 import net.kardexo.ts3bot.messageprocessors.url.IURLProcessor;
+import net.kardexo.ts3bot.util.Util;
 
 public class TwitterURLProcessor implements IURLProcessor
 {
-	private static final String API_URL = "https://api.twitter.com/labs/2/";
+	private static final URI API_URL = URI.create("https://api.twitter.com/labs/2/");
 	private static final Pattern TWITTER_STATUS_URL = Pattern.compile("https:\\/\\/(www\\.)?twitter\\.com\\/([^/]+)\\/status\\/([0-9]+).*");
 	private static final Pattern TWITTER_PROFILE_URL = Pattern.compile("https:\\/\\/(www\\.)?twitter\\.com\\/([^/]+)");
 	
@@ -21,11 +26,21 @@ public class TwitterURLProcessor implements IURLProcessor
 	{
 		if(TWITTER_STATUS_URL.matcher(url).matches())
 		{
-			return this.status(url);
+			String id = this.extractStatusId(url);
+			
+			if(id != null)
+			{
+				return this.status(id);
+			}
 		}
 		else if(TWITTER_PROFILE_URL.matcher(url).matches())
 		{
-			return this.profile(url);
+			String id = this.extractProfileId(url);
+			
+			if(id != null)
+			{
+				return this.profile(id);
+			}
 		}
 		
 		return null;
@@ -61,30 +76,26 @@ public class TwitterURLProcessor implements IURLProcessor
 		return null;
 	}
 	
-	private String status(String url)
+	private String status(String id)
 	{
-		String id = this.extractStatusId(url);
-		
-		if(id != null)
+		try(CloseableHttpClient client = Util.httpClient())
 		{
-			StringBuilder query = new StringBuilder(API_URL + "tweets");
+			URI uri = new URIBuilder(API_URL.resolve("tweets"))
+				.addParameter("ids", id)
+				.addParameter("user.fields", "name")
+				.addParameter("expansions", "author_id,attachments.media_keys")
+				.build();
 			
-			query.append("?ids=" + id);
-			query.append("&user.fields=name");
-			query.append("&expansions=author_id");
+			HttpGet httpGet = new HttpGet(uri);
+			httpGet.setHeader("Authorization", "Bearer " + TS3Bot.getInstance().getApiKeyManager().requestToken(TS3Bot.API_KEY_TWITTER, "bearer_token"));
 			
-			HttpURLConnection connection = null;
-			
-			try
+			try(CloseableHttpResponse response = client.execute(httpGet))
 			{
-				connection = (HttpURLConnection) new URL(query.toString()).openConnection();
-				connection.setRequestProperty("Authorization", "Bearer " + TS3Bot.getInstance().getApiKeyManager().requestToken(TS3Bot.API_KEY_TWITTER, "bearer_token"));
-				connection.setConnectTimeout(5000);
-				connection.connect();
-				
-				JsonNode node = TS3Bot.getInstance().getObjectMapper().readTree(connection.getInputStream());
+				JsonNode node = TS3Bot.getInstance().getObjectMapper().readTree(response.getEntity().getContent());
 				JsonNode data = node.path("data");
-				JsonNode users = node.path("includes").path("users");
+				JsonNode includes = node.path("includes");
+				JsonNode users = includes.path("users");
+				JsonNode media = includes.path("media");
 				
 				if(data.size() == 1 && users.size() == 1)
 				{
@@ -93,43 +104,68 @@ public class TwitterURLProcessor implements IURLProcessor
 					
 					if(text != null && !text.isEmpty() && user != null && !user.isEmpty())
 					{
-						return user + ": \"" + text.substring(0, text.length() - 24) + "\"";
+						if(text.length() > 23)
+						{
+							return user + ": \"" + text.substring(0, text.length() - 24) + "\"";
+						}
+						else if(media.size() > 0)
+						{
+							int images = 0;
+							int videos = 0;
+							
+							for(JsonNode item : media)
+							{
+								String type = item.path("type").asText();
+								
+								if("photo".equals(type))
+								{
+									images++;
+								}
+								else if("video".equals(type))
+								{
+									videos++;
+								}
+							}
+							
+							if(images > 0 && videos > 0)
+							{
+								return videos + " video" + (videos > 1 ? "s" : "") + " and " + images + " image" + (images > 1 ? "s" : "") + " by " + user;
+							}
+							else if(images > 0)
+							{
+								return (images > 1 ? images + " images" : "Image") + " by " + user;
+							}
+							else if(videos > 0)
+							{
+								return (videos > 1 ? videos + " videos" : "Video") + " by " + user;
+							}
+						}
 					}
 				}
 			}
-			catch(Exception e)
-			{
-				e.printStackTrace();
-			}
-			finally
-			{
-				connection.disconnect();
-			}
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
 		}
 		
 		return null;
 	}
 	
-	private String profile(String url)
+	private String profile(String id)
 	{
-		String id = this.extractProfileId(url);
-		
-		if(id != null)
+		try(CloseableHttpClient client = Util.httpClient())
 		{
-			StringBuilder query = new StringBuilder(API_URL + "users/by/username/" + id);
+			URI uri = new URIBuilder(API_URL.resolve("users/by/username/" + id))
+				.addParameter("user.fields", "description")
+				.build();
 			
-			query.append("?user.fields=description");
+			HttpGet httpGet = new HttpGet(uri);
+			httpGet.setHeader("Authorization", "Bearer " + TS3Bot.getInstance().getApiKeyManager().requestToken(TS3Bot.API_KEY_TWITTER, "bearer_token"));
 			
-			HttpURLConnection connection = null;
-			
-			try
+			try(CloseableHttpResponse response = client.execute(httpGet))
 			{
-				connection = (HttpURLConnection) new URL(query.toString()).openConnection();
-				connection.setRequestProperty("Authorization", "Bearer " + TS3Bot.getInstance().getApiKeyManager().requestToken(TS3Bot.API_KEY_TWITTER, "bearer_token"));
-				connection.setConnectTimeout(5000);
-				connection.connect();
-				
-				JsonNode node = TS3Bot.getInstance().getObjectMapper().readTree(connection.getInputStream());
+				JsonNode node = TS3Bot.getInstance().getObjectMapper().readTree(response.getEntity().getContent());
 				JsonNode data = node.path("data");
 				String name = data.path("name").asText();
 				String username = data.path("username").asText();
@@ -150,14 +186,10 @@ public class TwitterURLProcessor implements IURLProcessor
 					return builder.toString();
 				}
 			}
-			catch(Exception e)
-			{
-				e.printStackTrace();
-			}
-			finally
-			{
-				connection.disconnect();
-			}
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
 		}
 		
 		return null;
