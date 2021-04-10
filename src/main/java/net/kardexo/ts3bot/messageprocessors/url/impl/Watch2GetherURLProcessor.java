@@ -7,8 +7,8 @@ import net.kardexo.ts3bot.messageprocessors.url.IURLProcessor;
 
 public class Watch2GetherURLProcessor implements IURLProcessor
 {
-	private static final Pattern WATCH2GETHER_URL = Pattern.compile("https:\\/\\/(?:www\\.)?watch2gether\\.com\\/rooms\\/(.*)");
-	private static final Pattern WATCH2GETHER_URL_2 = Pattern.compile("https:\\/\\/(?:www\\.)?w2g\\.tv\\/rooms\\/(.*)");
+	private static final Pattern WATCH2GETHER_URL = Pattern.compile("https:\\/\\/(?:www\\.)?watch2gether\\.com\\/rooms\\/([^?/]+)(?:.*)");
+	private static final Pattern WATCH2GETHER_URL_2 = Pattern.compile("https:\\/\\/(?:www\\.)?w2g\\.tv\\/rooms\\/([^?/]+)(?:.*)");
 	
 	@Override
 	public String process(String url)
@@ -38,7 +38,7 @@ public class Watch2GetherURLProcessor implements IURLProcessor
 			return matcher.group(1);
 		}
 		
-		Matcher matcher2 = WATCH2GETHER_URL.matcher(url);
+		Matcher matcher2 = WATCH2GETHER_URL_2.matcher(url);
 		
 		if(matcher2.matches() && matcher2.group(1) != null)
 		{
