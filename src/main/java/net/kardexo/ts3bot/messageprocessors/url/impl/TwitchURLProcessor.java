@@ -19,7 +19,7 @@ public class TwitchURLProcessor implements IURLProcessor
 {
 	private static final URI API_URL = URI.create("https://api.twitch.tv/helix/");
 	private static final String BASE_URL = "https://twitch.tv/";
-	private static final Pattern TWITCH_URL = Pattern.compile("https:\\/\\/(?:www\\.)?twitch\\.tv\\/(?!directory(?=$|\\/.*)|p\\/.*)([^ ]+)");
+	private static final Pattern TWITCH_URL = Pattern.compile("https:\\/\\/(?:www\\.)?twitch\\.tv\\/(?!directory(?=$|\\/.*)|p\\/.*)([^ /]+)");
 	
 	@Override
 	public String process(String url)
