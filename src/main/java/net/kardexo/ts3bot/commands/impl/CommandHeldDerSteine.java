@@ -144,9 +144,9 @@ public class CommandHeldDerSteine
 	{
 		try
 		{
-			URIBuilder builder = new URIBuilder(API_URL.resolve("playlists"))
-				.addParameter("id", playlist)
-				.addParameter("part", "contentDetails")
+			URIBuilder builder = new URIBuilder(API_URL.resolve("playlistItems"))
+				.addParameter("playlistId", playlist)
+				.addParameter("maxResults", String.valueOf(maxResults))
 				.addParameter("key", TS3Bot.getInstance().getApiKeyManager().requestKey(TS3Bot.API_KEY_YOUTUBE));
 			
 			if(part != null)
