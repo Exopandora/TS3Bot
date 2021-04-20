@@ -1,9 +1,7 @@
-package net.kardexo.ts3bot.messageprocessors.url.impl;
+package net.kardexo.ts3bot.msgproc.url;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import net.kardexo.ts3bot.messageprocessors.url.IURLProcessor;
 
 public class Watch2GetherURLProcessor implements IURLProcessor
 {

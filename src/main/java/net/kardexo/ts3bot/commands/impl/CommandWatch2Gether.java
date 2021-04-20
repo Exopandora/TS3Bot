@@ -21,6 +21,7 @@ import com.mojang.brigadier.tree.LiteralCommandNode;
 import net.kardexo.ts3bot.TS3Bot;
 import net.kardexo.ts3bot.commands.CommandSource;
 import net.kardexo.ts3bot.commands.Commands;
+import net.kardexo.ts3bot.msgproc.URLMessageProcessor;
 import net.kardexo.ts3bot.util.Util;
 
 public class CommandWatch2Gether
@@ -68,7 +69,7 @@ public class CommandWatch2Gether
 				
 				if(url != null && !url.isBlank())
 				{
-					String result = TS3Bot.getInstance().generateResponseMessage(Util.wrap(url), false);
+					String result = URLMessageProcessor.response(Util.wrap(url), false);
 					
 					if(result != null)
 					{

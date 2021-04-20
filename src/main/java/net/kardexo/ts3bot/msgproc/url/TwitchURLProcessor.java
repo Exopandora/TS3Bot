@@ -1,4 +1,4 @@
-package net.kardexo.ts3bot.messageprocessors.url.impl;
+package net.kardexo.ts3bot.msgproc.url;
 
 import java.net.URI;
 import java.util.regex.Matcher;
@@ -12,7 +12,6 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import net.kardexo.ts3bot.TS3Bot;
-import net.kardexo.ts3bot.messageprocessors.url.IURLProcessor;
 import net.kardexo.ts3bot.util.Util;
 
 public class TwitchURLProcessor implements IURLProcessor

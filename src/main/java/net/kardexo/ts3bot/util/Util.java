@@ -25,7 +25,7 @@ public class Util
 	
 	public static String extract(String url)
 	{
-		if(url != null && Util.isURL(url))
+		if(Util.isURL(url))
 		{
 			return url.substring(5, url.length() - 6);
 		}

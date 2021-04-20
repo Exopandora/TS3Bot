@@ -1,4 +1,4 @@
-package net.kardexo.ts3bot.messageprocessors.url.impl;
+package net.kardexo.ts3bot.msgproc.url;
 
 import java.util.regex.Pattern;
 

@@ -2,13 +2,11 @@ package net.kardexo.ts3bot;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Scanner;
-import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -17,7 +15,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.theholywaffle.teamspeak3.TS3Api;
 import com.github.theholywaffle.teamspeak3.TS3Config;
 import com.github.theholywaffle.teamspeak3.TS3Query;
-import com.github.theholywaffle.teamspeak3.api.TextMessageTargetMode;
 import com.github.theholywaffle.teamspeak3.api.event.TS3EventAdapter;
 import com.github.theholywaffle.teamspeak3.api.event.TS3EventType;
 import com.github.theholywaffle.teamspeak3.api.event.TextMessageEvent;
@@ -25,10 +22,6 @@ import com.github.theholywaffle.teamspeak3.api.reconnect.ConnectionHandler;
 import com.github.theholywaffle.teamspeak3.api.reconnect.ReconnectStrategy;
 import com.github.theholywaffle.teamspeak3.api.wrapper.Channel;
 import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.brigadier.ParseResults;
-import com.mojang.brigadier.StringReader;
-import com.mojang.brigadier.context.ParsedCommandNode;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
 import net.kardexo.ts3bot.commands.CommandSource;
 import net.kardexo.ts3bot.commands.impl.CommandBot;
@@ -50,8 +43,9 @@ import net.kardexo.ts3bot.commands.impl.CommandTwitch;
 import net.kardexo.ts3bot.commands.impl.CommandWatch2Gether;
 import net.kardexo.ts3bot.config.Config;
 import net.kardexo.ts3bot.gameservers.GameServerManager;
-import net.kardexo.ts3bot.messageprocessors.IMessageProcessor;
-import net.kardexo.ts3bot.messageprocessors.impl.URLMessageProcessor;
+import net.kardexo.ts3bot.msgproc.CommandMessageProcressor;
+import net.kardexo.ts3bot.msgproc.IMessageProcessor;
+import net.kardexo.ts3bot.msgproc.URLMessageProcessor;
 import net.kardexo.ts3bot.util.APIKeyManager;
 import net.kardexo.ts3bot.util.ChatHistory;
 
@@ -72,9 +66,9 @@ public class TS3Bot extends TS3EventAdapter implements ConnectionHandler
 	private int id;
 	private final Config config;
 	private final ChatHistory history;
-	private final List<IMessageProcessor> messageProcessors = Arrays.asList(new URLMessageProcessor());
-	private final ObjectMapper objectMapper = new ObjectMapper();
 	private final CommandDispatcher<CommandSource> dispatcher = new CommandDispatcher<CommandSource>();
+	private final List<IMessageProcessor> messageProcessors = List.of(new CommandMessageProcressor(), new URLMessageProcessor());
+	private final ObjectMapper objectMapper = new ObjectMapper();
 	private final GameServerManager gameserverManager;
 	private final APIKeyManager apiKeyManager;
 	private TS3Api api;
@@ -158,68 +152,11 @@ public class TS3Bot extends TS3EventAdapter implements ConnectionHandler
 			return;
 		}
 		
-		StringReader reader = new StringReader(message);
-		
-		if(reader.canRead() && reader.peek() == '!' && !reader.getString().matches("!+"))
+		for(IMessageProcessor processor : this.messageProcessors)
 		{
-			reader.skip();
-			
-			CommandSource source = new CommandSource(this.api, this.api.getClientInfo(event.getInvokerId() == -1 ? this.id : event.getInvokerId()), event.getTargetMode());
-			
-			if(this.silent && (!source.hasPermission("admin") || event.getInvokerId() != -1))
+			if(processor.isApplicable(this, message, event.getInvokerId(), event.getTargetMode()))
 			{
-				return;
-			}
-			
-			ParseResults<CommandSource> parse = this.dispatcher.parse(reader, source);
-			
-			try
-			{
-				if(parse.getReader().canRead())
-				{
-					if(parse.getExceptions().size() == 1)
-					{
-						throw parse.getExceptions().values().iterator().next();
-					}
-					else if(parse.getContext().getRange().isEmpty())
-					{
-						throw CommandSyntaxException.BUILT_IN_EXCEPTIONS.dispatcherUnknownCommand().createWithContext(parse.getReader());
-					}
-				}
-				
-				this.dispatcher.execute(parse);
-			}
-			catch(CommandSyntaxException e)
-			{
-				if(e.getCursor() != -1)
-				{
-					List<ParsedCommandNode<CommandSource>> nodes = parse.getContext().getLastChild().getNodes();
-					
-					if(nodes.isEmpty())
-					{
-						source.sendFeedback(e.getRawMessage().getString());
-					}
-					else
-					{
-						StringBuilder builder = new StringBuilder();
-						String command = nodes.stream().map(node -> node.getNode().getName()).collect(Collectors.joining(" "));
-						CommandHelp.appendAllUsage(builder, this.dispatcher, nodes, source, true);
-						source.sendFeedback("Usage: !" + command + builder.toString());
-					}
-				}
-				else
-				{
-					source.sendFeedback(e.getRawMessage().getString());
-				}
-			}
-		}
-		else if(event.getTargetMode() == TextMessageTargetMode.CHANNEL && event.getInvokerId() != this.id && event.getInvokerId() != -1)
-		{
-			String response = this.generateResponseMessage(reader.getString(), true);
-			
-			if(response != null)
-			{
-				this.api.sendTextMessage(event.getTargetMode(), event.getInvokerId(), response);
+				processor.process(this, message, event.getInvokerId(), event.getTargetMode());
 			}
 		}
 	}
@@ -300,24 +237,6 @@ public class TS3Bot extends TS3EventAdapter implements ConnectionHandler
 		}
 	}
 	
-	public String generateResponseMessage(String message, boolean checkHistory)
-	{
-		if(!checkHistory || this.history.appendAndCheckIfNew(message, 10000))
-		{
-			for(IMessageProcessor processor : this.messageProcessors)
-			{
-				String response = processor.process(message);
-				
-				if(response != null)
-				{
-					return response;
-				}
-			}
-		}
-		
-		return null;
-	}
-	
 	public Config getConfig()
 	{
 		return this.config;
@@ -356,6 +275,16 @@ public class TS3Bot extends TS3EventAdapter implements ConnectionHandler
 	public boolean isSilent()
 	{
 		return this.silent;
+	}
+	
+	public CommandDispatcher<CommandSource> getCommandDispatcher()
+	{
+		return this.dispatcher;
+	}
+	
+	public ChatHistory getChatHistory()
+	{
+		return this.history;
 	}
 	
 	public static TS3Bot getInstance()
