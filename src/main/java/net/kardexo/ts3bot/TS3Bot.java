@@ -31,8 +31,6 @@ import com.mojang.brigadier.context.ParsedCommandNode;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
 import net.kardexo.ts3bot.commands.CommandSource;
-import net.kardexo.ts3bot.commands.impl.CommandAmouranth;
-import net.kardexo.ts3bot.commands.impl.CommandBobRoss;
 import net.kardexo.ts3bot.commands.impl.CommandBot;
 import net.kardexo.ts3bot.commands.impl.CommandCoinflip;
 import net.kardexo.ts3bot.commands.impl.CommandExit;
@@ -48,6 +46,7 @@ import net.kardexo.ts3bot.commands.impl.CommandRules;
 import net.kardexo.ts3bot.commands.impl.CommandSay;
 import net.kardexo.ts3bot.commands.impl.CommandSilent;
 import net.kardexo.ts3bot.commands.impl.CommandTeams;
+import net.kardexo.ts3bot.commands.impl.CommandTwitch;
 import net.kardexo.ts3bot.commands.impl.CommandWatch2Gether;
 import net.kardexo.ts3bot.config.Config;
 import net.kardexo.ts3bot.gameservers.GameServerManager;
@@ -123,8 +122,7 @@ public class TS3Bot extends TS3EventAdapter implements ConnectionHandler
 		CommandExit.register(this.dispatcher);
 		CommandBot.register(this.dispatcher);
 		CommandHelp.register(this.dispatcher);
-		CommandAmouranth.register(this.dispatcher);
-		CommandBobRoss.register(this.dispatcher);
+		CommandTwitch.register(this.dispatcher);
 		CommandTeams.register(this.dispatcher);
 		CommandWatch2Gether.register(this.dispatcher);
 		CommandRandom.register(this.dispatcher);
