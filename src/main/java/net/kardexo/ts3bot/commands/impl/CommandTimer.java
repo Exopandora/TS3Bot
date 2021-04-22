@@ -23,7 +23,7 @@ import net.kardexo.ts3bot.util.Util;
 
 public class CommandTimer
 {
-	private static final SimpleCommandExceptionType INVALID_DURATION = new SimpleCommandExceptionType(new LiteralMessage("Duration must follow pattern #d[ay][s] #h[our][s] #m[in[utes]][s] #s[ec[ond][s]]"));
+	private static final SimpleCommandExceptionType INVALID_DURATION = new SimpleCommandExceptionType(new LiteralMessage("Duration must follow pattern #d\\[ay]\\[s] #h\\[our]\\[s] #m\\[in\\[utes]]\\[s] #s\\[ec\\[ond]\\[s]]"));
 	private static final SimpleCommandExceptionType COULD_NOT_PARSE_DURATION = new SimpleCommandExceptionType(new LiteralMessage("Could not parse duration"));
 	private static final SimpleCommandExceptionType NO_TIMER_SET = new SimpleCommandExceptionType(new LiteralMessage("No timer set"));
 	private static final DynamicCommandExceptionType INVALID_NUMBER = new DynamicCommandExceptionType(number -> new LiteralMessage("Invalid number " + number));
@@ -36,8 +36,9 @@ public class CommandTimer
 				.executes(context -> timer(context))
 				.then(Commands.literal("reset")
 						.executes(context -> reset(context)))
-				.then(Commands.argument("duration", StringArgumentType.greedyString())
-						.executes(context -> timer(context, StringArgumentType.getString(context, "duration")))));
+				.then(Commands.literal("set")
+						.then(Commands.argument("duration", StringArgumentType.greedyString())
+								.executes(context -> timer(context, StringArgumentType.getString(context, "duration"))))));
 	}
 	
 	private static int timer(CommandContext<CommandSource> context) throws CommandSyntaxException
@@ -49,7 +50,7 @@ public class CommandTimer
 			throw NO_TIMER_SET.create();
 		}
 		
-		context.getSource().sendFeedback("Your timer ends in " + Util.formatDuration(Duration.between(Instant.now(), timer.getEnd()).getSeconds()));
+		context.getSource().sendFeedback("Timer ends in " + Util.formatDuration(Duration.between(Instant.now(), timer.getEnd()).getSeconds()));
 		return (int) timer.getEnd().toEpochMilli();
 	}
 	
@@ -87,7 +88,7 @@ public class CommandTimer
 				CommandTimer.removeTimer(uid);
 				Timer timer = new Timer(Instant.now().plusSeconds(duration), CompletableFuture.runAsync(() ->
 				{
-					context.getSource().sendPrivateMessage("Your timer has ended!");
+					context.getSource().sendPrivateMessage("Timer has ended!");
 					CommandTimer.removeTimer(uid);
 				}, CompletableFuture.delayedExecutor(duration, TimeUnit.SECONDS)));
 				CommandTimer.addTimer(uid, timer);
@@ -97,7 +98,7 @@ public class CommandTimer
 				throw COULD_NOT_PARSE_DURATION.create();
 			}
 			
-			context.getSource().sendFeedback("Your timer has been set to " + Util.formatDuration(duration));
+			context.getSource().sendFeedback("Timer has been set to " + Util.formatDuration(duration));
 		}
 		else
 		{
@@ -144,7 +145,7 @@ public class CommandTimer
 			throw NO_TIMER_SET.create();
 		}
 		
-		context.getSource().sendFeedback("Your timer has been reset");
+		context.getSource().sendFeedback("Timer has been reset");
 		return 0;
 	}
 	
