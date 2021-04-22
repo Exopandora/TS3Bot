@@ -39,6 +39,7 @@ import net.kardexo.ts3bot.commands.impl.CommandRules;
 import net.kardexo.ts3bot.commands.impl.CommandSay;
 import net.kardexo.ts3bot.commands.impl.CommandSilent;
 import net.kardexo.ts3bot.commands.impl.CommandTeams;
+import net.kardexo.ts3bot.commands.impl.CommandTimer;
 import net.kardexo.ts3bot.commands.impl.CommandTwitch;
 import net.kardexo.ts3bot.commands.impl.CommandWatch2Gether;
 import net.kardexo.ts3bot.config.Config;
@@ -130,6 +131,7 @@ public class TS3Bot extends TS3EventAdapter implements ConnectionHandler
 		CommandHeldDerSteine.register(this.dispatcher);
 		CommandRules.register(this.dispatcher);
 		CommandSay.register(this.dispatcher);
+		CommandTimer.register(this.dispatcher);
 	}
 	
 	@Override

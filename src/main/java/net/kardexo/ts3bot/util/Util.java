@@ -55,13 +55,18 @@ public class Util
 		return result;
 	}
 	
-	public static String formatDuration(long gameDuration)
+	public static String formatDuration(long duration)
 	{
-		long seconds = gameDuration % 60;
-		long minutes = (gameDuration % 3600) / 60;
-		long hours = gameDuration / 3600;
+		long seconds = duration % 60;
+		long minutes = (duration % 3600) / 60;
+		long hours = (duration % 86400) / 3600;
+		long days = duration / 86400;
 		
-		if(hours > 0)
+		if(days > 0)
+		{
+			return String.format("%d:%02d:%02d:%02d", days, hours, minutes, seconds);
+		}
+		else if(hours > 0)
 		{
 			return String.format("%d:%02d:%02d", hours, minutes, seconds);
 		}
