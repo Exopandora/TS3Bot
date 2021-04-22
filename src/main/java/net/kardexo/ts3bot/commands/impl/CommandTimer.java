@@ -46,7 +46,7 @@ public class CommandTimer
 		
 		if(timer == null)
 		{
-			NO_TIMERS_SET.create();
+			throw NO_TIMERS_SET.create();
 		}
 		
 		context.getSource().sendFeedback("Your timer ends in " + Util.formatDuration(Duration.between(Instant.now(), timer.getEnd()).getSeconds()));
