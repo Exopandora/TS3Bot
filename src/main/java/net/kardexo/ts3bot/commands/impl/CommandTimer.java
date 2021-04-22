@@ -143,7 +143,7 @@ public class CommandTimer
 		}
 		
 		context.getSource().sendFeedback("Timer has been reset");
-		return 0;
+		return (int) Duration.between(Instant.now(), timer.getEnd()).getSeconds();
 	}
 	
 	public static long parseNumber(String number) throws CommandSyntaxException
