@@ -51,7 +51,7 @@ public class CommandTimer
 		}
 		
 		context.getSource().sendFeedback("Timer ends in " + Util.formatDuration(Duration.between(Instant.now(), timer.getEnd()).getSeconds()));
-		return (int) timer.getEnd().toEpochMilli();
+		return (int) Duration.between(Instant.now(), timer.getEnd()).getSeconds();
 	}
 	
 	private static int timer(CommandContext<CommandSource> context, String pattern) throws CommandSyntaxException
@@ -99,13 +99,10 @@ public class CommandTimer
 			}
 			
 			context.getSource().sendFeedback("Timer has been set to " + Util.formatDuration(duration));
-		}
-		else
-		{
-			throw INVALID_DURATION.create();
+			return (int) duration;
 		}
 		
-		return 0;
+		throw INVALID_DURATION.create();
 	}
 	
 	private static void addTimer(String id, Timer timer)
