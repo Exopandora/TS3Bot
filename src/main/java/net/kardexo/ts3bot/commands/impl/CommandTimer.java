@@ -14,7 +14,6 @@ import com.mojang.brigadier.LiteralMessage;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 
 import net.kardexo.ts3bot.commands.CommandSource;
@@ -26,7 +25,6 @@ public class CommandTimer
 	private static final SimpleCommandExceptionType INVALID_DURATION = new SimpleCommandExceptionType(new LiteralMessage("Duration must follow pattern # d\\[ay]\\[s] # h\\[our]\\[s] # m\\[in\\[ute]]\\[s] # s\\[ec\\[ond]]\\[s]"));
 	private static final SimpleCommandExceptionType COULD_NOT_PARSE_DURATION = new SimpleCommandExceptionType(new LiteralMessage("Could not parse duration"));
 	private static final SimpleCommandExceptionType NO_TIMER_SET = new SimpleCommandExceptionType(new LiteralMessage("No timer set"));
-	private static final DynamicCommandExceptionType INVALID_NUMBER = new DynamicCommandExceptionType(number -> new LiteralMessage("Invalid number " + number));
 	private static final Map<String, Timer> TIMERS = new HashMap<String, Timer>();
 	private static final Pattern PATTERN = Pattern.compile("^(?:(\\d+)\\s*d(?:ays?)?\\s*)?(?:(\\d+)\\s*h(?:(?:ou)?rs)?\\s*?)?(?:(\\d+)\\s*m(?:in(?:ute)?s?)?\\s*?)?(?:(\\d+)\\s*s(?:ec(?:ond)?s?)?\\s*?)?$");
 	
@@ -64,22 +62,22 @@ public class CommandTimer
 			
 			if(matcher.group(1) != null)
 			{
-				duration += TimeUnit.DAYS.toSeconds(CommandTimer.parseNumber(matcher.group(1)));
+				duration += TimeUnit.DAYS.toSeconds(CommandTimer.parseLong(matcher.group(1)));
 			}
 			
 			if(matcher.group(2) != null)
 			{
-				duration += TimeUnit.HOURS.toSeconds(CommandTimer.parseNumber(matcher.group(2)));
+				duration += TimeUnit.HOURS.toSeconds(CommandTimer.parseLong(matcher.group(2)));
 			}
 			
 			if(matcher.group(3) != null)
 			{
-				duration += TimeUnit.MINUTES.toSeconds(CommandTimer.parseNumber(matcher.group(3)));
+				duration += TimeUnit.MINUTES.toSeconds(CommandTimer.parseLong(matcher.group(3)));
 			}
 			
 			if(matcher.group(4) != null)
 			{
-				duration += TimeUnit.SECONDS.toSeconds(CommandTimer.parseNumber(matcher.group(4)));
+				duration += TimeUnit.SECONDS.toSeconds(CommandTimer.parseLong(matcher.group(4)));
 			}
 			
 			if(duration > 0)
@@ -146,7 +144,7 @@ public class CommandTimer
 		return (int) Duration.between(Instant.now(), timer.getEnd()).getSeconds();
 	}
 	
-	public static long parseNumber(String number) throws CommandSyntaxException
+	public static long parseLong(String number) throws CommandSyntaxException
 	{
 		try
 		{
@@ -154,7 +152,7 @@ public class CommandTimer
 		}
 		catch(NumberFormatException e)
 		{
-			throw INVALID_NUMBER.create(number);
+			throw CommandSyntaxException.BUILT_IN_EXCEPTIONS.readerInvalidLong().create(number);
 		}
 	}
 	
