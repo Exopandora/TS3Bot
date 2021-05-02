@@ -27,13 +27,13 @@ public class YouTubeURLProcessor implements IURLProcessor
 		
 		if(id != null)
 		{
-			return this.watch(id, parameters.get("t"));
+			return this.watch(id, YouTubeURLProcessor.parseTimestamp(parameters.get("t")));
 		}
 		
 		return null;
 	}
 	
-	private String watch(String id, String timestamp)
+	private String watch(String id, long timestamp)
 	{
 		try
 		{
@@ -56,9 +56,9 @@ public class YouTubeURLProcessor implements IURLProcessor
 				{
 					StringBuilder builder = new StringBuilder(channelTitle + ": \"" + title + "\"");
 					
-					if(timestamp != null)
+					if(timestamp > 0)
 					{
-						builder.append(" [" + Util.formatDuration(Long.parseLong(timestamp)) + "]");
+						builder.append(" [" + Util.formatDuration(timestamp) + "]");
 					}
 					
 					return builder.toString();
@@ -96,5 +96,74 @@ public class YouTubeURLProcessor implements IURLProcessor
 		}
 		
 		return new HashMap<String, String>();
+	}
+	
+	private static long parseTimestamp(String timestamp)
+	{
+		if(timestamp == null)
+		{
+			return -1;
+		}
+		
+		if(timestamp.matches("\\d+"))
+		{
+			return YouTubeURLProcessor.parseUnsignedLong(timestamp);
+		}
+		
+		long result = 0;
+		
+		for(int x = 0, head = 0; x < timestamp.length(); x++)
+		{
+			char c = timestamp.charAt(x);
+			boolean nan = c < '0' || c > '9';
+			
+			if((x == 0 || x - head == 0) && nan)
+			{
+				return -1;
+			}
+			
+			if(c == 's' || c == 'm' || c == 'h')
+			{
+				long value = YouTubeURLProcessor.parseUnsignedLong(timestamp.substring(head, x));
+				
+				if(value < 0)
+				{
+					return -1;
+				}
+				
+				switch(c)
+				{
+					case 's':
+						result += value;
+						break;
+					case 'm':
+						result += value * 60;
+						break;
+					case 'h':
+						result += value * 3600;
+						break;
+				}
+				
+				head = x + 1;
+			}
+			else if(nan || x == timestamp.length() - 1)
+			{
+				return -1;
+			}
+		}
+		
+		return result;
+	}
+	
+	private static long parseUnsignedLong(String s)
+	{
+		try
+		{
+			return Long.parseUnsignedLong(s);
+		}
+		catch(NumberFormatException e)
+		{
+			return -1;
+		}
 	}
 }
