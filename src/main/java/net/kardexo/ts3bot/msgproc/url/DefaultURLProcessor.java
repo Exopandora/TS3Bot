@@ -9,6 +9,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URIBuilder;
@@ -30,7 +31,12 @@ public class DefaultURLProcessor implements IURLProcessor
 	@Override
 	public String process(String url)
 	{
-		try(CloseableHttpClient client = Util.httpClient())
+		return this.process(url, CookieSpecs.STANDARD_STRICT);
+	}
+	
+	public String process(String url, String cookieSpec)
+	{
+		try(CloseableHttpClient client = Util.httpClient(cookieSpec))
 		{
 			List<String> contentTypes = new ArrayList<String>();
 			HttpGet httpGet = new HttpGet(URI.create(url));

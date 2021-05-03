@@ -1,11 +1,11 @@
 package net.kardexo.ts3bot.msgproc.url;
 
 import java.net.URI;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.utils.URIBuilder;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -13,21 +13,40 @@ import com.fasterxml.jackson.databind.JsonNode;
 import net.kardexo.ts3bot.TS3Bot;
 import net.kardexo.ts3bot.util.Util;
 
-public class YouTubeURLProcessor implements IURLProcessor
+public class YouTubeURLProcessor extends DefaultURLProcessor
 {
 	private static final URI API_URL = URI.create("https://www.googleapis.com/youtube/v3/");
-	private static final Pattern YOUTUBE_URL = Pattern.compile("https:\\/\\/(www\\.)?youtube\\.com\\/watch\\?(.*)");
-	private static final Pattern YOUTUBE_URL_2 = Pattern.compile("https:\\/\\/(www\\.)?youtu\\.be\\/(.*)");
+	private static final Pattern YOUTUBE_URL = Pattern.compile("https:\\/\\/(?:www\\.)?(?:youtube\\.com|youtu\\.be).*");
+	private static final Pattern YOUTUBE_WATCH_URL = Pattern.compile("https:\\/\\/(?:www\\.)?youtube\\.com\\/watch\\?(.*)");
+	private static final Pattern YOUTUBE_WATCH_URL_2 = Pattern.compile("https:\\/\\/(?:www\\.)?youtu\\.be\\/(.*)");
 	
 	@Override
 	public String process(String url)
 	{
-		Map<String, String> parameters = this.extractQuery(url);
-		String id = parameters.get("v");
+		Matcher matcher = YOUTUBE_WATCH_URL.matcher(url);
+		
+		if(matcher.matches() && matcher.group(1) != null)
+		{
+			return this.watch(Util.queryToMap(matcher.group(1)));
+		}
+		
+		matcher = YOUTUBE_WATCH_URL_2.matcher(url);
+		
+		if(matcher.matches() && matcher.group(1) != null)
+		{
+			return this.watch(Util.queryToMap("v=" + matcher.group(1)));
+		}
+		
+		return super.process(url, CookieSpecs.IGNORE_COOKIES);
+	}
+	
+	private String watch(Map<String, String> query)
+	{
+		String id = query.get("v");
 		
 		if(id != null)
 		{
-			return this.watch(id, YouTubeURLProcessor.parseTimestamp(parameters.get("t")));
+			return this.watch(id, YouTubeURLProcessor.parseTimestamp(query.get("t")));
 		}
 		
 		return null;
@@ -76,26 +95,7 @@ public class YouTubeURLProcessor implements IURLProcessor
 	@Override
 	public boolean isApplicable(String message)
 	{
-		return message != null && (YOUTUBE_URL.matcher(message).matches() || YOUTUBE_URL_2.matcher(message).matches());
-	}
-	
-	private Map<String, String> extractQuery(String url)
-	{
-		Matcher matcher = YOUTUBE_URL.matcher(url);
-		
-		if(matcher.matches() && matcher.group(2) != null)
-		{
-			return Util.queryToMap(matcher.group(2));
-		}
-		
-		matcher = YOUTUBE_URL_2.matcher(url);
-		
-		if(matcher.matches() && matcher.group(2) != null)
-		{
-			return Util.queryToMap("v=" + matcher.group(2));
-		}
-		
-		return new HashMap<String, String>();
+		return message != null && YOUTUBE_URL.matcher(message).matches();
 	}
 	
 	private static long parseTimestamp(String timestamp)

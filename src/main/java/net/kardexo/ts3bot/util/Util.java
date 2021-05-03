@@ -88,9 +88,14 @@ public class Util
 	
 	public static CloseableHttpClient httpClient()
 	{
+		return Util.httpClient(CookieSpecs.STANDARD_STRICT);
+	}
+	
+	public static CloseableHttpClient httpClient(String cookieSpec)
+	{
 		RequestConfig config = RequestConfig.custom()
 				.setConnectionRequestTimeout(5000)
-				.setCookieSpec(CookieSpecs.STANDARD_STRICT)
+				.setCookieSpec(cookieSpec)
 				.build();
 		CloseableHttpClient client = HttpClientBuilder.create()
 				.setUserAgent(TS3Bot.USER_AGENT)
