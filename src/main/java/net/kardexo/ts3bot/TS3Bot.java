@@ -30,6 +30,7 @@ import net.kardexo.ts3bot.commands.impl.CommandExit;
 import net.kardexo.ts3bot.commands.impl.CommandGameServers;
 import net.kardexo.ts3bot.commands.impl.CommandHeldDerSteine;
 import net.kardexo.ts3bot.commands.impl.CommandHelp;
+import net.kardexo.ts3bot.commands.impl.CommandImage;
 import net.kardexo.ts3bot.commands.impl.CommandKick;
 import net.kardexo.ts3bot.commands.impl.CommandKickAll;
 import net.kardexo.ts3bot.commands.impl.CommandLeagueOfLegends;
@@ -132,6 +133,7 @@ public class TS3Bot extends TS3EventAdapter implements ConnectionHandler
 		CommandRules.register(this.dispatcher);
 		CommandSay.register(this.dispatcher);
 		CommandTimer.register(this.dispatcher);
+		CommandImage.register(this.dispatcher);
 	}
 	
 	@Override
