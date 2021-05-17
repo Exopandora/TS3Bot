@@ -1,5 +1,6 @@
 package net.kardexo.ts3bot.commands.impl;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.net.URL;
@@ -51,6 +52,8 @@ public class CommandImage
 			BufferedImage scaled = new BufferedImage((int) (scale * width), (int) (scale * height), BufferedImage.TYPE_INT_RGB);
 			
 			Graphics2D graphics = (Graphics2D) scaled.getGraphics();
+			graphics.setPaint(Color.WHITE);
+			graphics.fillRect(0, 0, scaled.getWidth(), scaled.getHeight());
 			graphics.scale(scale * WIDTH_CORRECTION, scale);
 			graphics.drawImage(image, 0, 0, null);
 			graphics.dispose();
