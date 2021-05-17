@@ -75,7 +75,6 @@ public class CommandImage
 		}
 		catch(Exception e)
 		{
-			e.printStackTrace();
 			throw ERROR_PROCESSING_IMAGE.create();
 		}
 	}
