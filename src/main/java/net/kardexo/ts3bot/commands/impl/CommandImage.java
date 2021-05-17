@@ -1,7 +1,6 @@
 package net.kardexo.ts3bot.commands.impl;
 
-import java.awt.geom.AffineTransform;
-import java.awt.image.AffineTransformOp;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.net.URL;
 
@@ -30,7 +29,7 @@ public class CommandImage
 	public static void register(CommandDispatcher<CommandSource> dispatcher)
 	{
 		dispatcher.register(Commands.literal("image")
-				.then(Commands.argument("url", StringArgumentType.word())
+				.then(Commands.argument("url", StringArgumentType.greedyString())
 						.executes(context -> image(context, Util.extract(StringArgumentType.getString(context, "url"))))));
 	}
 	
@@ -50,11 +49,11 @@ public class CommandImage
 			double scale = Math.sqrt(MAX_CHARS - height) / (SQRT_CHARS_PER_PIXEL * Math.sqrt(height) * Math.sqrt(width));
 			
 			BufferedImage scaled = new BufferedImage((int) (scale * width), (int) (scale * height), BufferedImage.TYPE_INT_RGB);
-			AffineTransform transform = new AffineTransform();
-			transform.scale(scale * WIDTH_CORRECTION, scale);
 			
-			AffineTransformOp transformOp = new AffineTransformOp(transform, AffineTransformOp.TYPE_BILINEAR);
-			transformOp.filter(image, scaled);
+			Graphics2D graphics = (Graphics2D) scaled.getGraphics();
+			graphics.scale(scale * WIDTH_CORRECTION, scale);
+			graphics.drawImage(image, 0, 0, null);
+			graphics.dispose();
 			
 			StringBuilder builder = new StringBuilder();
 			int[] pixels = new int[scaled.getWidth() * scaled.getHeight() * 3];
@@ -76,6 +75,7 @@ public class CommandImage
 		}
 		catch(Exception e)
 		{
+			e.printStackTrace();
 			throw ERROR_PROCESSING_IMAGE.create();
 		}
 	}
