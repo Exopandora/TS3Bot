@@ -16,10 +16,11 @@ public class CommandTwitch
 	
 	public static void register(CommandDispatcher<CommandSource> dispatcher)
 	{
-		dispatcher.register(Commands.literal("bobross")
-				.executes(context -> CommandTwitch.twitch(context, "BobRoss")));
-		dispatcher.register(Commands.literal("amouranth")
-				.executes(context -> CommandTwitch.twitch(context, "Amouranth")));
+		for(String[] entry : new String[][]{{"bobross", "BobRoss"}, {"amouranth", "Amouranth"}, {"uffuff", "evaanna"}, {"kim", "KDRkitten"}})
+		{
+			dispatcher.register(Commands.literal(entry[0])
+					.executes(context -> CommandTwitch.twitch(context, entry[1])));
+		}
 	}
 	
 	private static int twitch(CommandContext<CommandSource> context, String user) throws CommandSyntaxException
