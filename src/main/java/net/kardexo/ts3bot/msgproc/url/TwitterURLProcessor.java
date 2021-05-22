@@ -101,11 +101,11 @@ public class TwitterURLProcessor implements IURLProcessor
 					String text = data.get(0).path("text").asText();
 					String user = users.get(0).path("name").asText();
 					
-					if(text != null && !text.isEmpty() && user != null && !user.isEmpty())
+					if(text != null && user != null && !user.isEmpty())
 					{
-						if(text.length() > 23)
+						if(!text.isEmpty())
 						{
-							return user + ": \"" + text.substring(0, text.length() - 24) + "\"";
+							return user + ": \"" + text + "\"";
 						}
 						else if(media.size() > 0)
 						{
