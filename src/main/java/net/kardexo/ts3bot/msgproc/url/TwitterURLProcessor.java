@@ -105,38 +105,30 @@ public class TwitterURLProcessor implements IURLProcessor
 					{
 						if(!text.isEmpty())
 						{
+							if(text.matches("^[\\s\\S]* https:\\/\\/t.co\\/.{10}$"))
+							{
+								text = text.substring(0, text.length() - 24);
+							}
+							
+							if(media.size() > 0)
+							{
+								String attachments = Attachments.parse(media).toString();
+								
+								if(!attachments.isEmpty())
+								{
+									text += " [" + attachments + "]";
+								}
+							}
+							
 							return user + ": \"" + text + "\"";
 						}
 						else if(media.size() > 0)
 						{
-							int images = 0;
-							int videos = 0;
+							String attachments = Attachments.parse(media).toString();
 							
-							for(JsonNode item : media)
+							if(!attachments.isEmpty())
 							{
-								String type = item.path("type").asText();
-								
-								if("photo".equals(type))
-								{
-									images++;
-								}
-								else if("video".equals(type))
-								{
-									videos++;
-								}
-							}
-							
-							if(images > 0 && videos > 0)
-							{
-								return videos + " video" + (videos > 1 ? "s" : "") + " and " + images + " image" + (images > 1 ? "s" : "") + " by " + user;
-							}
-							else if(images > 0)
-							{
-								return (images > 1 ? images + " images" : "Image") + " by " + user;
-							}
-							else if(videos > 0)
-							{
-								return (videos > 1 ? videos + " videos" : "Video") + " by " + user;
+								return attachments + " by " + user;
 							}
 						}
 					}
@@ -192,5 +184,58 @@ public class TwitterURLProcessor implements IURLProcessor
 		}
 		
 		return null;
+	}
+	
+	private static class Attachments
+	{
+		private final int images;
+		private final int videos;
+		
+		public Attachments(int images, int videos)
+		{
+			this.images = images;
+			this.videos = videos;
+		}
+		
+		public static Attachments parse(JsonNode media)
+		{
+			int images = 0;
+			int videos = 0;
+			
+			for(JsonNode item : media)
+			{
+				String type = item.path("type").asText();
+				
+				if("photo".equals(type))
+				{
+					images++;
+				}
+				else if("video".equals(type))
+				{
+					videos++;
+				}
+			}
+			
+			return new Attachments(images, videos);
+		}
+		
+		@Override
+		public String toString()
+		{
+			if(this.images > 0 && this.videos > 0)
+			{
+				return this.videos + " video" + (this.videos > 1 ? "s" : "") + " and " + this.images + " image" + (this.images > 1 ? "s" : "");
+			}
+			else if(this.images > 0)
+			{
+				return (this.images > 1 ? this.images + " images" : "Image");
+			}
+			else if(this.videos > 0)
+			{
+				return (this.videos > 1 ? this.videos + " videos" : "Video");
+			}
+			
+			return "";
+		}
 	}
 }
