@@ -19,6 +19,7 @@ public class TwitterURLProcessor implements IURLProcessor
 	private static final URI API_URL = URI.create("https://api.twitter.com/labs/2/");
 	private static final Pattern TWITTER_STATUS_URL = Pattern.compile("https:\\/\\/(www\\.)?twitter\\.com\\/([^/]+)\\/status\\/([0-9]+).*");
 	private static final Pattern TWITTER_PROFILE_URL = Pattern.compile("https:\\/\\/(www\\.)?twitter\\.com\\/([^/]+)");
+	private static final Pattern STATUS = Pattern.compile("^([\\s\\S]*)https:\\/\\/t\\.co\\/.{10}$");
 	
 	@Override
 	public String process(String url)
@@ -103,33 +104,36 @@ public class TwitterURLProcessor implements IURLProcessor
 					
 					if(text != null && user != null && !user.isEmpty())
 					{
-						if(!text.isEmpty())
+						Matcher matcher = STATUS.matcher(text);
+						String status = null;
+						
+						if(matcher.matches())
 						{
-							if(text.matches("^[\\s\\S]* https:\\/\\/t.co\\/.{10}$"))
-							{
-								text = text.substring(0, text.length() - 24);
-							}
-							
-							if(media.size() > 0)
-							{
-								String attachments = Attachments.parse(media).toString();
-								
-								if(!attachments.isEmpty())
-								{
-									text += " [" + attachments + "]";
-								}
-							}
-							
-							return user + ": \"" + text + "\"";
+							status = matcher.group(1).replaceAll("\\s*\n\\s*", " ").trim();
 						}
-						else if(media.size() > 0)
+						else
+						{
+							status = text.replaceAll("\\s*\n\\s*", " ").trim();
+						}
+						
+						if(media.size() > 0)
 						{
 							String attachments = Attachments.parse(media).toString();
 							
 							if(!attachments.isEmpty())
 							{
-								return attachments + " by " + user;
+								if(status == null || status.isEmpty())
+								{
+									return attachments + " by " + user;
+								}
+								
+								status += " [" + attachments + "]";
 							}
+						}
+						
+						if(status != null && !status.isEmpty())
+						{
+							return user + ": \"" + status.replaceAll("(https:\\/\\/t\\.co\\/.{10})", "[URL]$1[/URL]") + "\"";
 						}
 					}
 				}
