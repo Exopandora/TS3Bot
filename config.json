@@ -68,8 +68,9 @@
 		"ITEM1",
 		"ITEM2"
 	],
-	"bingo_ticket_size": SIZE,
+	"bingo_ticket_size": 3,
 	"twitch_shortcuts": {
-		"COMMAND": "CHANNEL"
+		"COMMAND1": "CHANNEL1",
+		"COMMAND2": "CHANNEL2"
 	}
 }
