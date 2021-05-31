@@ -46,6 +46,11 @@ public class Config
 	@JsonProperty("rules")
 	private List<String> rules;
 	
+	@JsonProperty("bingo_items")
+	private List<String> bingoItems;
+	@JsonProperty("bingo_ticket_size")
+	private int bingoTicketSize;
+	
 	public Config()
 	{
 		super();
@@ -124,6 +129,16 @@ public class Config
 	public List<String> getRules()
 	{
 		return this.rules;
+	}
+	
+	public List<String> getBingoItems()
+	{
+		return this.bingoItems;
+	}
+	
+	public int getBingoTicketSize()
+	{
+		return this.bingoTicketSize;
 	}
 	
 	public static class APIKey

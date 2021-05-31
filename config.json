@@ -63,5 +63,10 @@
 	"rules": [
 		"RULE1",
 		"RULE2"
-	]
+	],
+	"bingo_items": [
+		"ITEM1",
+		"ITEM2"
+	],
+	"bingo_ticket_size": SIZE
 }
