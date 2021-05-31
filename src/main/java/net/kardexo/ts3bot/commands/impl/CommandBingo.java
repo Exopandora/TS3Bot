@@ -31,7 +31,7 @@ public class CommandBingo
 		long seed = Math.abs(calendar.getTimeInMillis() ^ context.getSource().getClientInfo().getUniqueIdentifier().hashCode());
 		Random random = new Random(seed);
 		ArrayList<String> items = new ArrayList<String>(TS3Bot.getInstance().getConfig().getBingoItems());
-		StringBuilder builder = new StringBuilder("Ticket number " + seed);
+		StringBuilder builder = new StringBuilder("Ticket-ID " + seed);
 		
 		for(int x = 0; x < TS3Bot.getInstance().getConfig().getBingoTicketSize(); x++)
 		{
