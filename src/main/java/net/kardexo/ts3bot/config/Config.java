@@ -51,6 +51,9 @@ public class Config
 	@JsonProperty("bingo_ticket_size")
 	private int bingoTicketSize;
 	
+	@JsonProperty("twitch_shortcuts")
+	private Map<String, String> twitchShortcuts;
+	
 	public Config()
 	{
 		super();
@@ -139,6 +142,11 @@ public class Config
 	public int getBingoTicketSize()
 	{
 		return this.bingoTicketSize;
+	}
+	
+	public Map<String, String> getTwitchShortcuts()
+	{
+		return this.twitchShortcuts;
 	}
 	
 	public static class APIKey
