@@ -26,6 +26,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import net.kardexo.ts3bot.commands.CommandSource;
 import net.kardexo.ts3bot.commands.impl.CommandBingo;
 import net.kardexo.ts3bot.commands.impl.CommandBot;
+import net.kardexo.ts3bot.commands.impl.CommandCalculate;
 import net.kardexo.ts3bot.commands.impl.CommandCoinflip;
 import net.kardexo.ts3bot.commands.impl.CommandExit;
 import net.kardexo.ts3bot.commands.impl.CommandGameServers;
@@ -136,6 +137,7 @@ public class TS3Bot extends TS3EventAdapter implements ConnectionHandler
 		CommandTimer.register(this.dispatcher);
 		CommandImage.register(this.dispatcher);
 		CommandBingo.register(this.dispatcher);
+		CommandCalculate.register(this.dispatcher);
 	}
 	
 	@Override
