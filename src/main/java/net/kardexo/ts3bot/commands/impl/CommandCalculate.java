@@ -154,11 +154,11 @@ public class CommandCalculate
 						
 						if(function.equals("mod"))
 						{
-							x %= this.parseFactor();
+							x %= this.parseExpression();
 						}
 						else
 						{
-							throw new ParseException("Unknown function: " + function, start);
+							throw new ParseException("Unknown operator: " + function, start);
 						}
 					}
 					else
