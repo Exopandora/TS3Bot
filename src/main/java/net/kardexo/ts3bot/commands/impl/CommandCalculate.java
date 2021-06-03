@@ -1,5 +1,7 @@
 package net.kardexo.ts3bot.commands.impl;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.BiFunction;
 
 import com.mojang.brigadier.CommandDispatcher;
@@ -8,6 +10,7 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
+import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 
 import net.kardexo.ts3bot.commands.CommandSource;
@@ -16,7 +19,9 @@ import net.kardexo.ts3bot.commands.impl.CommandCalculate.Expression.ParseExcepti
 
 public class CommandCalculate
 {
+	private static final Map<String, String> HISTORY = new HashMap<String, String>();
 	private static final DynamicCommandExceptionType PARSING_EXCEPTION = new DynamicCommandExceptionType(exception -> new LiteralMessage(String.valueOf(exception)));
+	private static final SimpleCommandExceptionType NO_ANS_STORED = new SimpleCommandExceptionType(new LiteralMessage("No previous value stored for ans"));
 	
 	public static void register(CommandDispatcher<CommandSource> dispatcher)
 	{
@@ -31,7 +36,20 @@ public class CommandCalculate
 	{
 		try
 		{
-			double x = new Expression(expression).eval();
+			String uuid = context.getSource().getClientInfo().getUniqueIdentifier();
+			
+			if(expression.contains("ans") && !HISTORY.containsKey(uuid))
+			{
+				throw NO_ANS_STORED.create();
+			}
+			
+			double x = new Expression(expression.replaceAll("ans", HISTORY.get(uuid))).eval();
+			
+			if(Double.isFinite(x))
+			{
+				HISTORY.put(uuid, String.valueOf(x));
+			}
+			
 			context.getSource().sendFeedback(expression + " = " + x);
 			return (int) x;
 		}
