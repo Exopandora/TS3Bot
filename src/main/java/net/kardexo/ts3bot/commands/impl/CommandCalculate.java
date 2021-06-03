@@ -156,6 +156,10 @@ public class CommandCalculate
 						{
 							x %= this.parseFactor();
 						}
+						else
+						{
+							throw new ParseException("Unknown function: " + function, start);
+						}
 					}
 					else
 					{
