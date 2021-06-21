@@ -52,7 +52,7 @@ public class CommandYouTube
 	
 	public static JsonNode fetchLatestVideo(String username) throws CommandSyntaxException
 	{
-		return CommandYouTube.fetchPlaylistItems(CommandYouTube.fetchUploadsPlaylistId(username), null, null, MAX_RESULTS);
+		return CommandYouTube.fetchPlaylistItems(CommandYouTube.fetchUploadsPlaylistId(username), null, null, MAX_RESULTS).path("items").get(0);
 	}
 	
 	public static JsonNode fetchRandomVideo(String username) throws CommandSyntaxException
