@@ -30,7 +30,7 @@ import net.kardexo.ts3bot.commands.impl.CommandCalculate;
 import net.kardexo.ts3bot.commands.impl.CommandCoinflip;
 import net.kardexo.ts3bot.commands.impl.CommandExit;
 import net.kardexo.ts3bot.commands.impl.CommandGameServers;
-import net.kardexo.ts3bot.commands.impl.CommandHeldDerSteine;
+import net.kardexo.ts3bot.commands.impl.CommandYouTube;
 import net.kardexo.ts3bot.commands.impl.CommandHelp;
 import net.kardexo.ts3bot.commands.impl.CommandImage;
 import net.kardexo.ts3bot.commands.impl.CommandKick;
@@ -131,7 +131,7 @@ public class TS3Bot extends TS3EventAdapter implements ConnectionHandler
 		CommandCoinflip.register(this.dispatcher);
 		CommandKick.register(this.dispatcher);
 		CommandKickAll.register(this.dispatcher);
-		CommandHeldDerSteine.register(this.dispatcher);
+		CommandYouTube.register(this.dispatcher);
 		CommandRules.register(this.dispatcher);
 		CommandSay.register(this.dispatcher);
 		CommandTimer.register(this.dispatcher);

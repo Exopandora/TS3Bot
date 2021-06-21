@@ -1,6 +1,7 @@
 package net.kardexo.ts3bot.commands.impl;
 
 import java.net.URI;
+import java.util.Map.Entry;
 import java.util.concurrent.ThreadLocalRandom;
 
 import org.apache.http.client.utils.URIBuilder;
@@ -16,7 +17,7 @@ import net.kardexo.ts3bot.TS3Bot;
 import net.kardexo.ts3bot.commands.CommandSource;
 import net.kardexo.ts3bot.commands.Commands;
 
-public class CommandHeldDerSteine
+public class CommandYouTube
 {
 	private static final String YOUTUBE_URL = "https://youtu.be/";
 	private static final URI API_URL = URI.create("https://www.googleapis.com/youtube/v3/");
@@ -25,36 +26,39 @@ public class CommandHeldDerSteine
 	
 	public static void register(CommandDispatcher<CommandSource> dispatcher)
 	{
-		dispatcher.register(Commands.literal("held")
-				.executes(context -> held(context)));
+		for(Entry<String, String> entry : TS3Bot.getInstance().getConfig().getShortcuts().getYoutube().entrySet())
+		{
+			dispatcher.register(Commands.literal(entry.getKey())
+					.executes(context -> youtube(context, CommandYouTube.fetchLatestVideo(entry.getValue())))
+					.then(Commands.literal("random")
+							.executes(context -> youtube(context, CommandYouTube.fetchRandomVideo(entry.getValue())))));
+		}
 	}
 	
-	private static int held(CommandContext<CommandSource> context) throws CommandSyntaxException
+	private static int youtube(CommandContext<CommandSource> context, JsonNode video) throws CommandSyntaxException
 	{
-		JsonNode video = CommandHeldDerSteine.fetchRandomVideo();
+		JsonNode snippet = video.path("snippet");
+		String channelTitle = snippet.path("channelTitle").asText();
+		String title = snippet.path("title").asText();
+		String videoId = snippet.path("resourceId").path("videoId").asText();
 		
-		if(video != null)
+		if(channelTitle != null && !channelTitle.isEmpty() && title != null && !title.isEmpty() && videoId != null && !videoId.isEmpty())
 		{
-			JsonNode snippet = video.path("snippet");
-			String channelTitle = snippet.path("channelTitle").asText();
-			String title = snippet.path("title").asText();
-			String videoId = snippet.path("resourceId").path("videoId").asText();
-			
-			if(channelTitle != null && !channelTitle.isEmpty() && title != null && !title.isEmpty() && videoId != null && !videoId.isEmpty())
-			{
-				context.getSource().sendFeedback(channelTitle + ": \"" + title + "\" " + YOUTUBE_URL + videoId);
-			}
-			
-			return snippet.path("position").asInt() + 1;
+			context.getSource().sendFeedback(channelTitle + ": \"" + title + "\" " + YOUTUBE_URL + videoId);
 		}
 		
-		return 0;
+		return snippet.path("position").asInt() + 1;
 	}
 	
-	public static JsonNode fetchRandomVideo() throws CommandSyntaxException
+	public static JsonNode fetchLatestVideo(String username) throws CommandSyntaxException
 	{
-		String playlist = CommandHeldDerSteine.fetchUploadsPlaylistId();
-		long length = CommandHeldDerSteine.fetchPlaylistLength(playlist);
+		return CommandYouTube.fetchPlaylistItems(CommandYouTube.fetchUploadsPlaylistId(username), null, null, MAX_RESULTS);
+	}
+	
+	public static JsonNode fetchRandomVideo(String username) throws CommandSyntaxException
+	{
+		String playlist = CommandYouTube.fetchUploadsPlaylistId(username);
+		long length = CommandYouTube.fetchPlaylistLength(playlist);
 		long index = ThreadLocalRandom.current().nextLong(length);
 		long fetched = 0;
 		
@@ -68,11 +72,11 @@ public class CommandHeldDerSteine
 			
 			if(fetched < index)
 			{
-				playlistItems = CommandHeldDerSteine.fetchPlaylistItems(playlist, pageToken, null, MAX_RESULTS);
+				playlistItems = CommandYouTube.fetchPlaylistItems(playlist, pageToken, null, MAX_RESULTS);
 			}
 			else
 			{
-				playlistItems = CommandHeldDerSteine.fetchPlaylistItems(playlist, pageToken, "snippet", last);
+				playlistItems = CommandYouTube.fetchPlaylistItems(playlist, pageToken, "snippet", last);
 			}
 		}
 		while(fetched < index && playlistItems != null && playlistItems.hasNonNull("nextPageToken"));
@@ -87,15 +91,15 @@ public class CommandHeldDerSteine
 			}
 		}
 		
-		return null;
+		throw ERROR_FETCHING_DATA.create();
 	}
 	
-	private static String fetchUploadsPlaylistId() throws CommandSyntaxException
+	private static String fetchUploadsPlaylistId(String username) throws CommandSyntaxException
 	{
 		try
 		{
 			URI uri = new URIBuilder(API_URL.resolve("channels"))
-				.addParameter("forUsername", "HeldderSteine")
+				.addParameter("forUsername", username)
 				.addParameter("part", "contentDetails")
 				.addParameter("key", TS3Bot.getInstance().getApiKeyManager().requestKey(TS3Bot.API_KEY_YOUTUBE))
 				.build();
@@ -109,10 +113,10 @@ public class CommandHeldDerSteine
 		}
 		catch(Exception e)
 		{
-			ERROR_FETCHING_DATA.create();
+			e.printStackTrace();
 		}
 		
-		return null;
+		throw ERROR_FETCHING_DATA.create();
 	}
 	
 	private static long fetchPlaylistLength(String playlist) throws CommandSyntaxException
@@ -134,13 +138,13 @@ public class CommandHeldDerSteine
 		}
 		catch(Exception e)
 		{
-			ERROR_FETCHING_DATA.create();
+			e.printStackTrace();
 		}
 		
-		return 0;
+		throw ERROR_FETCHING_DATA.create();
 	}
 	
-	private static JsonNode fetchPlaylistItems(String playlist, String pageToken, String part, int maxResults)
+	private static JsonNode fetchPlaylistItems(String playlist, String pageToken, String part, int maxResults) throws CommandSyntaxException
 	{
 		try
 		{
@@ -163,9 +167,9 @@ public class CommandHeldDerSteine
 		}
 		catch(Exception e)
 		{
-			ERROR_FETCHING_DATA.create();
+			e.printStackTrace();
 		}
 		
-		return null;
+		throw ERROR_FETCHING_DATA.create();
 	}
 }

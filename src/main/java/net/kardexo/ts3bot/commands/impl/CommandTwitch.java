@@ -19,7 +19,7 @@ public class CommandTwitch
 	
 	public static void register(CommandDispatcher<CommandSource> dispatcher)
 	{
-		for(Entry<String, String> entry : TS3Bot.getInstance().getConfig().getTwitchShortcuts().entrySet())
+		for(Entry<String, String> entry : TS3Bot.getInstance().getConfig().getShortcuts().getTwitch().entrySet())
 		{
 			dispatcher.register(Commands.literal(entry.getKey())
 					.executes(context -> CommandTwitch.twitch(context, entry.getValue())));

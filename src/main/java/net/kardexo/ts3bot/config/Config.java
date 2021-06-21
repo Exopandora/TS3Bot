@@ -47,12 +47,12 @@ public class Config
 	private List<String> rules;
 	
 	@JsonProperty("bingo_items")
-	private List<String> bingoItems;
+	private List<JsonNode> bingoItems;
 	@JsonProperty("bingo_ticket_size")
 	private int bingoTicketSize;
 	
-	@JsonProperty("twitch_shortcuts")
-	private Map<String, String> twitchShortcuts;
+	@JsonProperty("shortcuts")
+	private Shortcuts shortcuts;
 	
 	public Config()
 	{
@@ -134,7 +134,7 @@ public class Config
 		return this.rules;
 	}
 	
-	public List<String> getBingoItems()
+	public List<JsonNode> getBingoItems()
 	{
 		return this.bingoItems;
 	}
@@ -144,9 +144,38 @@ public class Config
 		return this.bingoTicketSize;
 	}
 	
-	public Map<String, String> getTwitchShortcuts()
+	public Shortcuts getShortcuts()
 	{
-		return this.twitchShortcuts;
+		return this.shortcuts;
+	}
+	
+	public static class Shortcuts
+	{
+		@JsonProperty("youtube")
+		private Map<String, String> youtube;
+		@JsonProperty("twitch")
+		private Map<String, String> twitch;
+		
+		public Shortcuts()
+		{
+			super();
+		}
+		
+		public Shortcuts(Map<String, String> youtube, Map<String, String> twitch)
+		{
+			this.youtube = youtube;
+			this.twitch = twitch;
+		}
+		
+		public Map<String, String> getYoutube()
+		{
+			return this.youtube;
+		}
+		
+		public Map<String, String> getTwitch()
+		{
+			return this.twitch;
+		}
 	}
 	
 	public static class APIKey

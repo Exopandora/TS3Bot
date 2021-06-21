@@ -3,6 +3,7 @@ package net.kardexo.ts3bot.commands.impl;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -13,6 +14,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.LiteralMessage;
 import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
@@ -32,12 +34,19 @@ public class CommandWatch2Gether
 	
 	public static void register(CommandDispatcher<CommandSource> dispatcher)
 	{
-		LiteralCommandNode<CommandSource> watch2gether = dispatcher.register(Commands.literal("watch2gether")
+		LiteralArgumentBuilder<CommandSource> command = Commands.literal("watch2gether")
 				.executes(context -> watch2gether(context))
 				.then(Commands.argument("url", StringArgumentType.greedyString())
-						.executes(context -> watch2gether(context, Util.extract(StringArgumentType.getString(context, "url")))))
-				.then(Commands.literal("held")
-						.executes(context -> watch2gether(context, YOUTUBE_URL + CommandHeldDerSteine.fetchRandomVideo().path("snippet").path("resourceId").path("videoId").asText()))));
+						.executes(context -> watch2gether(context, Util.extract(StringArgumentType.getString(context, "url")))));
+		
+		for(Entry<String, String> entry : TS3Bot.getInstance().getConfig().getShortcuts().getYoutube().entrySet())
+		{
+			command = command.then(Commands.literal(entry.getKey())
+					.executes(context -> watch2gether(context, YOUTUBE_URL + CommandYouTube.fetchRandomVideo(entry.getValue()).path("snippet").path("resourceId").path("videoId").asText())));
+		}
+		
+		LiteralCommandNode<CommandSource> watch2gether = dispatcher.register(command);
+		
 		dispatcher.register(Commands.literal("w2g")
 				.executes(context -> watch2gether(context))
 				.redirect(watch2gether));

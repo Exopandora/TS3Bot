@@ -66,11 +66,21 @@
 	],
 	"bingo_items": [
 		"ITEM1",
-		"ITEM2"
+		"ITEM2",
+		["ITEM3_ARRAY_ITEM1", "ITEM3_ARRAY_ITEM2"],
+		["ITEM4_ARRAY_ITEM1", "ITEM4_ARRAY_ITEM2"],
+		"ITEM5",
+		"ITEM6"
 	],
 	"bingo_ticket_size": 3,
-	"twitch_shortcuts": {
-		"COMMAND1": "CHANNEL1",
-		"COMMAND2": "CHANNEL2"
+	"shortcuts": {
+		"youtube": {
+			"COMMAND1": "CHANNEL1",
+			"COMMAND2": "CHANNEL2"
+		},
+		"twitch": {
+			"COMMAND3": "CHANNEL1",
+			"COMMAND4": "CHANNEL2"
+		}
 	}
 }

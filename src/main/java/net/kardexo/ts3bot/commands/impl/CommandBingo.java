@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Random;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 
@@ -30,14 +31,36 @@ public class CommandBingo
 		
 		long seed = Math.abs(calendar.getTimeInMillis() ^ context.getSource().getClientInfo().getUniqueIdentifier().hashCode());
 		Random random = new Random(seed);
-		ArrayList<String> items = new ArrayList<String>(TS3Bot.getInstance().getConfig().getBingoItems());
+		ArrayList<JsonNode> items = new ArrayList<JsonNode>(TS3Bot.getInstance().getConfig().getBingoItems());
 		StringBuilder builder = new StringBuilder("Ticket-ID " + seed);
 		
 		for(int x = 0; x < TS3Bot.getInstance().getConfig().getBingoTicketSize(); x++)
 		{
-			int item = random.nextInt(items.size());
-			builder.append("\n" + items.get(item));
-			items.remove(item);
+			int index = random.nextInt(items.size());
+			JsonNode node = items.get(index);
+			
+			if(node.isArray())
+			{
+				if(node.size() == 1)
+				{
+					builder.append("\n" + node.get(0).asText());
+				}
+				else if(node.size() > 1)
+				{
+					index = random.nextInt(node.size());
+					builder.append("\n" + node.get(index).asText());
+				}
+				else if(node.size() == 0)
+				{
+					builder.append("\n[Missing]");
+				}
+			}
+			else
+			{
+				builder.append("\n" + node.asText());
+			}
+			
+			items.remove(index);
 		}
 		
 		context.getSource().sendFeedback(builder.toString());
