@@ -30,9 +30,7 @@ import net.kardexo.ts3bot.commands.impl.CommandCalculate;
 import net.kardexo.ts3bot.commands.impl.CommandCoinflip;
 import net.kardexo.ts3bot.commands.impl.CommandExit;
 import net.kardexo.ts3bot.commands.impl.CommandGameServers;
-import net.kardexo.ts3bot.commands.impl.CommandYouTube;
 import net.kardexo.ts3bot.commands.impl.CommandHelp;
-import net.kardexo.ts3bot.commands.impl.CommandImage;
 import net.kardexo.ts3bot.commands.impl.CommandKick;
 import net.kardexo.ts3bot.commands.impl.CommandKickAll;
 import net.kardexo.ts3bot.commands.impl.CommandLeagueOfLegends;
@@ -45,6 +43,7 @@ import net.kardexo.ts3bot.commands.impl.CommandTeams;
 import net.kardexo.ts3bot.commands.impl.CommandTimer;
 import net.kardexo.ts3bot.commands.impl.CommandTwitch;
 import net.kardexo.ts3bot.commands.impl.CommandWatch2Gether;
+import net.kardexo.ts3bot.commands.impl.CommandYouTube;
 import net.kardexo.ts3bot.config.Config;
 import net.kardexo.ts3bot.gameservers.GameServerManager;
 import net.kardexo.ts3bot.msgproc.CommandMessageProcressor;
@@ -135,7 +134,6 @@ public class TS3Bot extends TS3EventAdapter implements ConnectionHandler
 		CommandRules.register(this.dispatcher);
 		CommandSay.register(this.dispatcher);
 		CommandTimer.register(this.dispatcher);
-		CommandImage.register(this.dispatcher);
 		CommandBingo.register(this.dispatcher);
 		CommandCalculate.register(this.dispatcher);
 	}
