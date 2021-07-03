@@ -36,4 +36,6 @@ jar {
 			it.isDirectory() ? it : zipTree(it)
 		}
 	}
+	
+	duplicatesStrategy = 'include'
 }
