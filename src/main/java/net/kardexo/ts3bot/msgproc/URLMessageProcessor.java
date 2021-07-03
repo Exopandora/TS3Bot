@@ -75,22 +75,12 @@ public class URLMessageProcessor implements IMessageProcessor
 				}
 			}
 			
-			String result = URLMessageProcessor.normalize(DEFAULT_URL_PROCESSOR.process(url));
+			String result = DEFAULT_URL_PROCESSOR.process(url);
 			
 			if(result != null && !result.isBlank())
 			{
 				return result;
 			}
-		}
-		
-		return null;
-	}
-	
-	private static String normalize(String string)
-	{
-		if(string != null)
-		{
-			return string.replaceAll("\\s+", " ");
 		}
 		
 		return null;

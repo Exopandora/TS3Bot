@@ -63,18 +63,18 @@ public class DefaultURLProcessor implements IURLProcessor
 				
 				if(contentTypes.contains(MIME_TYPE_TEXT_HTML))
 				{
-					return Jsoup.parse(EntityUtils.toString(response.getEntity())).getElementsByTag("title").first().text();
+					return DefaultURLProcessor.normalize(Jsoup.parse(EntityUtils.toString(response.getEntity())).getElementsByTag("title").first().text());
 				}
 				else if(contentTypes.stream().anyMatch(string -> string.matches(MIME_TYPE_IMAGE)))
 				{
-					String image = this.readImage(response.getEntity().getContent());
+					String image = DefaultURLProcessor.readImage(response.getEntity().getContent());
 					
 					if(image != null)
 					{
 						return image;
 					}
 					
-					image = this.tagImage(client, httpGet, url);
+					image = DefaultURLProcessor.tagImage(client, httpGet, url);
 					
 					if(image != null)
 					{
@@ -110,7 +110,7 @@ public class DefaultURLProcessor implements IURLProcessor
 		return true;
 	}
 	
-	private String readImage(InputStream input) throws IOException
+	private static String readImage(InputStream input) throws IOException
 	{
 		BufferedImage image = ImageIO.read(input);
 		
@@ -150,7 +150,7 @@ public class DefaultURLProcessor implements IURLProcessor
 		return builder.toString();
 	}
 	
-	private String tagImage(CloseableHttpClient client, HttpGet httpGet, String url) throws URISyntaxException, ClientProtocolException, IOException
+	private static String tagImage(CloseableHttpClient client, HttpGet httpGet, String url) throws URISyntaxException, ClientProtocolException, IOException
 	{
 		httpGet.setURI(new URIBuilder(API_URL).addParameter("image_url", url).build());
 		httpGet.setHeader("Authorization", "Basic " + TS3Bot.getInstance().getApiKeyManager().requestKey(TS3Bot.API_KEY_IMAGGA));
@@ -167,6 +167,16 @@ public class DefaultURLProcessor implements IURLProcessor
 						.map(tag -> tag.path("tag").path("en").asText())
 						.collect(Collectors.joining(", ", "Image tags: \"", "\""));
 			}
+		}
+		
+		return null;
+	}
+	
+	private static String normalize(String string)
+	{
+		if(string != null)
+		{
+			return string.replaceAll("\\s+", " ");
 		}
 		
 		return null;
