@@ -1,4 +1,4 @@
-package net.kardexo.ts3bot.msgproc;
+package net.kardexo.ts3bot.message;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,13 +6,13 @@ import java.util.List;
 import com.github.theholywaffle.teamspeak3.api.TextMessageTargetMode;
 
 import net.kardexo.ts3bot.TS3Bot;
-import net.kardexo.ts3bot.msgproc.url.DefaultURLProcessor;
-import net.kardexo.ts3bot.msgproc.url.IURLProcessor;
-import net.kardexo.ts3bot.msgproc.url.SteamURLProcessor;
-import net.kardexo.ts3bot.msgproc.url.TwitchURLProcessor;
-import net.kardexo.ts3bot.msgproc.url.TwitterURLProcessor;
-import net.kardexo.ts3bot.msgproc.url.Watch2GetherURLProcessor;
-import net.kardexo.ts3bot.msgproc.url.YouTubeURLProcessor;
+import net.kardexo.ts3bot.message.url.DefaultURLProcessor;
+import net.kardexo.ts3bot.message.url.IURLProcessor;
+import net.kardexo.ts3bot.message.url.SteamURLProcessor;
+import net.kardexo.ts3bot.message.url.TwitchURLProcessor;
+import net.kardexo.ts3bot.message.url.TwitterURLProcessor;
+import net.kardexo.ts3bot.message.url.Watch2GetherURLProcessor;
+import net.kardexo.ts3bot.message.url.YouTubeURLProcessor;
 import net.kardexo.ts3bot.util.Util;
 
 public class URLMessageProcessor implements IMessageProcessor

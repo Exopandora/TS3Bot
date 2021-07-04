@@ -46,9 +46,9 @@ import net.kardexo.ts3bot.commands.impl.CommandWatch2Gether;
 import net.kardexo.ts3bot.commands.impl.CommandYouTube;
 import net.kardexo.ts3bot.config.Config;
 import net.kardexo.ts3bot.gameservers.GameServerManager;
-import net.kardexo.ts3bot.msgproc.CommandMessageProcressor;
-import net.kardexo.ts3bot.msgproc.IMessageProcessor;
-import net.kardexo.ts3bot.msgproc.URLMessageProcessor;
+import net.kardexo.ts3bot.message.CommandMessageProcressor;
+import net.kardexo.ts3bot.message.IMessageProcessor;
+import net.kardexo.ts3bot.message.URLMessageProcessor;
 import net.kardexo.ts3bot.util.APIKeyManager;
 import net.kardexo.ts3bot.util.ChatHistory;
 

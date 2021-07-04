@@ -1,4 +1,4 @@
-package net.kardexo.ts3bot.msgproc;
+package net.kardexo.ts3bot.message;
 
 import java.util.List;
 import java.util.stream.Collectors;

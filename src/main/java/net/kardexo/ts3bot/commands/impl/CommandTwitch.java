@@ -11,7 +11,7 @@ import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import net.kardexo.ts3bot.TS3Bot;
 import net.kardexo.ts3bot.commands.CommandSource;
 import net.kardexo.ts3bot.commands.Commands;
-import net.kardexo.ts3bot.msgproc.url.TwitchURLProcessor;
+import net.kardexo.ts3bot.message.url.TwitchURLProcessor;
 
 public class CommandTwitch
 {

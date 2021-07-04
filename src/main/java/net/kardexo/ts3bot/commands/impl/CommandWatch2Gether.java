@@ -23,7 +23,7 @@ import com.mojang.brigadier.tree.LiteralCommandNode;
 import net.kardexo.ts3bot.TS3Bot;
 import net.kardexo.ts3bot.commands.CommandSource;
 import net.kardexo.ts3bot.commands.Commands;
-import net.kardexo.ts3bot.msgproc.URLMessageProcessor;
+import net.kardexo.ts3bot.message.URLMessageProcessor;
 import net.kardexo.ts3bot.util.Util;
 
 public class CommandWatch2Gether

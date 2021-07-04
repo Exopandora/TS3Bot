@@ -1,4 +1,4 @@
-package net.kardexo.ts3bot.msgproc.url;
+package net.kardexo.ts3bot.message.url;
 
 import java.net.URI;
 import java.util.Map;

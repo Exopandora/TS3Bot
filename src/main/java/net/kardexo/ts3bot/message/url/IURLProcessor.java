@@ -1,4 +1,4 @@
-package net.kardexo.ts3bot.msgproc.url;
+package net.kardexo.ts3bot.message.url;
 
 public interface IURLProcessor
 {
