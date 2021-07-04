@@ -1,6 +1,12 @@
 package net.kardexo.ts3bot.commands.impl;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.function.BiFunction;
 
@@ -13,15 +19,24 @@ import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 
+import ch.obermuhlner.math.big.BigDecimalMath;
 import net.kardexo.ts3bot.commands.CommandSource;
 import net.kardexo.ts3bot.commands.Commands;
 import net.kardexo.ts3bot.commands.impl.CommandCalculate.Expression.ParseException;
 
 public class CommandCalculate
 {
-	private static final Map<String, String> HISTORY = new HashMap<String, String>();
+	private static final Map<String, BigDecimal> HISTORY = new HashMap<String, BigDecimal>();
 	private static final DynamicCommandExceptionType PARSING_EXCEPTION = new DynamicCommandExceptionType(exception -> new LiteralMessage(String.valueOf(exception)));
 	private static final SimpleCommandExceptionType NO_ANS_STORED = new SimpleCommandExceptionType(new LiteralMessage("No previous value stored for ans"));
+	private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#0.##########", DecimalFormatSymbols.getInstance(Locale.ENGLISH));
+	private static final MathContext MATH_CONTEXT = new MathContext(100);
+	private static final MathContext MATH_CONTEXT_CEIL = new MathContext(MATH_CONTEXT.getPrecision(), RoundingMode.CEILING);
+	private static final MathContext MATH_CONTEXT_FLOOR = new MathContext(MATH_CONTEXT.getPrecision(), RoundingMode.FLOOR);
+	private static final BigDecimal E = BigDecimalMath.e(MATH_CONTEXT);
+	private static final BigDecimal PI = BigDecimalMath.pi(MATH_CONTEXT);
+	private static final BigDecimal TO_RADIANS = PI.divide(new BigDecimal(180), MATH_CONTEXT);
+	private static final BigDecimal TO_DEGREES = new BigDecimal(180).divide(PI, MATH_CONTEXT);
 	
 	public static void register(CommandDispatcher<CommandSource> dispatcher)
 	{
@@ -43,15 +58,11 @@ public class CommandCalculate
 				throw NO_ANS_STORED.create();
 			}
 			
-			double x = new Expression(expression.replaceAll("ans", HISTORY.get(uuid))).eval();
+			BigDecimal x = new Expression(expression).eval(HISTORY.get(uuid));
+			context.getSource().sendFeedback(expression + " = " + DECIMAL_FORMAT.format(x));
+			HISTORY.put(uuid, x);
 			
-			if(Double.isFinite(x))
-			{
-				HISTORY.put(uuid, String.valueOf(x));
-			}
-			
-			context.getSource().sendFeedback(expression + " = " + x);
-			return (int) x;
+			return x.intValue();
 		}
 		catch(ParseException e)
 		{
@@ -68,10 +79,15 @@ public class CommandCalculate
 			this.string = string;
 		}
 		
-		public double eval() throws ParseException
+		public BigDecimal eval() throws ParseException
 		{
-			Parser parser = new Parser(this.string);
-			double x = parser.parseExpression();
+			return this.eval(null);
+		}
+		
+		public BigDecimal eval(BigDecimal ans) throws ParseException
+		{
+			Parser parser = new Parser(this.string, ans);
+			BigDecimal x = parser.parseExpression();
 			
 			if(parser.getPosition() < this.string.length())
 			{
@@ -90,12 +106,14 @@ public class CommandCalculate
 		private static class Parser
 		{
 			private final String string;
+			private final BigDecimal ans;
 			private int position;
 			private int character;
 			
-			public Parser(String string)
+			public Parser(String string, BigDecimal ans)
 			{
 				this.string = string;
+				this.ans = ans;
 				this.position = 0;
 				this.character = this.string.isEmpty() ? -1 : this.string.charAt(0);
 			}
@@ -124,19 +142,19 @@ public class CommandCalculate
 				}
 			}
 			
-			public double parseExpression() throws ParseException
+			public BigDecimal parseExpression() throws ParseException
 			{
-				double x = this.parseTerm();
+				BigDecimal x = this.parseTerm();
 				
 				while(true)
 				{
 					if(this.consume('+'))
 					{
-						x += this.parseTerm();
+						x = x.add(this.parseTerm());
 					}
 					else if(this.consume('-'))
 					{
-						x -= this.parseTerm();
+						x = x.subtract(this.parseTerm());
 					}
 					else
 					{
@@ -145,19 +163,19 @@ public class CommandCalculate
 				}
 			}
 			
-			private double parseTerm() throws ParseException
+			private BigDecimal parseTerm() throws ParseException
 			{
-				double x = this.parseFactor();
+				BigDecimal x = this.parseFactor();
 				
 				while(true)
 				{
 					if(this.consume('*'))
 					{
-						x *= this.parseFactor();
+						x = x.multiply(this.parseFactor(), MATH_CONTEXT);
 					}
 					else if(this.consume('/'))
 					{
-						x /= this.parseFactor();
+						x = x.divide(this.parseFactor(), MATH_CONTEXT);
 					}
 					else if(this.getChar() >= 'a' && this.getChar() <= 'z')
 					{
@@ -172,7 +190,7 @@ public class CommandCalculate
 						
 						if(function.equals("mod"))
 						{
-							x %= this.parseExpression();
+							x = x.remainder(this.parseExpression(), MATH_CONTEXT);
 						}
 						else
 						{
@@ -186,18 +204,18 @@ public class CommandCalculate
 				}
 			}
 			
-			private double parseArgument() throws ParseException
+			private BigDecimal parseArgument() throws ParseException
 			{
 				this.consumeExpected('(');
-				double x = this.parseExpression();
+				BigDecimal x = this.parseExpression();
 				this.consumeExpected(')');
 				return x;
 			}
 			
-			private double parseArguments(BiFunction<Double, Double, Double> function, boolean multipleArgs) throws ParseException
+			private BigDecimal parseArguments(BiFunction<BigDecimal, BigDecimal, BigDecimal> function, boolean multipleArgs) throws ParseException
 			{
 				this.consumeExpected('(');
-				double x = this.parseExpression();
+				BigDecimal x = this.parseExpression();
 				this.consumeExpected(',');
 				x = function.apply(x, this.parseExpression());
 				
@@ -213,7 +231,7 @@ public class CommandCalculate
 				return x;
 			}
 			
-			private double parseFactor() throws ParseException
+			private BigDecimal parseFactor() throws ParseException
 			{
 				if(this.consume('+'))
 				{
@@ -222,10 +240,10 @@ public class CommandCalculate
 				
 				if(this.consume('-'))
 				{
-					return -this.parseFactor();
+					return this.parseFactor().negate(MATH_CONTEXT);
 				}
 				
-				double x;
+				BigDecimal x;
 				
 				if(this.consume('('))
 				{
@@ -243,7 +261,7 @@ public class CommandCalculate
 					
 					try
 					{
-						x = Double.parseDouble(this.string.substring(start, this.getPosition()));
+						x = BigDecimalMath.toBigDecimal(this.string.substring(start, this.getPosition()), MATH_CONTEXT);
 					}
 					catch(NumberFormatException e)
 					{
@@ -264,76 +282,133 @@ public class CommandCalculate
 					switch(function)
 					{
 						case "e":
-							x = Math.E;
+							x = E;
 							break;
 						case "pi":
-							x = Math.PI;
+							x = PI;
+							break;
+						case "ans":
+							if(this.ans == null)
+							{
+								throw new ParseException("No value for ans", start);
+							}
+							x = this.ans;
 							break;
 						case "sqrt":
-							x = Math.sqrt(this.parseArgument());
+							x = this.parseArgument();
+							
+							try
+							{
+								x = BigDecimalMath.sqrt(x, MATH_CONTEXT);
+							}
+							catch(ArithmeticException e)
+							{
+								throw new ParseException("Undefined input for function sqrt: " + DECIMAL_FORMAT.format(x), start);
+							}
+							
 							break;
 						case "ceil":
-							x = Math.ceil(this.parseArgument());
+							x = this.parseArgument().round(MATH_CONTEXT_CEIL);
 							break;
 						case "floor":
-							x = Math.floor(this.parseArgument());
+							x = this.parseArgument().round(MATH_CONTEXT_FLOOR);
 							break;
 						case "rad":
-							x = Math.toRadians(this.parseArgument());
+							x = this.parseArgument().multiply(TO_RADIANS, MATH_CONTEXT);
 							break;
 						case "deg":
-							x = Math.toDegrees(this.parseArgument());
+							x = this.parseArgument().multiply(TO_DEGREES, MATH_CONTEXT);
 							break;
 						case "round":
-							x = Math.round(this.parseArgument());
+							x = this.parseArgument().round(MATH_CONTEXT);
 							break;
 						case "log":
-							x = Math.log10(this.parseArgument());
+							x = this.parseArgument();
+							
+							try
+							{
+								x = BigDecimalMath.log10(x, MATH_CONTEXT);
+							}
+							catch(ArithmeticException e)
+							{
+								throw new ParseException("Undefined input for function log: " + DECIMAL_FORMAT.format(x), start);
+							}
+							
 							break;
 						case "ln":
-							x = Math.log(this.parseArgument());
+							x = this.parseArgument();
+							
+							try
+							{
+								x = BigDecimalMath.log(x, MATH_CONTEXT);
+							}
+							catch(ArithmeticException e)
+							{
+								throw new ParseException("Undefined input for function ln: " + DECIMAL_FORMAT.format(x), start);
+							}
+							
 							break;
 						case "sin":
-							x = Math.sin(this.parseArgument());
+							x = BigDecimalMath.sin(this.parseArgument(), MATH_CONTEXT);
 							break;
 						case "cos":
-							x = Math.cos(this.parseArgument());
+							x = BigDecimalMath.cos(this.parseArgument(), MATH_CONTEXT);
 							break;
 						case "tan":
-							x = Math.tan(this.parseArgument());
+							x = BigDecimalMath.tan(this.parseArgument(), MATH_CONTEXT);
 							break;
 						case "sinh":
-							x = Math.sinh(this.parseArgument());
+							x = BigDecimalMath.sinh(this.parseArgument(), MATH_CONTEXT);
 							break;
 						case "cosh":
-							x = Math.cosh(this.parseArgument());
+							x = BigDecimalMath.cosh(this.parseArgument(), MATH_CONTEXT);
 							break;
 						case "tanh":
-							x = Math.tanh(this.parseArgument());
+							x = BigDecimalMath.tanh(this.parseArgument(), MATH_CONTEXT);
 							break;
 						case "asin":
-							x = Math.asin(this.parseArgument());
+							x = this.parseArgument();
+							
+							try
+							{
+								x = BigDecimalMath.asin(x, MATH_CONTEXT);
+							}
+							catch(ArithmeticException e)
+							{
+								throw new ParseException("Undefined input for function asin: " + DECIMAL_FORMAT.format(x), start);
+							}
+							
 							break;
 						case "acos":
-							x = Math.acos(this.parseArgument());
+							x = this.parseArgument();
+							
+							try
+							{
+								x = BigDecimalMath.acos(x, MATH_CONTEXT);
+							}
+							catch(ArithmeticException e)
+							{
+								throw new ParseException("Undefined input for function acos: " + DECIMAL_FORMAT.format(x), start);
+							}
+							
 							break;
 						case "atan":
-							x = Math.atan(this.parseArgument());
+							x = BigDecimalMath.atan(this.parseArgument(), MATH_CONTEXT);
 							break;
 						case "asinh":
-							x = Parser.asinh(this.parseArgument());
+							x = BigDecimalMath.asinh(this.parseArgument(), MATH_CONTEXT);
 							break;
 						case "acosh":
-							x = Parser.acosh(this.parseArgument());
+							x = BigDecimalMath.acosh(this.parseArgument(), MATH_CONTEXT);
 							break;
 						case "atanh":
-							x = Parser.atanh(this.parseArgument());
+							x = BigDecimalMath.atanh(this.parseArgument(), MATH_CONTEXT);
 							break;
 						case "min":
-							x = this.parseArguments(Math::min, true);
+							x = this.parseArguments((a, b) -> a.compareTo(b) < 0 ? a : b, true);
 							break;
 						case "max":
-							x = this.parseArguments(Math::max, true);
+							x = this.parseArguments((a, b) -> a.compareTo(b) < 0 ? b : a, true);
 							break;
 						default:
 							throw new ParseException("Unknown function: " + function, start);
@@ -346,7 +421,11 @@ public class CommandCalculate
 				
 				if(this.consume('^'))
 				{
-					x = Math.pow(x, this.parseFactor());
+					x = BigDecimalMath.pow(x, this.parseFactor(), MATH_CONTEXT);
+				}
+				else if(this.consume('!'))
+				{
+					x = BigDecimalMath.factorial(x, MATH_CONTEXT);
 				}
 				
 				return x;
@@ -365,21 +444,6 @@ public class CommandCalculate
 			public void next()
 			{
 				this.character = (++this.position < this.string.length()) ? this.string.charAt(this.position) : -1;
-			}
-			
-			private static double asinh(double x)
-			{
-				return Math.log(x + Math.sqrt(x * x + 1.0));
-			}
-			
-			private static double acosh(double x)
-			{
-				return Math.log(x + Math.sqrt(x * x - 1.0));
-			}
-			
-			private static double atanh(double x)
-			{
-				return 0.5 * Math.log((x + 1.0) / (x - 1.0));
 			}
 		}
 		
