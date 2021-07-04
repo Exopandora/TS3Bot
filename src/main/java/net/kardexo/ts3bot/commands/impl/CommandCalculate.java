@@ -175,7 +175,14 @@ public class CommandCalculate
 					}
 					else if(this.consume('/'))
 					{
-						x = x.divide(this.parseFactor(), MATH_CONTEXT);
+						BigDecimal y = this.parseFactor();
+						
+						if(y.equals(BigDecimal.ZERO))
+						{
+							throw new ParseException("Division by zero", this.position);
+						}
+						
+						x = x.divide(y, MATH_CONTEXT);
 					}
 					else if(this.getChar() >= 'a' && this.getChar() <= 'z')
 					{
