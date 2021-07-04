@@ -74,6 +74,14 @@
 	],
 	"bingo_ticket_size": 3,
 	"shortcuts": {
+		"text": {
+			"COMMAND1": "ITEM1",
+			"COMMAND2": "ITEM2",
+			"COMMAND3": ["ARRAY_ITEM1", "ARRAY_ITEM2"],
+			"COMMAND4": ["ARRAY_ITEM3", "ARRAY_ITEM4"],
+			"COMMAND5": "ITEM5",
+			"COMMAND6": "ITEM6"
+		},
 		"youtube": {
 			"COMMAND1": "CHANNEL1",
 			"COMMAND2": "CHANNEL2"

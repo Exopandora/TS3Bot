@@ -151,6 +151,8 @@ public class Config
 	
 	public static class Shortcuts
 	{
+		@JsonProperty("text")
+		private Map<String, JsonNode> text;
 		@JsonProperty("youtube")
 		private Map<String, String> youtube;
 		@JsonProperty("twitch")
@@ -161,10 +163,16 @@ public class Config
 			super();
 		}
 		
-		public Shortcuts(Map<String, String> youtube, Map<String, String> twitch)
+		public Shortcuts(Map<String, JsonNode> text, Map<String, String> youtube, Map<String, String> twitch)
 		{
+			this.text = text;
 			this.youtube = youtube;
 			this.twitch = twitch;
+		}
+		
+		public Map<String, JsonNode> getText()
+		{
+			return this.text;
 		}
 		
 		public Map<String, String> getYoutube()
