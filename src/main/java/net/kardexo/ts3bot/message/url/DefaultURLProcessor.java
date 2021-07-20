@@ -21,19 +21,15 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.jsoup.Jsoup;
 
-import com.fasterxml.jackson.databind.JsonNode;
-
-import net.kardexo.ts3bot.TS3Bot;
+import net.kardexo.ts3bot.api.Imagga;
 import net.kardexo.ts3bot.util.Util;
 
 public class DefaultURLProcessor implements IURLProcessor
 {
-	private static final URI API_URL = URI.create("https://api.imagga.com/v2/tags");
 	private static final String MIME_TYPE_TEXT_HTML = "text/html";
 	private static final String MIME_TYPE_IMAGE = "image\\/.+";
 	private static final double SQRT_CHARS_PER_PIXEL = Math.sqrt(27D);
@@ -152,24 +148,18 @@ public class DefaultURLProcessor implements IURLProcessor
 	
 	private static String tagImage(CloseableHttpClient client, HttpGet httpGet, String url) throws URISyntaxException, ClientProtocolException, IOException
 	{
-		httpGet.setURI(new URIBuilder(API_URL).addParameter("image_url", url).build());
-		httpGet.setHeader("Authorization", "Basic " + TS3Bot.getInstance().getApiKeyManager().requestKey(TS3Bot.API_KEY_IMAGGA));
-		
-		try(CloseableHttpResponse response = client.execute(httpGet))
+		try
 		{
-			JsonNode node = TS3Bot.getInstance().getObjectMapper().readTree(response.getEntity().getContent()).path("result").path("tags");
-			
-			if(!node.isMissingNode())
-			{
-				return StreamSupport.stream(node.spliterator(), false)
-						.sorted((a, b) -> Double.compare(a.path("confidence").asDouble(), b.path("confidence").asDouble()))
-						.limit(10)
-						.map(tag -> tag.path("tag").path("en").asText())
-						.collect(Collectors.joining(", ", "Image tags: \"", "\""));
-			}
+			return StreamSupport.stream(Imagga.tagImage(client, httpGet, url).spliterator(), false)
+					.sorted((a, b) -> Double.compare(a.path("confidence").asDouble(), b.path("confidence").asDouble()))
+					.limit(10)
+					.map(tag -> tag.path("tag").path("en").asText())
+					.collect(Collectors.joining(", ", "Image tags: \"", "\""));
 		}
-		
-		return null;
+		catch(Exception e)
+		{
+			return null;
+		}
 	}
 	
 	private static String normalize(String string)
