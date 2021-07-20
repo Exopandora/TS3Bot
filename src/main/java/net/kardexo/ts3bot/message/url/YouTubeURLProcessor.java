@@ -1,21 +1,18 @@
 package net.kardexo.ts3bot.message.url;
 
-import java.net.URI;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.http.client.config.CookieSpecs;
-import org.apache.http.client.utils.URIBuilder;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
-import net.kardexo.ts3bot.TS3Bot;
+import net.kardexo.ts3bot.api.YouTube;
 import net.kardexo.ts3bot.util.Util;
 
 public class YouTubeURLProcessor extends DefaultURLProcessor
 {
-	private static final URI API_URL = URI.create("https://www.googleapis.com/youtube/v3/");
 	private static final Pattern YOUTUBE_URL = Pattern.compile("https:\\/\\/(?:www\\.)?(?:youtube\\.com|youtu\\.be).*");
 	private static final Pattern YOUTUBE_WATCH_URL = Pattern.compile("https:\\/\\/(?:www\\.)?youtube\\.com\\/watch\\?(.*)");
 	private static final Pattern YOUTUBE_WATCH_URL_2 = Pattern.compile("https:\\/\\/(?:www\\.)?youtu\\.be\\/(.*)");
@@ -46,28 +43,11 @@ public class YouTubeURLProcessor extends DefaultURLProcessor
 		
 		if(id != null)
 		{
-			return this.watch(id, YouTubeURLProcessor.parseTimestamp(query.get("t")));
-		}
-		
-		return null;
-	}
-	
-	private String watch(String id, long timestamp)
-	{
-		try
-		{
-			URI uri = new URIBuilder(API_URL.resolve("videos"))
-				.addParameter("id", id)
-				.addParameter("part", "snippet")
-				.addParameter("key", TS3Bot.getInstance().getApiKeyManager().requestKey(TS3Bot.API_KEY_YOUTUBE))
-				.build();
-			
-			JsonNode node = TS3Bot.getInstance().getObjectMapper().readTree(uri.toURL());
-			JsonNode items = node.path("items");
-			
-			if(items.size() == 1)
+			try
 			{
-				JsonNode snippet = items.get(0).path("snippet");
+				long timestamp = YouTubeURLProcessor.parseTimestamp(query.get("t"));
+				JsonNode video = YouTube.watch(id, timestamp);
+				JsonNode snippet = video.path("snippet");
 				String channelTitle = snippet.path("channelTitle").asText();
 				String title = snippet.path("title").asText();
 				
@@ -83,10 +63,10 @@ public class YouTubeURLProcessor extends DefaultURLProcessor
 					return builder.toString();
 				}
 			}
-		}
-		catch(Exception e)
-		{
-			e.printStackTrace();
+			catch(Exception e)
+			{
+				e.printStackTrace();
+			}
 		}
 		
 		return null;

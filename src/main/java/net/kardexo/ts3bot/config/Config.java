@@ -7,7 +7,7 @@ import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 
-import net.kardexo.ts3bot.commands.impl.CommandLeagueOfLegends.Region;
+import net.kardexo.ts3bot.api.LeagueOfLegends.Region;
 
 public class Config
 {

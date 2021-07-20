@@ -1,22 +1,14 @@
 package net.kardexo.ts3bot.message.url;
 
-import java.net.URI;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.utils.URIBuilder;
-import org.apache.http.impl.client.CloseableHttpClient;
-
 import com.fasterxml.jackson.databind.JsonNode;
 
-import net.kardexo.ts3bot.TS3Bot;
-import net.kardexo.ts3bot.util.Util;
+import net.kardexo.ts3bot.api.Twitter;
 
 public class TwitterURLProcessor implements IURLProcessor
 {
-	private static final URI API_URL = URI.create("https://api.twitter.com/labs/2/");
 	private static final Pattern TWITTER_STATUS_URL = Pattern.compile("https:\\/\\/(www\\.)?twitter\\.com\\/([^/]+)\\/status\\/([0-9]+).*");
 	private static final Pattern TWITTER_PROFILE_URL = Pattern.compile("https:\\/\\/(www\\.)?twitter\\.com\\/([^/]+)");
 	private static final Pattern STATUS = Pattern.compile("^([\\s\\S]*)https:\\/\\/t\\.co\\/.{10}$");
@@ -26,20 +18,20 @@ public class TwitterURLProcessor implements IURLProcessor
 	{
 		if(TWITTER_STATUS_URL.matcher(url).matches())
 		{
-			String id = this.extractStatusId(url);
+			String id = TwitterURLProcessor.extractStatusId(url);
 			
 			if(id != null)
 			{
-				return this.status(id);
+				return TwitterURLProcessor.status(id);
 			}
 		}
 		else if(TWITTER_PROFILE_URL.matcher(url).matches())
 		{
-			String id = this.extractProfileId(url);
+			String id = TwitterURLProcessor.extractProfileId(url);
 			
 			if(id != null)
 			{
-				return this.profile(id);
+				return TwitterURLProcessor.profile(id);
 			}
 		}
 		
@@ -52,7 +44,7 @@ public class TwitterURLProcessor implements IURLProcessor
 		return message != null && (TWITTER_STATUS_URL.matcher(message).matches() || TWITTER_PROFILE_URL.matcher(message).matches());
 	}
 	
-	private String extractStatusId(String url)
+	private static String extractStatusId(String url)
 	{
 		Matcher matcher = TWITTER_STATUS_URL.matcher(url);
 		
@@ -64,7 +56,7 @@ public class TwitterURLProcessor implements IURLProcessor
 		return null;
 	}
 	
-	private String extractProfileId(String url)
+	private static String extractProfileId(String url)
 	{
 		Matcher matcher = TWITTER_PROFILE_URL.matcher(url);
 		
@@ -76,65 +68,53 @@ public class TwitterURLProcessor implements IURLProcessor
 		return null;
 	}
 	
-	private String status(String id)
+	private static String status(String id)
 	{
-		try(CloseableHttpClient client = Util.httpClient())
+		try
 		{
-			URI uri = new URIBuilder(API_URL.resolve("tweets"))
-				.addParameter("ids", id)
-				.addParameter("user.fields", "name")
-				.addParameter("expansions", "author_id,attachments.media_keys")
-				.build();
+			JsonNode node = Twitter.status(id);
+			JsonNode data = node.path("data");
+			JsonNode includes = node.path("includes");
+			JsonNode users = includes.path("users");
+			JsonNode media = includes.path("media");
 			
-			HttpGet httpGet = new HttpGet(uri);
-			httpGet.setHeader("Authorization", "Bearer " + TS3Bot.getInstance().getApiKeyManager().requestToken(TS3Bot.API_KEY_TWITTER, "bearer_token"));
-			
-			try(CloseableHttpResponse response = client.execute(httpGet))
+			if(data.size() == 1 && users.size() == 1)
 			{
-				JsonNode node = TS3Bot.getInstance().getObjectMapper().readTree(response.getEntity().getContent());
-				JsonNode data = node.path("data");
-				JsonNode includes = node.path("includes");
-				JsonNode users = includes.path("users");
-				JsonNode media = includes.path("media");
+				String text = data.get(0).path("text").asText();
+				String user = users.get(0).path("name").asText();
 				
-				if(data.size() == 1 && users.size() == 1)
+				if(text != null && user != null && !user.isEmpty())
 				{
-					String text = data.get(0).path("text").asText();
-					String user = users.get(0).path("name").asText();
+					Matcher matcher = TwitterURLProcessor.STATUS.matcher(text);
+					String status = null;
 					
-					if(text != null && user != null && !user.isEmpty())
+					if(matcher.matches())
 					{
-						Matcher matcher = STATUS.matcher(text);
-						String status = null;
+						status = matcher.group(1).replaceAll("\\s*\n\\s*", " ").trim();
+					}
+					else
+					{
+						status = text.replaceAll("\\s*\n\\s*", " ").trim();
+					}
+					
+					if(media.size() > 0)
+					{
+						String attachments = Attachments.parse(media).toString();
 						
-						if(matcher.matches())
+						if(!attachments.isEmpty())
 						{
-							status = matcher.group(1).replaceAll("\\s*\n\\s*", " ").trim();
-						}
-						else
-						{
-							status = text.replaceAll("\\s*\n\\s*", " ").trim();
-						}
-						
-						if(media.size() > 0)
-						{
-							String attachments = Attachments.parse(media).toString();
-							
-							if(!attachments.isEmpty())
+							if(status == null || status.isEmpty())
 							{
-								if(status == null || status.isEmpty())
-								{
-									return attachments + " by " + user;
-								}
-								
-								status += " [" + attachments + "]";
+								return attachments + " by " + user;
 							}
+							
+							status += " [" + attachments + "]";
 						}
-						
-						if(status != null && !status.isEmpty())
-						{
-							return user + ": \"" + status.replaceAll("(https:\\/\\/t\\.co\\/.{10})", "[URL]$1[/URL]") + "\"";
-						}
+					}
+					
+					if(status != null && !status.isEmpty())
+					{
+						return user + ": \"" + status.replaceAll("(https:\\/\\/t\\.co\\/.{10})", "[URL]$1[/URL]") + "\"";
 					}
 				}
 			}
@@ -147,39 +127,28 @@ public class TwitterURLProcessor implements IURLProcessor
 		return null;
 	}
 	
-	private String profile(String id)
+	private static String profile(String id)
 	{
-		try(CloseableHttpClient client = Util.httpClient())
+		try
 		{
-			URI uri = new URIBuilder(API_URL.resolve("users/by/username/" + id))
-				.addParameter("user.fields", "description")
-				.build();
+			JsonNode data = Twitter.profile(id).path("data");
+			String name = data.path("name").asText();
+			String username = data.path("username").asText();
+			String description = data.path("description").asText().replaceAll("\n+", "; ");
 			
-			HttpGet httpGet = new HttpGet(uri);
-			httpGet.setHeader("Authorization", "Bearer " + TS3Bot.getInstance().getApiKeyManager().requestToken(TS3Bot.API_KEY_TWITTER, "bearer_token"));
-			
-			try(CloseableHttpResponse response = client.execute(httpGet))
+			if(name != null && !name.isEmpty() && username != null && !username.isEmpty())
 			{
-				JsonNode node = TS3Bot.getInstance().getObjectMapper().readTree(response.getEntity().getContent());
-				JsonNode data = node.path("data");
-				String name = data.path("name").asText();
-				String username = data.path("username").asText();
-				String description = data.path("description").asText().replaceAll("\n+", "; ");
+				StringBuilder builder = new StringBuilder();
 				
-				if(name != null && !name.isEmpty() && username != null && !username.isEmpty())
+				builder.append(name);
+				builder.append(" (@" + username + ")");
+				
+				if(description != null && !description.isEmpty())
 				{
-					StringBuilder builder = new StringBuilder();
-					
-					builder.append(name);
-					builder.append(" (@" + username + ")");
-					
-					if(description != null && !description.isEmpty())
-					{
-						builder.append(" \"" + description + "\"");
-					}
-					
-					return builder.toString();
+					builder.append(" \"" + description + "\"");
 				}
+				
+				return builder.toString();
 			}
 		}
 		catch(Exception e)
