@@ -32,7 +32,7 @@ public class CommandBingo
 		long seed = Math.abs(calendar.getTimeInMillis() ^ context.getSource().getClientInfo().getUniqueIdentifier().hashCode());
 		Random random = new Random(seed);
 		ArrayList<JsonNode> items = new ArrayList<JsonNode>(TS3Bot.getInstance().getConfig().getBingoItems());
-		StringBuilder builder = new StringBuilder("Ticket-ID " + seed);
+		StringBuilder builder = new StringBuilder("\nTicket-ID " + seed);
 		
 		for(int x = 0; x < TS3Bot.getInstance().getConfig().getBingoTicketSize(); x++)
 		{
@@ -43,21 +43,21 @@ public class CommandBingo
 			{
 				if(node.size() == 1)
 				{
-					builder.append("\n" + node.get(0).asText());
+					builder.append("\n  " + node.get(0).asText());
 				}
 				else if(node.size() > 1)
 				{
 					index = random.nextInt(node.size());
-					builder.append("\n" + node.get(index).asText());
+					builder.append("\n  " + node.get(index).asText());
 				}
 				else if(node.size() == 0)
 				{
-					builder.append("\n[Missing]");
+					builder.append("\n  [Missing]");
 				}
 			}
 			else
 			{
-				builder.append("\n" + node.asText());
+				builder.append("\n  " + node.asText());
 			}
 			
 			items.remove(index);
