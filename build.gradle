@@ -13,6 +13,12 @@ repositories {
 	}
 }
 
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(16)
+    }
+}
+
 mainClassName = 'net.kardexo.ts3bot.Start'
 
 dependencies {
