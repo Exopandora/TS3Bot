@@ -47,8 +47,7 @@ public class CommandBingo
 				}
 				else if(node.size() > 1)
 				{
-					index = random.nextInt(node.size());
-					builder.append("\n  " + node.get(index).asText());
+					builder.append("\n  " + node.get(random.nextInt(node.size())).asText());
 				}
 				else if(node.size() == 0)
 				{
