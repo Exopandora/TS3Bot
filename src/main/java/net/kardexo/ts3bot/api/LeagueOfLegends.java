@@ -16,7 +16,6 @@ import org.apache.http.util.EntityUtils;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
 import net.kardexo.ts3bot.TS3Bot;
 import net.kardexo.ts3bot.util.Util;
@@ -54,10 +53,10 @@ public class LeagueOfLegends
 		return fetch(uri);
 	}
 	
-	public static JsonNode fetchChampion(String version, String champion) throws CommandSyntaxException
+	public static JsonNode fetchChampion(String version, String champion)
 	{
 		URI uri = DDRAGON_API_URL
-			.resolve("cdn/" + version + "/data/en_US/" + champion + ".json");
+			.resolve("cdn/" + version + "/data/en_US/champion/" + champion + ".json");
 		return fetch(uri);
 	}
 	
@@ -68,6 +67,7 @@ public class LeagueOfLegends
 	
 	public static JsonNode fetch(URI uri, boolean apikey)
 	{
+		System.out.println(uri);
 		try(CloseableHttpClient client = Util.httpClient())
 		{
 			URIBuilder builder = new URIBuilder(uri);
@@ -131,7 +131,7 @@ public class LeagueOfLegends
 		return fetch(uri, true);
 	}
 	
-	public static JsonNode fetchChampionMastery(String summonderId, long championId, Region region) throws CommandSyntaxException
+	public static JsonNode fetchChampionMastery(String summonderId, long championId, Region region)
 	{
 		URI uri = region.getApiUrl()
 			.resolve("lol/champion-mastery/v4/champion-masteries/by-summoner/" + summonderId + "/by-champion/" + championId);
@@ -145,14 +145,14 @@ public class LeagueOfLegends
 		return fetch(uri, true);
 	}
 	
-	public static JsonNode fetchLeague(String summonerId, Region region) throws CommandSyntaxException
+	public static JsonNode fetchLeague(String summonerId, Region region)
 	{
 		URI uri = region.getApiUrl()
 			.resolve("lol/league/v4/entries/by-summoner/" + summonerId);
 		return fetch(uri, true);
 	}
 	
-	public static JsonNode fetchActiveMatch(String summonerId, Region region) throws CommandSyntaxException
+	public static JsonNode fetchActiveMatch(String summonerId, Region region)
 	{
 		URI uri = region.getApiUrl()
 			.resolve("lol/spectator/v4/active-games/by-summoner/" + summonerId);

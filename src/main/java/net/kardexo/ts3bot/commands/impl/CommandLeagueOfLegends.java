@@ -66,7 +66,7 @@ public class CommandLeagueOfLegends
 	
 	private static int match(CommandContext<CommandSource> context, String username, Region region) throws CommandSyntaxException
 	{
-		JsonNode champions = LeagueOfLegends.fetchChampions();
+		CompletableFuture<JsonNode> champions = CompletableFuture.supplyAsync(LeagueOfLegends::fetchChampions);
 		JsonNode summoner = LeagueOfLegends.fetchSummoner(username, region);
 		
 		if(summoner == null)
@@ -81,15 +81,18 @@ public class CommandLeagueOfLegends
 			throw SUMMONER_NOT_IN_GAME.create(username);
 		}
 		
-		JsonNode queues = LeagueOfLegends.fetchQueues();
+		CompletableFuture<JsonNode> queues = CompletableFuture.supplyAsync(LeagueOfLegends::fetchQueues);
 		StringBuilder builder = new StringBuilder();
 		JsonNode participants = match.path("participants");
-		List<Entry<Integer, List<JsonNode>>> teams = CommandLeagueOfLegends.groupToTeams(participants);
+		List<List<CompletableFuture<SummonerOverview>>> teams = CommandLeagueOfLegends.groupAndLoad(participants, champions, region).entrySet().stream()
+				.sorted((a, b) -> Integer.compare(a.getKey(), b.getKey()))
+				.map(Entry::getValue)
+				.collect(Collectors.toList());
 		int[] teamRatings = new int[teams.size()];
 		
 		for(int x = 0; x < teams.size(); x++)
 		{
-			List<JsonNode> teamMembers = teams.get(x).getValue();
+			List<CompletableFuture<SummonerOverview>> teamMembers = teams.get(x);
 			String color = x % 2 == 0 ? "blue" : "red";
 			
 			if(x > 0)
@@ -101,48 +104,37 @@ public class CommandLeagueOfLegends
 			{
 				int rankedTeamMembers = 0;
 				
-				for(JsonNode participant : teamMembers)
+				for(CompletableFuture<SummonerOverview> participant : teamMembers)
 				{
-					builder.append("\n[[color=" + color + "]" + CommandLeagueOfLegends.championById(participant.path("championId").asLong(), champions) + "[/color]]");
-					String summonerName = participant.path("summonerName").asText();
-					
-					if(summonerName.equalsIgnoreCase(username))
+					try
 					{
-						builder.append(" [b]" + summonerName + "[/b]");
-					}
-					else
-					{
-						builder.append(" " + summonerName);
-					}
-					
-					if(!participant.path("bot").asBoolean())
-					{
-						String summonerId = LeagueOfLegends.encodeSummonerName(participant.path("summonerId").asText());
-						JsonNode leagues = LeagueOfLegends.fetchLeague(summonerId, region);
-						Optional<League> optional = CommandLeagueOfLegends.highestRank(leagues);
+						SummonerOverview overview = participant.get();
 						
-						if(optional.isPresent())
+						builder.append("\n[color=" + color + "]" + overview.champion() + "[/color]");
+						
+						if(overview.summonerName().equalsIgnoreCase(username))
 						{
-							League league = optional.get();
-							teamRatings[x] += league.getRating();
+							builder.append(" [b]" + overview.summonerName() + "[/b]");
+						}
+						else
+						{
+							builder.append(" " + overview.summonerName());
+						}
+						
+						Optional<League> league = overview.highestRank();
+						
+						if(league.isPresent())
+						{
+							teamRatings[x] += league.get().getRating();
 							rankedTeamMembers++;
-							builder.append(" | " + league.toString());
-						}
-						else
-						{
-							builder.append(" | Unranked");
 						}
 						
-						JsonNode mastery = LeagueOfLegends.fetchChampionMastery(summonerId, participant.path("championId").asLong(), region);
-						
-						if(mastery != null)
-						{
-							builder.append(" | " + mastery.path("championPoints").asInt() + " (" + mastery.path("championLevel").asInt() + ")");
-						}
-						else
-						{
-							builder.append(" | 0 (1)");
-						}
+						builder.append(" | " + overview.leagueString(league));
+						builder.append(" | " + overview.masteryString());
+					}
+					catch(InterruptedException | ExecutionException e)
+					{
+						throw ERROR_FETCHING_DATA.create();
 					}
 				}
 				
@@ -154,19 +146,78 @@ public class CommandLeagueOfLegends
 			}
 		}
 		
-		String queue = CommandLeagueOfLegends.formatQueue(queues, match.path("gameQueueConfigId").asInt());
+		builder.append("\n");
+		
+		try
+		{
+			builder.append(CommandLeagueOfLegends.formatQueue(queues.get(), match.path("gameQueueConfigId").asInt()));
+		}
+		catch(InterruptedException | ExecutionException e)
+		{
+			e.printStackTrace();
+		}
+		
 		String ranks = Arrays.stream(teamRatings)
 				.mapToObj(CommandLeagueOfLegends::ratingToLeague)
 				.map(league -> league.map(League::toString).orElse("Unranked"))
 				.collect(Collectors.joining(" vs "));
 		long gameLength = match.path("gameLength").asLong();
 		
-		builder.append("\n" + queue);
 		builder.append(" | " + (gameLength < 0 ? "Loading Screen" : Util.formatDuration(gameLength)));
 		builder.append(" | Average Ranks: " + ranks);
 		
 		context.getSource().sendFeedback(builder.toString());
 		return participants.size();
+	}
+	
+	private static CompletableFuture<SummonerOverview> loadParticipantAsync(JsonNode participant, CompletableFuture<JsonNode> champions, Region region)
+	{
+		long championId = participant.path("championId").asLong();
+		CompletableFuture<String> championName = champions.thenApply(c -> CommandLeagueOfLegends.championById(championId, c));
+		String summonerName = participant.path("summonerName").asText();
+		
+		if(!participant.path("bot").asBoolean())
+		{
+			String summonerId = LeagueOfLegends.encodeSummonerName(participant.path("summonerId").asText());
+			CompletableFuture<JsonNode> league = CompletableFuture.supplyAsync(() -> LeagueOfLegends.fetchLeague(summonerId, region));
+			CompletableFuture<JsonNode> mastery = CompletableFuture.supplyAsync(() -> LeagueOfLegends.fetchChampionMastery(summonerId, championId, region));
+			return CompletableFuture.allOf(league, mastery).thenApply(__ -> new SummonerOverview(summonerName, championName.getNow(null), league.getNow(null), mastery.getNow(null)));
+		}
+		
+		return championName.thenApply(c -> new SummonerOverview(summonerName, c, null, null));
+	}
+	
+	private static record SummonerOverview(String summonerName, String champion, JsonNode league, JsonNode mastery)
+	{
+		public String masteryString()
+		{
+			if(this.mastery != null)
+			{
+				return this.mastery.path("championPoints").asInt() + " (" + this.mastery.path("championLevel").asInt() + ")";
+			}
+			
+			return "0 (1)";
+		}
+		
+		public Optional<League> highestRank()
+		{
+			if(this.league != null)
+			{
+				return CommandLeagueOfLegends.highestRank(this.league);
+			}
+			
+			return Optional.empty();
+		}
+		
+		public String leagueString(Optional<League> league)
+		{
+			if(league.isPresent())
+			{
+				return league.get().toString();
+			}
+			
+			return "Unranked";
+		}
 	}
 	
 	private static int history(CommandContext<CommandSource> context, String username, Region region) throws CommandSyntaxException
@@ -466,20 +517,17 @@ public class CommandLeagueOfLegends
 		return "Unknown Queue";
 	}
 	
-	private static List<Entry<Integer, List<JsonNode>>> groupToTeams(JsonNode participants)
+	private static Map<Integer, List<CompletableFuture<SummonerOverview>>> groupAndLoad(JsonNode participants, CompletableFuture<JsonNode> champions, Region region)
 	{
-		Map<Integer, List<JsonNode>> map = new HashMap<Integer, List<JsonNode>>();
+		Map<Integer, List<CompletableFuture<SummonerOverview>>> map = new HashMap<Integer, List<CompletableFuture<SummonerOverview>>>();
 		
 		for(int x = 0; x < participants.size(); x++)
 		{
 			JsonNode participant = participants.get(x);
-			List<JsonNode> team = map.computeIfAbsent(participant.path("teamId").asInt(), key -> new ArrayList<JsonNode>());
-			team.add(participant);
+			List<CompletableFuture<SummonerOverview>> team = map.computeIfAbsent(participant.path("teamId").asInt(), key -> new ArrayList<CompletableFuture<SummonerOverview>>());
+			team.add(CommandLeagueOfLegends.loadParticipantAsync(participant, champions, region));
 		}
 		
-		List<Entry<Integer, List<JsonNode>>> teamsList = new ArrayList<Entry<Integer, List<JsonNode>>>(map.entrySet());
-		teamsList.sort((a, b) -> Integer.compare(a.getKey(), b.getKey()));
-		
-		return teamsList;
+		return map;
 	}
 }
