@@ -2,6 +2,7 @@ package net.kardexo.ts3bot.commands.impl;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Random;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -18,7 +19,9 @@ public class CommandBingo
 	{
 		dispatcher.register(Commands.literal("bingo")
 				.requires(source -> source.getClientInfo().getId() != TS3Bot.getInstance().getId())
-				.executes(context -> bingo(context)));
+				.executes(context -> bingo(context))
+				.then(Commands.literal("list")
+						.executes(context -> list(context))));
 	}
 	
 	private static int bingo(CommandContext<CommandSource> context)
@@ -64,5 +67,36 @@ public class CommandBingo
 		
 		context.getSource().sendFeedback(builder.toString());
 		return (int) seed;
+	}
+	
+	private static int list(CommandContext<CommandSource> context)
+	{
+		List<JsonNode> items = TS3Bot.getInstance().getConfig().getBingoItems();
+		StringBuilder builder = new StringBuilder();
+		
+		for(JsonNode item : items)
+		{
+			builder.append("\n");
+			
+			if(item.isArray())
+			{
+				for(int x = 0; x < item.size(); x++)
+				{
+					if(x > 0)
+					{
+						builder.append(", ");
+					}
+					
+					builder.append(item.get(x).asText());
+				}
+			}
+			else
+			{
+				builder.append(item.asText());
+			}
+		}
+		
+		context.getSource().sendFeedback(builder.toString());
+		return items.size();
 	}
 }
