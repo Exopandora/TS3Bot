@@ -67,7 +67,6 @@ public class LeagueOfLegends
 	
 	public static JsonNode fetch(URI uri, boolean apikey)
 	{
-		System.out.println(uri);
 		try(CloseableHttpClient client = Util.httpClient())
 		{
 			URIBuilder builder = new URIBuilder(uri);
