@@ -11,7 +11,7 @@ import net.kardexo.ts3bot.config.Config.APIKey.Limit;
 
 public class APIKeyManager
 {
-	private static final long BUFFER_TIME = 250;
+	private static final long BUFFER_TIME = 0;
 	
 	private final Map<String, APIKey> apiKeys;
 	private final Map<APIKey, LinkedList<Long>> requests = new HashMap<APIKey, LinkedList<Long>>();
