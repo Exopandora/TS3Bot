@@ -261,14 +261,14 @@ public class CommandLeagueOfLegends
 				var date = new Date(info.path("gameStartTimestamp").asLong());
 				var champion = CommandLeagueOfLegends.championById(participant.path("championId").asLong(), champions);
 				var queue = CommandLeagueOfLegends.formatQueue(queues, info.path("queueId").asInt());
-				var playTime = info.path("gameDuration").asLong();
+				var playTime = info.path("gameDuration").asLong() / 1000L;
 				var kills = participant.path("kills").asInt();
 				var deaths = participant.path("deaths").asInt();
 				var assists = participant.path("assists").asInt();
 				var winner = participant.path("win").asBoolean();
 				var formattedDate = DATE_FORMAT.format(date);
 				var fomattedPlayTime = Util.formatDuration(playTime);
-				var color = (winner ? "green" : "#FF2345");
+				var color = winner ? "green" : "#FF2345";
 				
 				if(winner)
 				{
