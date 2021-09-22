@@ -25,137 +25,107 @@ public class LeagueOfLegends
 	private static final String API_URL = "https://%s.api.riotgames.com/";
 	private static final URI DDRAGON_API_URL = URI.create("https://ddragon.leagueoflegends.com/");
 	private static final URI STATIC_DOC_API_URL = URI.create("http://static.developer.riotgames.com/docs/");
-	private static final int HTTP_RETRIES = 10;
 	
-	public static String fetchVersion()
+	public static String fetchVersion() throws URISyntaxException, IOException
 	{
 		URI uri = DDRAGON_API_URL
 			.resolve("api/versions.json");
 		return fetch(uri).get(0).asText();
 	}
 	
-	public static JsonNode fetchQueues()
+	public static JsonNode fetchQueues() throws URISyntaxException, IOException
 	{
 		URI uri = STATIC_DOC_API_URL
 			.resolve("lol/queues.json");
 		return fetch(uri);
 	}
 	
-	public static JsonNode fetchChampions()
+	public static JsonNode fetchChampions() throws URISyntaxException, IOException
 	{
 		return fetchChampions(fetchVersion());
 	}
 	
-	public static JsonNode fetchChampions(String version)
+	public static JsonNode fetchChampions(String version) throws URISyntaxException, IOException
 	{
 		URI uri = DDRAGON_API_URL
 			.resolve("cdn/" + version + "/data/en_US/champion.json");
 		return fetch(uri);
 	}
 	
-	public static JsonNode fetchChampion(String version, String champion)
+	public static JsonNode fetchChampion(String version, String champion) throws URISyntaxException, IOException
 	{
 		URI uri = DDRAGON_API_URL
 			.resolve("cdn/" + version + "/data/en_US/champion/" + champion + ".json");
 		return fetch(uri);
 	}
 	
-	public static JsonNode fetch(URI uri)
+	public static JsonNode fetchMatchHistory(String summonerId, RegionV5 region, int start, int count) throws URISyntaxException, IOException
 	{
-		return fetch(uri, false);
-	}
-	
-	public static JsonNode fetch(URI uri, boolean apikey)
-	{
-		try(CloseableHttpClient client = Util.httpClient())
-		{
-			URIBuilder builder = new URIBuilder(uri);
-			
-			if(apikey)
-			{
-				builder.addParameter("api_key", TS3Bot.getInstance().getApiKeyManager().requestKey(TS3Bot.API_KEY_LEAGUE_OF_LEGENDS));
-			}
-			
-			HttpGet httpGet = new HttpGet(builder.build());
-			httpGet.addHeader("User-Agent", TS3Bot.USER_AGENT);
-			httpGet.addHeader("Accept-Charset", StandardCharsets.UTF_8.toString());
-			
-			for(int x = 0; x < HTTP_RETRIES; x++)
-			{
-				try(CloseableHttpResponse response = client.execute(httpGet))
-				{
-					JsonNode node = TS3Bot.getInstance().getObjectMapper().readTree(EntityUtils.toString(response.getEntity()));
-					
-					if(!node.hasNonNull("status"))
-					{
-						return node;
-					}
-				}
-				catch(IOException e)
-				{
-					e.printStackTrace();
-				}
-			}
-		}
-		catch(Exception e)
-		{
-			e.printStackTrace();
-		}
-		
-		return null;
-	}
-	
-	public static JsonNode fetchMatchHistory(String summonerId, Region region, int beginIndex, int endIndex)
-	{
-		try
-		{
-			URI uri = new URIBuilder(region.getApiUrl().resolve("lol/match/v4/matchlists/by-account/" + summonerId))
-				.addParameter("beginIndex", String.valueOf(beginIndex))
-				.addParameter("endIndex", String.valueOf(endIndex))
-				.build();
-			return fetch(uri, true);
-		}
-		catch(URISyntaxException e)
-		{
-			e.printStackTrace();
-		}
-		
-		return null;
-	}
-	
-	public static JsonNode fetchMatch(long matchId, Region region)
-	{
-		URI uri = region.getApiUrl()
-			.resolve("lol/match/v4/matches/" + matchId);
+		URI uri = new URIBuilder(region.getApiUrl().resolve("lol/match/v5/matches/by-puuid/" + summonerId + "/ids"))
+			.addParameter("start", String.valueOf(start))
+			.addParameter("count", String.valueOf(count))
+			.build();
 		return fetch(uri, true);
 	}
 	
-	public static JsonNode fetchChampionMastery(String summonderId, long championId, Region region)
+	public static JsonNode fetchMatch(String matchId, RegionV5 region) throws URISyntaxException, IOException
+	{
+		URI uri = region.getApiUrl()
+			.resolve("lol/match/v5/matches/" + matchId);
+		return fetch(uri, true);
+	}
+	
+	public static JsonNode fetchChampionMastery(String summonderId, long championId, Region region) throws URISyntaxException, IOException
 	{
 		URI uri = region.getApiUrl()
 			.resolve("lol/champion-mastery/v4/champion-masteries/by-summoner/" + summonderId + "/by-champion/" + championId);
 		return fetch(uri, true);
 	}
 	
-	public static JsonNode fetchSummoner(String summonerName, Region region)
+	public static JsonNode fetchSummoner(String summonerName, Region region) throws URISyntaxException, IOException
 	{
 		URI uri = region.getApiUrl()
 			.resolve("lol/summoner/v4/summoners/by-name/" + encodeSummonerName(summonerName));
 		return fetch(uri, true);
 	}
 	
-	public static JsonNode fetchLeague(String summonerId, Region region)
+	public static JsonNode fetchLeague(String summonerId, Region region) throws URISyntaxException, IOException
 	{
 		URI uri = region.getApiUrl()
 			.resolve("lol/league/v4/entries/by-summoner/" + summonerId);
 		return fetch(uri, true);
 	}
 	
-	public static JsonNode fetchActiveMatch(String summonerId, Region region)
+	public static JsonNode fetchActiveMatch(String summonerId, Region region) throws URISyntaxException, IOException
 	{
 		URI uri = region.getApiUrl()
 			.resolve("lol/spectator/v4/active-games/by-summoner/" + summonerId);
 		return fetch(uri, true);
+	}
+	
+	private static JsonNode fetch(URI uri) throws URISyntaxException, IOException
+	{
+		return fetch(uri, false);
+	}
+	
+	private static JsonNode fetch(URI uri, boolean apikey) throws URISyntaxException, IOException
+	{
+		try(CloseableHttpClient client = Util.httpClient())
+		{
+			HttpGet httpGet = new HttpGet(uri);
+			httpGet.addHeader("User-Agent", TS3Bot.USER_AGENT);
+			httpGet.addHeader("Accept-Charset", StandardCharsets.UTF_8.toString());
+			
+			if(apikey)
+			{
+				httpGet.addHeader("X-Riot-Token", TS3Bot.getInstance().getApiKeyManager().requestKey(TS3Bot.API_KEY_LEAGUE_OF_LEGENDS));
+			}
+			
+			try(CloseableHttpResponse response = client.execute(httpGet))
+			{
+				return TS3Bot.getInstance().getObjectMapper().readTree(EntityUtils.toString(response.getEntity()));
+			}
+		}
 	}
 	
 	public static String encodeSummonerName(String summonerName)
@@ -309,28 +279,35 @@ public class LeagueOfLegends
 	
 	public static enum Region
 	{
-		BR("br1"), 
-		EUNE("eun1"),
-		EUW("euw1"),
-		JP("jp1"),
-		KR("kr"),
-		LAN("la1"),
-		LAS("la2"),
-		NA("na1"),
-		OCE("oc1"),
-		TR("tr1"),
-		RU("ru");
+		BR("br1", RegionV5.AMERICAS), 
+		EUNE("eun1", RegionV5.EUROPE),
+		EUW("euw1", RegionV5.EUROPE),
+		JP("jp1", RegionV5.ASIA),
+		KR("kr", RegionV5.ASIA),
+		LAN("la1", RegionV5.AMERICAS),
+		LAS("la2", RegionV5.AMERICAS),
+		NA("na1", RegionV5.AMERICAS),
+		OCE("oc1", RegionV5.AMERICAS),
+		TR("tr1", RegionV5.EUROPE),
+		RU("ru", RegionV5.EUROPE);
 		
 		private final String id;
+		private final RegionV5 regionV5;
 		
-		private Region(String id)
+		private Region(String id, RegionV5 regionV5)
 		{
 			this.id = id;
+			this.regionV5 = regionV5;
 		}
 		
 		public String getId()
 		{
 			return this.id;
+		}
+		
+		public RegionV5 getRegionV5()
+		{
+			return this.regionV5;
 		}
 		
 		public URI getApiUrl()
@@ -355,6 +332,36 @@ public class LeagueOfLegends
 			}
 			
 			return null;
+		}
+	}
+	
+	public static enum RegionV5
+	{
+		AMERICAS("americas"),
+		ASIA("asia"),
+		EUROPE("europe");
+		
+		private final String id;
+		
+		private RegionV5(String id)
+		{
+			this.id = id;
+		}
+		
+		public String getId()
+		{
+			return this.id;
+		}
+		
+		public URI getApiUrl()
+		{
+			return URI.create(String.format(API_URL, this.id));
+		}
+		
+		@Override
+		public String toString()
+		{
+			return this.id;
 		}
 	}
 	
