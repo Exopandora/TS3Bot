@@ -553,9 +553,9 @@ public class CommandLeagueOfLegends
 	{
 		Throwable result = throwable;
 		
-		while(throwable.getCause() != null)
+		while(result.getCause() != null)
 		{
-			throwable = throwable.getCause();
+			result = result.getCause();
 		}
 		
 		return result;
