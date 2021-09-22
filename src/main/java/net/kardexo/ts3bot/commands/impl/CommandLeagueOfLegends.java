@@ -243,16 +243,16 @@ public class CommandLeagueOfLegends
 			}
 			
 			var calendar = Calendar.getInstance();
+			calendar.set(Calendar.HOUR_OF_DAY, 0);
+			calendar.set(Calendar.MINUTE, 0);
+			calendar.set(Calendar.SECOND, 0);
+			calendar.set(Calendar.MILLISECOND, 0);
+			
 			var today = calendar.getTime();
 			var builder = new StringBuilder();
 			var champions = championsFuture.join();
 			var queues = queuesFuture.join();
 			var stats = new HistoryStats();
-			
-			calendar.set(Calendar.HOUR_OF_DAY, 0);
-			calendar.set(Calendar.MINUTE, 0);
-			calendar.set(Calendar.SECOND, 0);
-			calendar.set(Calendar.MILLISECOND, 0);
 			
 			for(int x = 0; x < matches.size(); x++)
 			{
