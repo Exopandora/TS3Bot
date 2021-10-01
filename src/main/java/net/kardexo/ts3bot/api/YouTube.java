@@ -47,14 +47,14 @@ public class YouTube
 		throw ERROR_LOADING_VIDEO.create();
 	}
 	
-	public static JsonNode latestVideo(String username) throws CommandSyntaxException
+	public static JsonNode latestVideo(String userId) throws CommandSyntaxException
 	{
-		return playlistItems(uploadsPlaylistId(username), null, "snippet", MAX_RESULTS).path("items").get(0);
+		return playlistItems(uploadsPlaylistId(userId), null, "snippet", MAX_RESULTS).path("items").get(0);
 	}
 	
-	public static JsonNode randomVideo(String username) throws CommandSyntaxException
+	public static JsonNode randomVideo(String userId) throws CommandSyntaxException
 	{
-		String playlist = uploadsPlaylistId(username);
+		String playlist = uploadsPlaylistId(userId);
 		long length = playlistLength(playlist);
 		long index = ThreadLocalRandom.current().nextLong(length);
 		long fetched = 0;
@@ -91,12 +91,12 @@ public class YouTube
 		throw ERROR_LOADING_PLAYLIST_ITEMS.create();
 	}
 	
-	public static String uploadsPlaylistId(String username) throws CommandSyntaxException
+	public static String uploadsPlaylistId(String userId) throws CommandSyntaxException
 	{
 		try
 		{
 			URI uri = new URIBuilder(API_URL.resolve("channels"))
-				.addParameter("forUsername", username)
+				.addParameter("id", userId)
 				.addParameter("part", "contentDetails")
 				.addParameter("key", TS3Bot.getInstance().getApiKeyManager().requestKey(TS3Bot.API_KEY_YOUTUBE))
 				.build();
