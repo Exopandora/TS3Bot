@@ -258,10 +258,12 @@ public class CommandLeagueOfLegends
 			{
 				var info = matches.get(x).join().path("info");
 				var participant = CommandLeagueOfLegends.findParticipant(info.path("participants"), puuid);
-				var date = new Date(info.path("gameStartTimestamp").asLong());
+				var gameStart = info.path("gameStartTimestamp").asLong();
+				var gameEnd = info.path("gameEndTimestamp").asLong();
+				var date = new Date(gameStart);
 				var champion = CommandLeagueOfLegends.championById(participant.path("championId").asLong(), champions);
 				var queue = CommandLeagueOfLegends.formatQueue(queues, info.path("queueId").asInt());
-				var playTime = info.path("gameDuration").asLong() / 1000L;
+				var playTime = (gameEnd - gameStart) / 1000L;
 				var kills = participant.path("kills").asInt();
 				var deaths = participant.path("deaths").asInt();
 				var assists = participant.path("assists").asInt();
