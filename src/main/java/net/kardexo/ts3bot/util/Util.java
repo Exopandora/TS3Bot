@@ -14,28 +14,29 @@ import net.kardexo.ts3bot.TS3Bot;
 
 public class Util
 {
-	public static final Pattern URL_PATTERN = Pattern.compile("\\[URL\\].*\\[\\/URL\\]");
+	public static final Pattern URL_PATTERN = Pattern.compile("https?:\\/\\/[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]");
+	public static final Pattern WRAPPED_URL_PATTERN = Pattern.compile("\\[URL\\].*\\[\\/URL\\]");
 	public static final String QUERY_SPLIT = "\\?|&";
 	public static final Pattern PARAMETER_PATTERN = Pattern.compile("([^=]+)=([^=]+)");
 	
-	private static boolean isURL(String url)
-	{
-		return url != null && URL_PATTERN.matcher(url).matches();
-	}
-	
 	public static String extract(String url)
 	{
-		if(Util.isURL(url))
+		if(url == null)
 		{
-			return url.substring(5, url.length() - 6);
+			return null;
+		}
+		
+		if(WRAPPED_URL_PATTERN.matcher(url).matches())
+		{
+			url = url.substring(5, url.length() - 6);
+		}
+		
+		if(URL_PATTERN.matcher(url).matches())
+		{
+			return url;
 		}
 		
 		return null;
-	}
-	
-	public static String wrap(String url)
-	{
-		return "[URL]" + url + "[/URL]";
 	}
 	
 	public static Map<String, String> queryToMap(String query)

@@ -56,7 +56,7 @@ public class CommandWatch2Gether
 		
 		if(share != null && !share.isBlank())
 		{
-			String result = URLMessageProcessor.response(Util.wrap(share), false);
+			String result = URLMessageProcessor.response(share, false);
 			
 			if(result != null)
 			{
