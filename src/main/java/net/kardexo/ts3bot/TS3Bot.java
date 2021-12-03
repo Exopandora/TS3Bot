@@ -27,9 +27,7 @@ import net.kardexo.ts3bot.commands.CommandSource;
 import net.kardexo.ts3bot.commands.impl.CommandBingo;
 import net.kardexo.ts3bot.commands.impl.CommandBot;
 import net.kardexo.ts3bot.commands.impl.CommandCalculate;
-import net.kardexo.ts3bot.commands.impl.CommandText;
 import net.kardexo.ts3bot.commands.impl.CommandExit;
-import net.kardexo.ts3bot.commands.impl.CommandGameServers;
 import net.kardexo.ts3bot.commands.impl.CommandHelp;
 import net.kardexo.ts3bot.commands.impl.CommandKick;
 import net.kardexo.ts3bot.commands.impl.CommandKickAll;
@@ -40,12 +38,12 @@ import net.kardexo.ts3bot.commands.impl.CommandRules;
 import net.kardexo.ts3bot.commands.impl.CommandSay;
 import net.kardexo.ts3bot.commands.impl.CommandSilent;
 import net.kardexo.ts3bot.commands.impl.CommandTeams;
+import net.kardexo.ts3bot.commands.impl.CommandText;
 import net.kardexo.ts3bot.commands.impl.CommandTimer;
 import net.kardexo.ts3bot.commands.impl.CommandTwitch;
 import net.kardexo.ts3bot.commands.impl.CommandWatch2Gether;
 import net.kardexo.ts3bot.commands.impl.CommandYouTube;
 import net.kardexo.ts3bot.config.Config;
-import net.kardexo.ts3bot.gameservers.GameServerManager;
 import net.kardexo.ts3bot.message.CommandMessageProcressor;
 import net.kardexo.ts3bot.message.IMessageProcessor;
 import net.kardexo.ts3bot.message.URLMessageProcessor;
@@ -72,7 +70,6 @@ public class TS3Bot extends TS3EventAdapter implements ConnectionHandler
 	private final CommandDispatcher<CommandSource> dispatcher = new CommandDispatcher<CommandSource>();
 	private final List<IMessageProcessor> messageProcessors = List.of(new CommandMessageProcressor(), new URLMessageProcessor());
 	private final ObjectMapper objectMapper = new ObjectMapper();
-	private final GameServerManager gameserverManager;
 	private final APIKeyManager apiKeyManager;
 	private TS3Api api;
 	private TS3Query query;
@@ -83,7 +80,6 @@ public class TS3Bot extends TS3EventAdapter implements ConnectionHandler
 		TS3Bot.instance = this;
 		this.config = this.objectMapper.readValue(config, Config.class);
 		this.history = new ChatHistory(this.config.getChatHistorySize());
-		this.gameserverManager = new GameServerManager(this.config.getGameservers());
 		this.apiKeyManager = new APIKeyManager(this.config.getApiKeys());
 	}
 	
@@ -96,7 +92,6 @@ public class TS3Bot extends TS3EventAdapter implements ConnectionHandler
 		config.setReconnectStrategy(ReconnectStrategy.constantBackoff());
 		config.setConnectionHandler(this);
 		
-		this.gameserverManager.start();
 		this.registerCommands();
 		
 		this.query = new TS3Query(config);
@@ -126,7 +121,6 @@ public class TS3Bot extends TS3EventAdapter implements ConnectionHandler
 		CommandMove.register(this.dispatcher);
 		CommandSilent.register(this.dispatcher);
 		CommandLeagueOfLegends.register(this.dispatcher);
-		CommandGameServers.register(this.dispatcher);
 		CommandText.register(this.dispatcher);
 		CommandKick.register(this.dispatcher);
 		CommandKickAll.register(this.dispatcher);
@@ -229,18 +223,6 @@ public class TS3Bot extends TS3EventAdapter implements ConnectionHandler
 		}
 		
 		TS3Bot.LOGGER.info("Disconnected");
-		
-		if(this.gameserverManager != null)
-		{
-			try
-			{
-				this.gameserverManager.close();
-			}
-			catch(IOException e)
-			{
-				e.printStackTrace();
-			}
-		}
 	}
 	
 	public Config getConfig()
@@ -261,11 +243,6 @@ public class TS3Bot extends TS3EventAdapter implements ConnectionHandler
 	public int getId()
 	{
 		return this.id;
-	}
-	
-	public GameServerManager getGameserverManager()
-	{
-		return this.gameserverManager;
 	}
 	
 	public APIKeyManager getApiKeyManager()
