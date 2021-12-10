@@ -40,11 +40,11 @@ import net.kardexo.ts3bot.commands.CommandSource;
 import net.kardexo.ts3bot.commands.Commands;
 import net.kardexo.ts3bot.util.Util;
 
-public class CommandLeagueOfLegends
+public class LeagueOfLegendsCommand
 {
 	private static final DynamicCommandExceptionType ERROR_FETCHING_DATA = new DynamicCommandExceptionType(message ->
 	{
-		return new LiteralMessage(message != null && message instanceof Throwable ? CommandLeagueOfLegends.getRootThrowable((Throwable) message).getMessage() : "Error fetching data");
+		return new LiteralMessage(message != null && message instanceof Throwable ? LeagueOfLegendsCommand.getRootThrowable((Throwable) message).getMessage() : "Error fetching data");
 	});
 	private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd.MM");
 	private static final int MAX_RATING = Arrays.stream(Tier.VALUES).mapToInt(tier -> tier.hasRanks() ? Rank.VALUES.length : 1).sum();
@@ -87,7 +87,7 @@ public class CommandLeagueOfLegends
 			
 			var participants = activeMatch.path("participants");
 			var builder = new StringBuilder();
-			var teams = CommandLeagueOfLegends.groupAndLoad(participants, championsFuture, region).entrySet().stream()
+			var teams = LeagueOfLegendsCommand.groupAndLoad(participants, championsFuture, region).entrySet().stream()
 					.sorted((a, b) -> Integer.compare(a.getKey(), b.getKey()))
 					.map(Entry::getValue)
 					.collect(Collectors.toList());
@@ -143,12 +143,12 @@ public class CommandLeagueOfLegends
 			}
 			
 			var ranks = Arrays.stream(teamRatings)
-					.mapToObj(CommandLeagueOfLegends::ratingToLeague)
+					.mapToObj(LeagueOfLegendsCommand::ratingToLeague)
 					.map(league -> league.map(League::toString).orElse("Unranked"))
 					.collect(Collectors.joining(" vs "));
 			var gameLength = activeMatch.path("gameLength").asLong();
 			var formattedGameLength = gameLength < 0 ? "Loading Screen" : Util.formatDuration(gameLength);
-			var queue = CommandLeagueOfLegends.formatQueue(queuesFuture.join(), activeMatch.path("gameQueueConfigId").asInt());
+			var queue = LeagueOfLegendsCommand.formatQueue(queuesFuture.join(), activeMatch.path("gameQueueConfigId").asInt());
 			
 			builder.append("\n" + queue);
 			builder.append(" | " + formattedGameLength);
@@ -171,7 +171,7 @@ public class CommandLeagueOfLegends
 	private static CompletableFuture<SummonerOverview> loadParticipantAsync(JsonNode participant, CompletableFuture<JsonNode> championsFuture, Region region)
 	{
 		var championId = participant.path("championId").asLong();
-		var championFuture = championsFuture.thenApply(champions -> CommandLeagueOfLegends.championById(championId, champions));
+		var championFuture = championsFuture.thenApply(champions -> LeagueOfLegendsCommand.championById(championId, champions));
 		var summonerName = participant.path("summonerName").asText();
 		
 		if(!participant.path("bot").asBoolean())
@@ -201,7 +201,7 @@ public class CommandLeagueOfLegends
 		{
 			if(this.league != null)
 			{
-				return CommandLeagueOfLegends.highestRank(this.league);
+				return LeagueOfLegendsCommand.highestRank(this.league);
 			}
 			
 			return Optional.empty();
@@ -257,11 +257,11 @@ public class CommandLeagueOfLegends
 			for(int x = 0; x < matches.size(); x++)
 			{
 				var info = matches.get(x).join().path("info");
-				var participant = CommandLeagueOfLegends.findParticipant(info.path("participants"), puuid);
+				var participant = LeagueOfLegendsCommand.findParticipant(info.path("participants"), puuid);
 				var gameStart = info.path("gameStartTimestamp").asLong();
 				var date = new Date(gameStart);
-				var champion = CommandLeagueOfLegends.championById(participant.path("championId").asLong(), champions);
-				var queue = CommandLeagueOfLegends.formatQueue(queues, info.path("queueId").asInt());
+				var champion = LeagueOfLegendsCommand.championById(participant.path("championId").asLong(), champions);
+				var queue = LeagueOfLegendsCommand.formatQueue(queues, info.path("queueId").asInt());
 				var playTime = (info.has("gameEndTimestamp") ? (info.path("gameEndTimestamp").asLong() - gameStart) : info.path("gameDuration").asLong()) / 1000L;
 				var kills = participant.path("kills").asInt();
 				var deaths = participant.path("deaths").asInt();
@@ -338,7 +338,7 @@ public class CommandLeagueOfLegends
 	{
 		var result = CompletableFuture.supplyAsync(wrapException(() ->
 		{
-			var normal = CommandLeagueOfLegends.normalizeChampionName(champion);
+			var normal = LeagueOfLegendsCommand.normalizeChampionName(champion);
 			var version = LeagueOfLegends.fetchVersion();
 			var champions = LeagueOfLegends.fetchChampions(version);
 			var iterator = champions.path("data").iterator();
@@ -347,7 +347,7 @@ public class CommandLeagueOfLegends
 			{
 				var node = iterator.next();
 				
-				if(CommandLeagueOfLegends.normalizeChampionName(node.path("name").asText()).equals(normal))
+				if(LeagueOfLegendsCommand.normalizeChampionName(node.path("name").asText()).equals(normal))
 				{
 					var id = node.path("id").asText();
 					var champ = LeagueOfLegends.fetchChampion(version, id);
@@ -401,7 +401,7 @@ public class CommandLeagueOfLegends
 	private static Optional<League> highestRank(JsonNode leagues)
 	{
 		return StreamSupport.stream(leagues.spliterator(), false)
-			.map(CommandLeagueOfLegends::rankFromLeague)
+			.map(LeagueOfLegendsCommand::rankFromLeague)
 			.filter(Objects::nonNull)
 			.sorted()
 			.findFirst();
@@ -426,7 +426,7 @@ public class CommandLeagueOfLegends
 			return Optional.empty();
 		}
 		
-		return Optional.of(CommandLeagueOfLegends.leagueFromRating(Tier.LOWEST, Rank.LOWEST, rating));
+		return Optional.of(LeagueOfLegendsCommand.leagueFromRating(Tier.LOWEST, Rank.LOWEST, rating));
 	}
 	
 	private static League leagueFromRating(Tier tier, Rank rank, int rating)
@@ -444,11 +444,11 @@ public class CommandLeagueOfLegends
 			}
 			else
 			{
-				return CommandLeagueOfLegends.leagueFromRating(tier.next(), Rank.LOWEST, rating - 4);
+				return LeagueOfLegendsCommand.leagueFromRating(tier.next(), Rank.LOWEST, rating - 4);
 			}
 		}
 		
-		return CommandLeagueOfLegends.leagueFromRating(tier.next(), null, rating - 1);
+		return LeagueOfLegendsCommand.leagueFromRating(tier.next(), null, rating - 1);
 	}
 	
 	private static String formatQueue(JsonNode queues, int queueId)
@@ -474,7 +474,7 @@ public class CommandLeagueOfLegends
 		{
 			JsonNode participant = participants.get(x);
 			List<CompletableFuture<SummonerOverview>> team = map.computeIfAbsent(participant.path("teamId").asInt(), key -> new ArrayList<CompletableFuture<SummonerOverview>>());
-			team.add(CommandLeagueOfLegends.loadParticipantAsync(participant, champions, region));
+			team.add(LeagueOfLegendsCommand.loadParticipantAsync(participant, champions, region));
 		}
 		
 		return map;

@@ -12,7 +12,7 @@ import net.kardexo.ts3bot.TS3Bot;
 import net.kardexo.ts3bot.commands.CommandSource;
 import net.kardexo.ts3bot.commands.Commands;
 
-public class CommandKickAll
+public class KickAllCommand
 {
 	public static void register(CommandDispatcher<CommandSource> dispatcher)
 	{
@@ -25,14 +25,14 @@ public class CommandKickAll
 	
 	private static int kick(CommandContext<CommandSource> context) throws CommandSyntaxException
 	{
-		Client[] clients = CommandKickAll.getClients();
+		Client[] clients = KickAllCommand.getClients();
 		TS3Bot.getInstance().getApi().kickClientFromServer(clients);
 		return clients.length;
 	}
 	
 	private static int kick(CommandContext<CommandSource> context, String message) throws CommandSyntaxException
 	{
-		Client[] clients = CommandKickAll.getClients();
+		Client[] clients = KickAllCommand.getClients();
 		TS3Bot.getInstance().getApi().kickClientFromServer(message, clients);
 		return clients.length;
 	}

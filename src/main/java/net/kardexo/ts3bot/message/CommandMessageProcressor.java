@@ -10,7 +10,7 @@ import com.mojang.brigadier.tree.CommandNode;
 
 import net.kardexo.ts3bot.TS3Bot;
 import net.kardexo.ts3bot.commands.CommandSource;
-import net.kardexo.ts3bot.commands.impl.CommandHelp;
+import net.kardexo.ts3bot.commands.impl.HelpCommand;
 
 public class CommandMessageProcressor implements IMessageProcessor
 {
@@ -46,7 +46,7 @@ public class CommandMessageProcressor implements IMessageProcessor
 		{
 			if(e.getCursor() != -1)
 			{
-				List<CommandNode<CommandSource>> nodes = CommandHelp.nodeMapToList(parse.getContext().getLastChild().getNodes());
+				List<CommandNode<CommandSource>> nodes = HelpCommand.nodeMapToList(parse.getContext().getLastChild().getNodes());
 				
 				if(nodes.isEmpty())
 				{
@@ -56,7 +56,7 @@ public class CommandMessageProcressor implements IMessageProcessor
 				{
 					StringBuilder builder = new StringBuilder();
 					String command = nodes.stream().map(CommandNode::getName).collect(Collectors.joining(" "));
-					CommandHelp.appendAllUsage(builder, bot.getCommandDispatcher(), nodes, source, true);
+					HelpCommand.appendAllUsage(builder, bot.getCommandDispatcher(), nodes, source, true);
 					source.sendFeedback("Usage: !" + command + builder.toString());
 				}
 			}

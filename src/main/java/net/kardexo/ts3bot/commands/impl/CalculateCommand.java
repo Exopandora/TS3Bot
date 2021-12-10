@@ -28,9 +28,9 @@ import com.mojang.brigadier.tree.LiteralCommandNode;
 import ch.obermuhlner.math.big.BigDecimalMath;
 import net.kardexo.ts3bot.commands.CommandSource;
 import net.kardexo.ts3bot.commands.Commands;
-import net.kardexo.ts3bot.commands.impl.CommandCalculate.Expression.ParseException;
+import net.kardexo.ts3bot.commands.impl.CalculateCommand.Expression.ParseException;
 
-public class CommandCalculate
+public class CalculateCommand
 {
 	private static final Map<String, BigDecimal> HISTORY = new HashMap<String, BigDecimal>();
 	private static final DynamicCommandExceptionType PARSING_EXCEPTION = new DynamicCommandExceptionType(exception -> new LiteralMessage(String.valueOf(exception)));

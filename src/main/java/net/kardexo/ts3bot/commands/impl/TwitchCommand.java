@@ -11,14 +11,14 @@ import net.kardexo.ts3bot.api.Twitch;
 import net.kardexo.ts3bot.commands.CommandSource;
 import net.kardexo.ts3bot.commands.Commands;
 
-public class CommandTwitch
+public class TwitchCommand
 {
 	public static void register(CommandDispatcher<CommandSource> dispatcher)
 	{
 		for(Entry<String, String> entry : TS3Bot.getInstance().getConfig().getShortcuts().getTwitch().entrySet())
 		{
 			dispatcher.register(Commands.literal(entry.getKey())
-					.executes(context -> CommandTwitch.twitch(context, entry.getValue())));
+					.executes(context -> TwitchCommand.twitch(context, entry.getValue())));
 		}
 	}
 	

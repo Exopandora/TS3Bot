@@ -12,7 +12,7 @@ import net.kardexo.ts3bot.TS3Bot;
 import net.kardexo.ts3bot.commands.CommandSource;
 import net.kardexo.ts3bot.commands.Commands;
 
-public class CommandKick
+public class KickCommand
 {
 	private static final DynamicCommandExceptionType USERNAME_NOT_FOUND = new DynamicCommandExceptionType(username -> new LiteralMessage("Could not find user " + username));
 	

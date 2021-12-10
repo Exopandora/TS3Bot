@@ -21,7 +21,7 @@ import net.kardexo.ts3bot.commands.CommandSource;
 import net.kardexo.ts3bot.commands.Commands;
 import net.kardexo.ts3bot.util.Util;
 
-public class CommandTimer
+public class TimerCommand
 {
 	private static final SimpleCommandExceptionType INVALID_DURATION = new SimpleCommandExceptionType(new LiteralMessage("Duration must follow pattern # d\\[ay]\\[s] # h\\[\\[ou]r\\[s]] # m\\[in\\[ute]\\[s]] # s\\[ec\\[ond]\\[s]]"));
 	private static final SimpleCommandExceptionType COULD_NOT_PARSE_DURATION = new SimpleCommandExceptionType(new LiteralMessage("Could not parse duration"));
@@ -64,34 +64,34 @@ public class CommandTimer
 			
 			if(matcher.group(1) != null)
 			{
-				duration += TimeUnit.DAYS.toSeconds(CommandTimer.parseLong(matcher.group(1)));
+				duration += TimeUnit.DAYS.toSeconds(TimerCommand.parseLong(matcher.group(1)));
 			}
 			
 			if(matcher.group(2) != null)
 			{
-				duration += TimeUnit.HOURS.toSeconds(CommandTimer.parseLong(matcher.group(2)));
+				duration += TimeUnit.HOURS.toSeconds(TimerCommand.parseLong(matcher.group(2)));
 			}
 			
 			if(matcher.group(3) != null)
 			{
-				duration += TimeUnit.MINUTES.toSeconds(CommandTimer.parseLong(matcher.group(3)));
+				duration += TimeUnit.MINUTES.toSeconds(TimerCommand.parseLong(matcher.group(3)));
 			}
 			
 			if(matcher.group(4) != null)
 			{
-				duration += TimeUnit.SECONDS.toSeconds(CommandTimer.parseLong(matcher.group(4)));
+				duration += TimeUnit.SECONDS.toSeconds(TimerCommand.parseLong(matcher.group(4)));
 			}
 			
 			if(duration > 0)
 			{
 				String uid = context.getSource().getClientInfo().getUniqueIdentifier();
-				CommandTimer.removeTimer(uid);
+				TimerCommand.removeTimer(uid);
 				Timer timer = new Timer(Instant.now().plusSeconds(duration), CompletableFuture.runAsync(() ->
 				{
 					context.getSource().sendPrivateMessage("Timer has ended!");
-					CommandTimer.removeTimer(uid);
+					TimerCommand.removeTimer(uid);
 				}, CompletableFuture.delayedExecutor(duration, TimeUnit.SECONDS)));
-				CommandTimer.addTimer(uid, timer);
+				TimerCommand.addTimer(uid, timer);
 			}
 			else
 			{
@@ -135,7 +135,7 @@ public class CommandTimer
 	
 	private static int reset(CommandContext<CommandSource> context) throws CommandSyntaxException
 	{
-		Timer timer = CommandTimer.removeTimer(context.getSource().getClientInfo().getUniqueIdentifier());
+		Timer timer = TimerCommand.removeTimer(context.getSource().getClientInfo().getUniqueIdentifier());
 		
 		if(timer == null)
 		{

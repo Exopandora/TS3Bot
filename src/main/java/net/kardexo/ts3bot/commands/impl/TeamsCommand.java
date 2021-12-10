@@ -18,7 +18,7 @@ import net.kardexo.ts3bot.TS3Bot;
 import net.kardexo.ts3bot.commands.CommandSource;
 import net.kardexo.ts3bot.commands.Commands;
 
-public class CommandTeams
+public class TeamsCommand
 {
 	private static final SimpleCommandExceptionType PLAYERS_EMPTY = new SimpleCommandExceptionType(new LiteralMessage("No players specified"));
 	private static final Dynamic2CommandExceptionType CANNOT_SPLIT = new Dynamic2CommandExceptionType((players, teamCount) -> new LiteralMessage("Cannot split " + players + " players into " + teamCount + " teams"));

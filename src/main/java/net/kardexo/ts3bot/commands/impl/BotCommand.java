@@ -7,7 +7,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.kardexo.ts3bot.commands.CommandSource;
 import net.kardexo.ts3bot.commands.Commands;
 
-public class CommandBot
+public class BotCommand
 {
 	public static void register(CommandDispatcher<CommandSource> dispatcher)
 	{

@@ -18,7 +18,7 @@ import com.mojang.brigadier.tree.CommandNode;
 import net.kardexo.ts3bot.commands.CommandSource;
 import net.kardexo.ts3bot.commands.Commands;
 
-public class CommandHelp
+public class HelpCommand
 {
 	private static final DynamicCommandExceptionType UNKNOWN_COMMAND = new DynamicCommandExceptionType(command -> new LiteralMessage("Unknown command " + command));
 	
@@ -70,7 +70,7 @@ public class CommandHelp
 		
 		if(!nodes.isEmpty())
 		{
-			CommandHelp.appendAllUsage(builder, dispatcher,  CommandHelp.nodeMapToList(nodes), context.getSource(), true);
+			HelpCommand.appendAllUsage(builder, dispatcher,  HelpCommand.nodeMapToList(nodes), context.getSource(), true);
 		}
 		
 		context.getSource().sendFeedback(builder.toString());

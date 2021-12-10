@@ -18,7 +18,7 @@ import net.kardexo.ts3bot.commands.Commands;
 import net.kardexo.ts3bot.message.URLMessageProcessor;
 import net.kardexo.ts3bot.util.Util;
 
-public class CommandWatch2Gether
+public class Watch2GetherCommand
 {
 	private static final String YOUTUBE_URL = "https://youtu.be/";
 	

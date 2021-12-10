@@ -13,7 +13,7 @@ import net.kardexo.ts3bot.TS3Bot;
 import net.kardexo.ts3bot.commands.CommandSource;
 import net.kardexo.ts3bot.commands.Commands;
 
-public class CommandBingo
+public class BingoCommand
 {
 	public static void register(CommandDispatcher<CommandSource> dispatcher)
 	{

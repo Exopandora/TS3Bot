@@ -12,7 +12,7 @@ import net.kardexo.ts3bot.api.YouTube;
 import net.kardexo.ts3bot.commands.CommandSource;
 import net.kardexo.ts3bot.commands.Commands;
 
-public class CommandYouTube
+public class YouTubeCommand
 {
 	private static final String YOUTUBE_URL = "https://youtu.be/";
 	

@@ -11,7 +11,7 @@ import net.kardexo.ts3bot.TS3Bot;
 import net.kardexo.ts3bot.commands.CommandSource;
 import net.kardexo.ts3bot.commands.Commands;
 
-public class CommandText
+public class TextCommand
 {
 	public static void register(CommandDispatcher<CommandSource> dispatcher)
 	{
