@@ -10,7 +10,7 @@ import com.mojang.brigadier.LiteralMessage;
 import com.mojang.brigadier.ParseResults;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
-import com.mojang.brigadier.context.ParsedCommandNode;
+import com.mojang.brigadier.context.StringRange;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.tree.CommandNode;
@@ -63,23 +63,25 @@ public class CommandHelp
 			}
 		}
 		
-		List<ParsedCommandNode<CommandSource>> nodes = parse.getContext().getLastChild().getNodes();
+		Map<CommandNode<CommandSource>, StringRange> nodes = parse.getContext().getLastChild().getNodes();
 		StringBuilder builder = new StringBuilder("Usage: !" + command);
+		
+		parse.getContext().getLastChild().getArguments().entrySet().forEach(entry -> System.out.println(entry.getKey() + " " + entry.getValue()));
 		
 		if(!nodes.isEmpty())
 		{
-			CommandHelp.appendAllUsage(builder, dispatcher, nodes, context.getSource(), true);
+			CommandHelp.appendAllUsage(builder, dispatcher,  CommandHelp.nodeMapToList(nodes), context.getSource(), true);
 		}
 		
 		context.getSource().sendFeedback(builder.toString());
 		return 0;
 	}
 	
-	public static void appendAllUsage(StringBuilder builder, CommandDispatcher<CommandSource> dispatcher, List<ParsedCommandNode<CommandSource>> nodes, CommandSource source, boolean restriced)
+	public static void appendAllUsage(StringBuilder builder, CommandDispatcher<CommandSource> dispatcher, List<CommandNode<CommandSource>> nodes, CommandSource source, boolean restriced)
 	{
 		List<String> usages = new ArrayList<String>();
 		
-		for(String usage : dispatcher.getAllUsage(nodes.get(nodes.size() - 1).getNode(), source, true))
+		for(String usage : dispatcher.getAllUsage(nodes.get(nodes.size() - 1), source, true))
 		{
 			if(!usage.isEmpty())
 			{
@@ -91,5 +93,10 @@ public class CommandHelp
 		{
 			builder.append(" [" + String.join(", ", usages) + "]");
 		}
+	}
+	
+	public static List<CommandNode<CommandSource>> nodeMapToList(Map<CommandNode<CommandSource>, StringRange> nodes)
+	{
+		return nodes.entrySet().stream().sorted((a, b) -> Integer.compare(b.getValue().getEnd(), a.getValue().getEnd())).map(Entry::getKey).toList();
 	}
 }

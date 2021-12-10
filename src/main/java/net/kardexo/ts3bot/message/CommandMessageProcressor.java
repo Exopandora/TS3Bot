@@ -5,9 +5,8 @@ import java.util.stream.Collectors;
 
 import com.github.theholywaffle.teamspeak3.api.TextMessageTargetMode;
 import com.mojang.brigadier.ParseResults;
-import com.mojang.brigadier.StringReader;
-import com.mojang.brigadier.context.ParsedCommandNode;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.tree.CommandNode;
 
 import net.kardexo.ts3bot.TS3Bot;
 import net.kardexo.ts3bot.commands.CommandSource;
@@ -25,7 +24,7 @@ public class CommandMessageProcressor implements IMessageProcessor
 			return;
 		}
 		
-		ParseResults<CommandSource> parse = bot.getCommandDispatcher().parse(new StringReader(message.substring(1)), source);
+		ParseResults<CommandSource> parse = bot.getCommandDispatcher().parse(message.substring(1), source);
 		
 		try
 		{
@@ -47,7 +46,7 @@ public class CommandMessageProcressor implements IMessageProcessor
 		{
 			if(e.getCursor() != -1)
 			{
-				List<ParsedCommandNode<CommandSource>> nodes = parse.getContext().getLastChild().getNodes();
+				List<CommandNode<CommandSource>> nodes = CommandHelp.nodeMapToList(parse.getContext().getLastChild().getNodes());
 				
 				if(nodes.isEmpty())
 				{
@@ -56,7 +55,7 @@ public class CommandMessageProcressor implements IMessageProcessor
 				else
 				{
 					StringBuilder builder = new StringBuilder();
-					String command = nodes.stream().map(node -> node.getNode().getName()).collect(Collectors.joining(" "));
+					String command = nodes.stream().map(CommandNode::getName).collect(Collectors.joining(" "));
 					CommandHelp.appendAllUsage(builder, bot.getCommandDispatcher(), nodes, source, true);
 					source.sendFeedback("Usage: !" + command + builder.toString());
 				}

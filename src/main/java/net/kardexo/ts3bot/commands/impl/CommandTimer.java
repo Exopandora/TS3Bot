@@ -14,6 +14,7 @@ import com.mojang.brigadier.LiteralMessage;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 
 import net.kardexo.ts3bot.commands.CommandSource;
@@ -25,6 +26,7 @@ public class CommandTimer
 	private static final SimpleCommandExceptionType INVALID_DURATION = new SimpleCommandExceptionType(new LiteralMessage("Duration must follow pattern # d\\[ay]\\[s] # h\\[\\[ou]r\\[s]] # m\\[in\\[ute]\\[s]] # s\\[ec\\[ond]\\[s]]"));
 	private static final SimpleCommandExceptionType COULD_NOT_PARSE_DURATION = new SimpleCommandExceptionType(new LiteralMessage("Could not parse duration"));
 	private static final SimpleCommandExceptionType NO_TIMER_SET = new SimpleCommandExceptionType(new LiteralMessage("No timer set"));
+    private static final DynamicCommandExceptionType READER_INVALID_LONG = new DynamicCommandExceptionType(value -> new LiteralMessage("Invalid long '" + value + "'"));
 	private static final Map<String, Timer> TIMERS = new HashMap<String, Timer>();
 	private static final Pattern PATTERN = Pattern.compile("^(?:(\\d+)\\s*d(?:ays?)?\\s*)?(?:(\\d+)\\s*h(?:(?:ou)?rs?)?\\s*?)?(?:(\\d+)\\s*m(?:in(?:ute)?s?)?\\s*?)?(?:(\\d+)\\s*s(?:ec(?:ond)?s?)?\\s*?)?$");
 	
@@ -152,7 +154,7 @@ public class CommandTimer
 		}
 		catch(NumberFormatException e)
 		{
-			throw CommandSyntaxException.BUILT_IN_EXCEPTIONS.readerInvalidLong().create(number);
+			throw READER_INVALID_LONG.create(number);
 		}
 	}
 	
