@@ -27,6 +27,7 @@ public class BingoCommand
 	private static int bingo(CommandContext<CommandSource> context)
 	{
 		Calendar calendar = Calendar.getInstance();
+		calendar.set(Calendar.DAY_OF_WEEK, 0);
 		calendar.set(Calendar.HOUR_OF_DAY, 0);
 		calendar.set(Calendar.MINUTE, 0);
 		calendar.set(Calendar.SECOND, 0);
