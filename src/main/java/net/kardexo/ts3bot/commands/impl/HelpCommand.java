@@ -66,8 +66,6 @@ public class HelpCommand
 		Map<CommandNode<CommandSource>, StringRange> nodes = parse.getContext().getLastChild().getNodes();
 		StringBuilder builder = new StringBuilder("Usage: !" + command);
 		
-		parse.getContext().getLastChild().getArguments().entrySet().forEach(entry -> System.out.println(entry.getKey() + " " + entry.getValue()));
-		
 		if(!nodes.isEmpty())
 		{
 			HelpCommand.appendAllUsage(builder, dispatcher,  HelpCommand.nodeMapToList(nodes), context.getSource(), true);
