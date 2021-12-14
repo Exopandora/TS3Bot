@@ -88,5 +88,6 @@
 			"COMMAND4": "CHANNEL2"
 		}
 	},
-	"login_bonus": 500
+	"login_bonus": 500,
+	"currency": " CURRENCY"
 }

@@ -57,6 +57,9 @@ public class Config
 	@JsonProperty("login_bonus")
 	private int loginBonus;
 	
+	@JsonProperty("currency")
+	private String currency;
+	
 	public Config()
 	{
 		super();
@@ -155,6 +158,11 @@ public class Config
 	public int getLoginBonus()
 	{
 		return this.loginBonus;
+	}
+	
+	public String getCurrency()
+	{
+		return this.currency;
 	}
 	
 	public static class Shortcuts

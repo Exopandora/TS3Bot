@@ -18,7 +18,7 @@ import net.kardexo.ts3bot.util.Util;
 public class TransferCommand
 {
 	private static final DynamicCommandExceptionType USERNAME_NOT_FOUND = new DynamicCommandExceptionType(username -> new LiteralMessage("Could not find user " + username));
-	private static final SimpleCommandExceptionType NOT_ENOUGH_COINS = new SimpleCommandExceptionType(new LiteralMessage("You do not have enough coins"));
+	private static final SimpleCommandExceptionType NOT_ENOUGH_COINS = new SimpleCommandExceptionType(new LiteralMessage("You do not have enough " + TS3Bot.getInstance().getConfig().getCurrency().trim()));
 	
 	public static void register(CommandDispatcher<CommandSource> dispatcher)
 	{
@@ -42,7 +42,7 @@ public class TransferCommand
 			throw NOT_ENOUGH_COINS.create();
 		}
 		
-		context.getSource().sendFeedback("You transferred " + amount + " coins to " + recipient.getNickname());
+		context.getSource().sendFeedback("You transferred " + amount + TS3Bot.getInstance().getConfig().getCurrency() + " to " + recipient.getNickname());
 		return amount;
 	}
 }

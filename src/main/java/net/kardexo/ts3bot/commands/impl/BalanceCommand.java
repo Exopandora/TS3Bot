@@ -37,7 +37,7 @@ public class BalanceCommand
 	{
 		ClientInfo client = context.getSource().getClientInfo();
 		TS3Bot.getInstance().getCoinManager().set(client.getUniqueIdentifier(), value);
-		context.getSource().sendFeedback("Set coins for " + client.getNickname() + " to " + value);
+		context.getSource().sendFeedback("Set balance of " + client.getNickname() + " to " + value + TS3Bot.getInstance().getConfig().getCurrency());
 		return value;
 	}
 	
@@ -52,7 +52,7 @@ public class BalanceCommand
 		
 		String uuid = client.getUniqueIdentifier();
 		TS3Bot.getInstance().getCoinManager().set(uuid, value);
-		context.getSource().sendFeedback("Set coins for " + client.getNickname() + " to " + value);
+		context.getSource().sendFeedback("Set balance of " + client.getNickname() + " to " + value + TS3Bot.getInstance().getConfig().getCurrency());
 		return value;
 	}
 	
@@ -60,7 +60,7 @@ public class BalanceCommand
 	{
 		ClientInfo client = context.getSource().getClientInfo();
 		long coins = TS3Bot.getInstance().getCoinManager().get(client.getUniqueIdentifier());
-		context.getSource().sendFeedback(client.getNickname() + " has " + coins + " coins");
+		context.getSource().sendFeedback(client.getNickname() + " has " + coins + TS3Bot.getInstance().getConfig().getCurrency());
 		return (int) coins;
 	}
 	
@@ -74,7 +74,7 @@ public class BalanceCommand
 		}
 		
 		long coins = TS3Bot.getInstance().getCoinManager().get(client.getUniqueIdentifier());
-		context.getSource().sendFeedback(client.getNickname() + " has " + coins + " coins");
+		context.getSource().sendFeedback(client.getNickname() + " has " + coins + TS3Bot.getInstance().getConfig().getCurrency());
 		return (int) coins;
 	}
 }
