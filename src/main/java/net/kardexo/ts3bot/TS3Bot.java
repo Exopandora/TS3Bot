@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Scanner;
+import java.util.Timer;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -15,22 +17,25 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.theholywaffle.teamspeak3.TS3Api;
 import com.github.theholywaffle.teamspeak3.TS3Config;
 import com.github.theholywaffle.teamspeak3.TS3Query;
+import com.github.theholywaffle.teamspeak3.api.event.ClientJoinEvent;
 import com.github.theholywaffle.teamspeak3.api.event.TS3EventAdapter;
 import com.github.theholywaffle.teamspeak3.api.event.TS3EventType;
 import com.github.theholywaffle.teamspeak3.api.event.TextMessageEvent;
 import com.github.theholywaffle.teamspeak3.api.reconnect.ConnectionHandler;
 import com.github.theholywaffle.teamspeak3.api.reconnect.ReconnectStrategy;
 import com.github.theholywaffle.teamspeak3.api.wrapper.Channel;
+import com.github.theholywaffle.teamspeak3.api.wrapper.Client;
 import com.mojang.brigadier.CommandDispatcher;
 
 import net.kardexo.ts3bot.commands.CommandSource;
+import net.kardexo.ts3bot.commands.impl.BalanceCommand;
 import net.kardexo.ts3bot.commands.impl.BingoCommand;
 import net.kardexo.ts3bot.commands.impl.BotCommand;
 import net.kardexo.ts3bot.commands.impl.CalculateCommand;
 import net.kardexo.ts3bot.commands.impl.ExitCommand;
 import net.kardexo.ts3bot.commands.impl.HelpCommand;
-import net.kardexo.ts3bot.commands.impl.KickCommand;
 import net.kardexo.ts3bot.commands.impl.KickAllCommand;
+import net.kardexo.ts3bot.commands.impl.KickCommand;
 import net.kardexo.ts3bot.commands.impl.LeagueOfLegendsCommand;
 import net.kardexo.ts3bot.commands.impl.MoveCommand;
 import net.kardexo.ts3bot.commands.impl.RandomCommand;
@@ -40,6 +45,7 @@ import net.kardexo.ts3bot.commands.impl.SilentCommand;
 import net.kardexo.ts3bot.commands.impl.TeamsCommand;
 import net.kardexo.ts3bot.commands.impl.TextCommand;
 import net.kardexo.ts3bot.commands.impl.TimerCommand;
+import net.kardexo.ts3bot.commands.impl.TransferCommand;
 import net.kardexo.ts3bot.commands.impl.TwitchCommand;
 import net.kardexo.ts3bot.commands.impl.Watch2GetherCommand;
 import net.kardexo.ts3bot.commands.impl.YouTubeCommand;
@@ -49,6 +55,9 @@ import net.kardexo.ts3bot.message.IMessageProcessor;
 import net.kardexo.ts3bot.message.URLMessageProcessor;
 import net.kardexo.ts3bot.util.APIKeyManager;
 import net.kardexo.ts3bot.util.ChatHistory;
+import net.kardexo.ts3bot.util.CoinManager;
+import net.kardexo.ts3bot.util.BonusManager;
+import net.kardexo.ts3bot.util.Util;
 
 public class TS3Bot extends TS3EventAdapter implements ConnectionHandler
 {
@@ -70,7 +79,10 @@ public class TS3Bot extends TS3EventAdapter implements ConnectionHandler
 	private final CommandDispatcher<CommandSource> dispatcher = new CommandDispatcher<CommandSource>();
 	private final List<IMessageProcessor> messageProcessors = List.of(new CommandMessageProcressor(), new URLMessageProcessor());
 	private final ObjectMapper objectMapper = new ObjectMapper();
+	private final CoinManager coinManager = new CoinManager(Util.createFile("coins.json"), this.objectMapper);
+	private final BonusManager loginBonusManager = new BonusManager(Util.createFile("claims.json"), this.objectMapper, this::loginBonus);
 	private final APIKeyManager apiKeyManager;
+	private Timer timer;
 	private TS3Api api;
 	private TS3Query query;
 	private boolean silent;
@@ -93,7 +105,6 @@ public class TS3Bot extends TS3EventAdapter implements ConnectionHandler
 		config.setConnectionHandler(this);
 		
 		this.registerCommands();
-		
 		this.query = new TS3Query(config);
 		this.query.connect();
 		
@@ -130,6 +141,8 @@ public class TS3Bot extends TS3EventAdapter implements ConnectionHandler
 		TimerCommand.register(this.dispatcher);
 		BingoCommand.register(this.dispatcher);
 		CalculateCommand.register(this.dispatcher);
+		BalanceCommand.register(this.dispatcher);
+		TransferCommand.register(this.dispatcher);
 	}
 	
 	@Override
@@ -195,6 +208,10 @@ public class TS3Bot extends TS3EventAdapter implements ConnectionHandler
 			this.api.addTS3Listeners(this);
 			
 			TS3Bot.LOGGER.info("Logged in as " + this.config.getLoginName());
+			
+			this.loginBonusManager.claim(this.getAllClientUids());
+			this.timer = new Timer();
+			this.timer.schedule(this.loginBonusManager.createTimerTask(this::getAllClientUids), Util.tomorrow(), TimeUnit.DAYS.toMillis(1));
 		}
 		catch(Exception e)
 		{
@@ -203,9 +220,20 @@ public class TS3Bot extends TS3EventAdapter implements ConnectionHandler
 	}
 	
 	@Override
+	public void onClientJoin(ClientJoinEvent event)
+	{
+		this.loginBonusManager.claim(event.getUniqueClientIdentifier());
+	}
+	
+	@Override
 	public void onDisconnect(TS3Query ts3Query)
 	{
-		
+		this.timer.cancel();
+	}
+	
+	public void loginBonus(String user)
+	{
+		this.coinManager.add(user, this.config.getLoginBonus());
 	}
 	
 	public void exit()
@@ -223,6 +251,11 @@ public class TS3Bot extends TS3EventAdapter implements ConnectionHandler
 		}
 		
 		TS3Bot.LOGGER.info("Disconnected");
+	}
+	
+	public List<String> getAllClientUids()
+	{
+		return this.api.getClients().stream().map(Client::getUniqueIdentifier).toList();
 	}
 	
 	public Config getConfig()
@@ -268,6 +301,11 @@ public class TS3Bot extends TS3EventAdapter implements ConnectionHandler
 	public ChatHistory getChatHistory()
 	{
 		return this.history;
+	}
+	
+	public CoinManager getCoinManager()
+	{
+		return this.coinManager;
 	}
 	
 	public static TS3Bot getInstance()

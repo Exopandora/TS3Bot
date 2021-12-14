@@ -11,6 +11,7 @@ import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import net.kardexo.ts3bot.TS3Bot;
 import net.kardexo.ts3bot.commands.CommandSource;
 import net.kardexo.ts3bot.commands.Commands;
+import net.kardexo.ts3bot.util.Util;
 
 public class KickCommand
 {
@@ -35,16 +36,15 @@ public class KickCommand
 	
 	private static int kick(CommandContext<CommandSource> context, String username) throws CommandSyntaxException
 	{
-		for(Client client : TS3Bot.getInstance().getApi().getClients())
+		Client client = Util.clientByUsername(username);
+		
+		if(client == null)
 		{
-			if(username.equalsIgnoreCase(client.getNickname()))
-			{
-				int clientId = client.getId();
-				TS3Bot.getInstance().getApi().kickClientFromServer(clientId);
-				return clientId;
-			}
+			throw USERNAME_NOT_FOUND.create(username);
 		}
 		
-		throw USERNAME_NOT_FOUND.create(username);
+		int clientId = client.getId();
+		TS3Bot.getInstance().getApi().kickClientFromServer(clientId);
+		return clientId;
 	}
 }

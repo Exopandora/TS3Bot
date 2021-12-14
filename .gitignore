@@ -84,4 +84,5 @@ gradle-app.setting
 ### Gradle Patch ###
 **/build/
 
+run/
 src/test/

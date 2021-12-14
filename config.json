@@ -57,9 +57,6 @@
 			"CLIENT_UID"
 		]
 	},
-	"gameservers": {
-		"server_id": "PATH_TO_LAUNCHWRAPPER"
-	},
 	"rules": [
 		"RULE1",
 		"RULE2"
@@ -90,5 +87,6 @@
 			"COMMAND3": "CHANNEL1",
 			"COMMAND4": "CHANNEL2"
 		}
-	}
+	},
+	"login_bonus": 500
 }

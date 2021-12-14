@@ -54,6 +54,9 @@ public class Config
 	@JsonProperty("shortcuts")
 	private Shortcuts shortcuts;
 	
+	@JsonProperty("login_bonus")
+	private int loginBonus;
+	
 	public Config()
 	{
 		super();
@@ -147,6 +150,11 @@ public class Config
 	public Shortcuts getShortcuts()
 	{
 		return this.shortcuts;
+	}
+	
+	public int getLoginBonus()
+	{
+		return this.loginBonus;
 	}
 	
 	public static class Shortcuts

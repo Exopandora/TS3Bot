@@ -1,7 +1,14 @@
 package net.kardexo.ts3bot.util;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.time.temporal.ChronoUnit;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -9,6 +16,10 @@ import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.theholywaffle.teamspeak3.api.wrapper.Client;
 
 import net.kardexo.ts3bot.TS3Bot;
 
@@ -103,5 +114,57 @@ public class Util
 				.setDefaultRequestConfig(config)
 				.build();
 		return client;
+	}
+	
+	public static File createFile(String fileName) throws IOException
+	{
+		File file = new File(fileName);
+		
+		if(!Files.exists(file.toPath()))
+		{
+			file.createNewFile();
+		}
+		
+		return file;
+	}
+	
+	public static Client clientByUsername(String username)
+	{
+		for(Client client : TS3Bot.getInstance().getApi().getClients())
+		{
+			if(username.equalsIgnoreCase(client.getNickname()))
+			{
+				return client;
+			}
+		}
+		
+		return null;
+	}
+	
+	public static Date today()
+	{
+		Calendar calendar = Calendar.getInstance();
+		calendar.set(Calendar.HOUR_OF_DAY, 0);
+		calendar.set(Calendar.MINUTE, 0);
+		calendar.set(Calendar.SECOND, 0);
+		calendar.set(Calendar.MILLISECOND, 0);
+		return calendar.getTime();
+	}
+	
+	public static Date tomorrow()
+	{
+		return Date.from(today().toInstant().plus(1, ChronoUnit.DAYS));
+	}
+	
+	public static <T> T readJsonFile(File file, ObjectMapper objectMapper, TypeReference<T> typeReference, Supplier<T> newInstance) throws IOException
+	{
+		String contents = Files.readString(file.toPath());
+		
+		if(contents.isEmpty())
+		{
+			return newInstance.get();
+		}
+		
+		return objectMapper.readValue(contents, typeReference);
 	}
 }
