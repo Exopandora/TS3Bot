@@ -205,6 +205,7 @@ public class TS3Bot extends TS3EventAdapter implements ConnectionHandler
 			this.api.registerEvent(TS3EventType.TEXT_CHANNEL);
 			this.api.registerEvent(TS3EventType.TEXT_PRIVATE);
 			this.api.registerEvent(TS3EventType.TEXT_SERVER);
+			this.api.registerEvent(TS3EventType.CHANNEL);
 			this.api.addTS3Listeners(this);
 			
 			TS3Bot.LOGGER.info("Logged in as " + this.config.getLoginName());
