@@ -55,7 +55,7 @@ public class RandomCommand
 	private static int randomBound(CommandContext<CommandSource> context, String argument) throws CommandSyntaxException
 	{
 		int max = RandomCommand.parseInt(argument);
-		int result = TS3Bot.RANDOM.nextInt(max + 1);
+		int result = (max == Integer.MAX_VALUE) ? TS3Bot.RANDOM.nextInt(max) : TS3Bot.RANDOM.nextInt(max + 1);
 		context.getSource().sendFeedback(String.valueOf(result));
 		return result;
 	}
