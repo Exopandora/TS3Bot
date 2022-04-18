@@ -459,7 +459,7 @@ public class LeagueOfLegendsCommand
 			
 			if(queue.path("queueId").asInt() == queueId)
 			{
-				return queue.path("description").asText().replaceFirst("^[0-9]v[0-9] ", "").replaceFirst(" games$", "");
+				return queue.path("description").asText("Custom").replaceFirst("^[0-9]v[0-9] ", "").replaceFirst(" games$", "");
 			}
 		}
 		
