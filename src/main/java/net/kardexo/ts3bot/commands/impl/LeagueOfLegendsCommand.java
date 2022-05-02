@@ -228,7 +228,7 @@ public class LeagueOfLegendsCommand
 			
 			if(summoner.hasNonNull("status"))
 			{
-				throw new RuntimeException("Could not find summoner " + summoner);
+				throw new RuntimeException("Could not find summoner " + username);
 			}
 			
 			return summoner.path("puuid").asText();
