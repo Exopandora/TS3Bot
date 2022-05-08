@@ -35,7 +35,7 @@ public class CalculateCommand
 	private static final Map<String, BigDecimal> HISTORY = new HashMap<String, BigDecimal>();
 	private static final DynamicCommandExceptionType PARSING_EXCEPTION = new DynamicCommandExceptionType(exception -> new LiteralMessage(String.valueOf(exception)));
 	private static final SimpleCommandExceptionType NO_ANS_STORED = new SimpleCommandExceptionType(new LiteralMessage("No previous value stored for ans"));
-	private static final DynamicCommandExceptionType ERROR_WHILE_COMPUTING = new DynamicCommandExceptionType(cause -> new LiteralMessage("Error while computing result (" + cause + ")"));
+	private static final DynamicCommandExceptionType ERROR_WHILE_COMPUTING = new DynamicCommandExceptionType(cause -> new LiteralMessage("Error while computing result: " + cause));
 	private static final SimpleCommandExceptionType COMPUTATION_TIME_EXCEEDED = new SimpleCommandExceptionType(new LiteralMessage("Computation time exceeded"));
 	private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#0.##########", DecimalFormatSymbols.getInstance(Locale.ENGLISH));
 	private static final MathContext MATH_CONTEXT = new MathContext(100);
@@ -89,7 +89,7 @@ public class CalculateCommand
 		}
 		catch(InterruptedException | ExecutionException e)
 		{
-			throw ERROR_WHILE_COMPUTING.create(e.getMessage());
+			throw ERROR_WHILE_COMPUTING.create(e.getCause().getMessage());
 		}
 	}
 	
@@ -163,7 +163,7 @@ public class CalculateCommand
 			{
 				if(!this.consume(c))
 				{
-					throw new ParseException("Expected: " + c, this.getPosition());
+					throw new ParseException("Expected: '" + c + "'", this.getPosition());
 				}
 			}
 			
@@ -377,6 +377,19 @@ public class CalculateCommand
 							catch(ArithmeticException e)
 							{
 								throw new ParseException("Undefined input for function ln: " + DECIMAL_FORMAT.format(x), start);
+							}
+							
+							break;
+						case "ld":
+							x = this.parseArgument();
+							
+							try
+							{
+								x = BigDecimalMath.log2(x, this.context);
+							}
+							catch(ArithmeticException e)
+							{
+								throw new ParseException("Undefined input for function ld: " + DECIMAL_FORMAT.format(x), start);
 							}
 							
 							break;
