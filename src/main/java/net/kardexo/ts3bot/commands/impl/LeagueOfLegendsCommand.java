@@ -235,6 +235,12 @@ public class LeagueOfLegendsCommand
 		})).thenApplyAsync(wrapException(puuid ->
 		{
 			var matchIds = LeagueOfLegends.fetchMatchHistory(puuid, region.getRegionV5(), 0, 20);
+
+			if(matchIds.isEmpty())
+			{
+				throw new RuntimeException(username + " has not played any games yet");
+			}
+			
 			var matches = new ArrayList<CompletableFuture<JsonNode>>(matchIds.size());
 			
 			for(JsonNode matchId : matchIds)
