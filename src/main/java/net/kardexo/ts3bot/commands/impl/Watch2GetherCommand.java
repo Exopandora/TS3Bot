@@ -64,7 +64,7 @@ public class Watch2GetherCommand
 			}
 		}
 		
-		builder.append(Watch2Gether.API_URL.resolve(node.path("streamkey").asText()));
+		builder.append(Watch2Gether.W2G_URL.resolve(node.path("streamkey").asText()));
 		context.getSource().sendFeedback(builder.toString());
 		return 0;
 	}

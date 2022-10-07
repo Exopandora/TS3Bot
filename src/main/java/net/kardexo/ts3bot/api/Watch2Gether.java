@@ -19,7 +19,8 @@ import net.kardexo.ts3bot.util.Util;
 
 public class Watch2Gether
 {
-	public static final URI API_URL = URI.create("https://w2g.tv/rooms/");
+	public static final URI W2G_URL = URI.create("https://w2g.tv/rooms/");
+	private static final URI API_URL = URI.create("https://api.w2g.tv/rooms/");
 	private static final SimpleCommandExceptionType WATCH2GETHER_SERVICE_UNAVAILABLE = new SimpleCommandExceptionType(new LiteralMessage("Watch2Gether is currently unavailable"));
 	
 	public static JsonNode createRoom(String share) throws CommandSyntaxException
