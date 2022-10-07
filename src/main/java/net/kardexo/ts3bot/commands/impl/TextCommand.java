@@ -30,10 +30,8 @@ public class TextCommand
 			context.getSource().sendFeedback(node.get(index).asText());
 			return index;
 		}
-		else
-		{
-			context.getSource().sendFeedback(node.asText());
-			return 0;
-		}
+		
+		context.getSource().sendFeedback(node.asText());
+		return 0;
 	}
 }

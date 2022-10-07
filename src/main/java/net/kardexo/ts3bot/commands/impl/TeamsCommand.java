@@ -8,19 +8,17 @@ import java.util.stream.Collectors;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.LiteralMessage;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
-import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.Dynamic2CommandExceptionType;
-import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 
 import net.kardexo.ts3bot.TS3Bot;
 import net.kardexo.ts3bot.commands.CommandSource;
 import net.kardexo.ts3bot.commands.Commands;
+import net.kardexo.ts3bot.commands.arguments.WordListArgumentType;
 
 public class TeamsCommand
 {
-	private static final SimpleCommandExceptionType PLAYERS_EMPTY = new SimpleCommandExceptionType(new LiteralMessage("No players specified"));
 	private static final Dynamic2CommandExceptionType CANNOT_SPLIT = new Dynamic2CommandExceptionType((players, teamCount) -> new LiteralMessage("Cannot split " + players + " players into " + teamCount + " teams"));
 	
 	public static void register(CommandDispatcher<CommandSource> dispatcher)
@@ -28,8 +26,8 @@ public class TeamsCommand
 		dispatcher.register(Commands.literal("teams")
 				.then(Commands.argument("team_count", IntegerArgumentType.integer())
 						.executes(context -> teams(context, IntegerArgumentType.getInteger(context, "team_count")))
-						.then(Commands.argument("players", StringArgumentType.greedyString())
-								.executes(context -> teams(context, IntegerArgumentType.getInteger(context, "team_count"), StringArgumentType.getString(context, "players"))))));
+						.then(Commands.argument("players", WordListArgumentType.list())
+								.executes(context -> teams(context, IntegerArgumentType.getInteger(context, "team_count"), WordListArgumentType.getList(context, "players"))))));
 	}
 	
 	private static int teams(CommandContext<CommandSource> context, int teamCount) throws CommandSyntaxException
@@ -40,19 +38,14 @@ public class TeamsCommand
 				.collect(Collectors.toList()));
 	}
 	
-	private static int teams(CommandContext<CommandSource> context, int teamCount, String players) throws CommandSyntaxException
+	private static int teams(CommandContext<CommandSource> context, int teamCount, String[] words) throws CommandSyntaxException
 	{
-		if(players.matches(" +"))
-		{
-			throw PLAYERS_EMPTY.create();
-		}
-		
-		return teams(context, teamCount, new ArrayList<String>(Arrays.asList(players.split(" +"))));
+		return teams(context, teamCount, new ArrayList<String>(Arrays.asList(words)));
 	}
 	
 	private static int teams(CommandContext<CommandSource> context, int teamCount, List<String> players) throws CommandSyntaxException
 	{
-		if(players.size() % teamCount != 0)
+		if(players.isEmpty() || players.size() % teamCount != 0)
 		{
 			throw CANNOT_SPLIT.create(players.size(), teamCount);
 		}

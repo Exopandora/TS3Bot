@@ -19,7 +19,6 @@ import org.apache.http.impl.client.HttpClientBuilder;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.theholywaffle.teamspeak3.api.wrapper.Client;
 
 import net.kardexo.ts3bot.TS3Bot;
 
@@ -54,7 +53,7 @@ public class Util
 	{
 		Map<String, String> result = new HashMap<String, String>();
 		
-		for(String parameter : query.split(Util.QUERY_SPLIT))
+		for(String parameter : query.split(QUERY_SPLIT))
 		{
 			Matcher matcher = PARAMETER_PATTERN.matcher(parameter);
 			
@@ -126,19 +125,6 @@ public class Util
 		}
 		
 		return file;
-	}
-	
-	public static Client clientByUsername(String username)
-	{
-		for(Client client : TS3Bot.getInstance().getApi().getClients())
-		{
-			if(username.equalsIgnoreCase(client.getNickname()))
-			{
-				return client;
-			}
-		}
-		
-		return null;
 	}
 	
 	public static Date today()

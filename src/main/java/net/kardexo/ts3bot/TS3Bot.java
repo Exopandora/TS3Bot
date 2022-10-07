@@ -133,7 +133,7 @@ public class TS3Bot extends TS3EventAdapter implements ConnectionHandler
 		SilentCommand.register(this.dispatcher);
 		LeagueOfLegendsCommand.register(this.dispatcher);
 		TextCommand.register(this.dispatcher);
-		KickCommand.register(this.dispatcher);
+		KickCommand.register(this.dispatcher, this);
 		KickAllCommand.register(this.dispatcher);
 		YouTubeCommand.register(this.dispatcher);
 		RulesCommand.register(this.dispatcher);
@@ -141,8 +141,8 @@ public class TS3Bot extends TS3EventAdapter implements ConnectionHandler
 		TimerCommand.register(this.dispatcher);
 		BingoCommand.register(this.dispatcher);
 		CalculateCommand.register(this.dispatcher);
-		BalanceCommand.register(this.dispatcher);
-		TransferCommand.register(this.dispatcher);
+		BalanceCommand.register(this.dispatcher, this);
+		TransferCommand.register(this.dispatcher, this);
 	}
 	
 	@Override
