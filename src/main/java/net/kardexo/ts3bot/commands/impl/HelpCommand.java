@@ -95,6 +95,6 @@ public class HelpCommand
 	
 	public static List<CommandNode<CommandSource>> nodeMapToList(Map<CommandNode<CommandSource>, StringRange> nodes)
 	{
-		return nodes.entrySet().stream().sorted((a, b) -> Integer.compare(b.getValue().getEnd(), a.getValue().getEnd())).map(Entry::getKey).toList();
+		return nodes.entrySet().stream().sorted((a, b) -> Integer.compare(a.getValue().getEnd(), b.getValue().getEnd())).map(Entry::getKey).toList();
 	}
 }
