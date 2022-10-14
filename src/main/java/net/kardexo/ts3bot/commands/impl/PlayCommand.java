@@ -27,7 +27,7 @@ public class PlayCommand
 		
 		for(int x = 0; x < usernames.size(); x++)
 		{
-			builder.append("\n#" + x + ": " + usernames.get(x));
+			builder.append("\n#" + (x + 1) + ": " + usernames.get(x));
 		}
 		
 		context.getSource().sendFeedback(builder.toString());
