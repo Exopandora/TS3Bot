@@ -7,6 +7,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
+import net.kardexo.ts3bot.TS3Bot;
 import net.kardexo.ts3bot.commands.CommandSource;
 import net.kardexo.ts3bot.commands.Commands;
 import net.kardexo.ts3bot.util.Util;
@@ -22,7 +23,7 @@ public class PlayCommand
 	private static int play(CommandContext<CommandSource> context) throws CommandSyntaxException
 	{
 		List<String> usernames = Util.getClientNamesInChannel(context.getSource().getClientInfo().getChannelId());
-		Collections.shuffle(usernames);
+		Collections.shuffle(usernames, TS3Bot.RANDOM);
 		StringBuilder builder = new StringBuilder("The results are in:");
 		
 		for(int x = 0; x < usernames.size(); x++)
