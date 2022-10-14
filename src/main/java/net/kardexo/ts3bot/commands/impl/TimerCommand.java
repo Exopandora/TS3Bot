@@ -33,9 +33,8 @@ public class TimerCommand
 				.executes(context -> timer(context))
 				.then(Commands.literal("reset")
 						.executes(context -> reset(context)))
-				.then(Commands.literal("set")
-						.then(Commands.argument("duration", TimerDurationArgumentType.duration())
-								.executes(context -> timer(context, TimerDurationArgumentType.getDuration(context, "duration"))))));
+				.then(Commands.argument("duration", TimerDurationArgumentType.duration())
+								.executes(context -> timer(context, TimerDurationArgumentType.getDuration(context, "duration")))));
 	}
 	
 	private static int timer(CommandContext<CommandSource> context) throws CommandSyntaxException
