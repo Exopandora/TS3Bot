@@ -38,6 +38,7 @@ import net.kardexo.ts3bot.commands.impl.KickAllCommand;
 import net.kardexo.ts3bot.commands.impl.KickCommand;
 import net.kardexo.ts3bot.commands.impl.LeagueOfLegendsCommand;
 import net.kardexo.ts3bot.commands.impl.MoveCommand;
+import net.kardexo.ts3bot.commands.impl.PlayCommand;
 import net.kardexo.ts3bot.commands.impl.RandomCommand;
 import net.kardexo.ts3bot.commands.impl.RulesCommand;
 import net.kardexo.ts3bot.commands.impl.SayCommand;
@@ -54,9 +55,9 @@ import net.kardexo.ts3bot.message.CommandMessageProcressor;
 import net.kardexo.ts3bot.message.IMessageProcessor;
 import net.kardexo.ts3bot.message.URLMessageProcessor;
 import net.kardexo.ts3bot.util.APIKeyManager;
+import net.kardexo.ts3bot.util.BonusManager;
 import net.kardexo.ts3bot.util.ChatHistory;
 import net.kardexo.ts3bot.util.CoinManager;
-import net.kardexo.ts3bot.util.BonusManager;
 import net.kardexo.ts3bot.util.Util;
 
 public class TS3Bot extends TS3EventAdapter implements ConnectionHandler
@@ -143,6 +144,7 @@ public class TS3Bot extends TS3EventAdapter implements ConnectionHandler
 		CalculateCommand.register(this.dispatcher);
 		BalanceCommand.register(this.dispatcher, this);
 		TransferCommand.register(this.dispatcher, this);
+		PlayCommand.register(this.dispatcher);
 	}
 	
 	@Override

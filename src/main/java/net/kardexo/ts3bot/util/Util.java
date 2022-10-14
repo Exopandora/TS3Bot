@@ -7,10 +7,12 @@ import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
@@ -152,5 +154,13 @@ public class Util
 		}
 		
 		return objectMapper.readValue(contents, typeReference);
+	}
+	
+	public static List<String> getClientNamesInChannel(int channelId)
+	{
+		return TS3Bot.getInstance().getApi().getClients().stream()
+				.filter(client -> client.getChannelId() == channelId && client.getId() != TS3Bot.getInstance().getId())
+				.map(client -> client.getNickname())
+				.collect(Collectors.toList());
 	}
 }
