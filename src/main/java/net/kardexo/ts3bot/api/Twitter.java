@@ -17,7 +17,7 @@ import net.kardexo.ts3bot.util.Util;
 
 public class Twitter
 {
-	private static final URI API_URL = URI.create("https://api.twitter.com/labs/2/");
+	private static final URI API_URL = URI.create("https://api.twitter.com/2/");
 	private static final SimpleCommandExceptionType ERROR_LOADONG_STATUS = new SimpleCommandExceptionType(new LiteralMessage("Error loading status"));
 	private static final SimpleCommandExceptionType ERROR_LOADONG_PROFILE = new SimpleCommandExceptionType(new LiteralMessage("Error loading profile"));
 	
