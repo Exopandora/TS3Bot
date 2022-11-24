@@ -86,3 +86,6 @@ gradle-app.setting
 
 run/
 src/test/
+
+claims.json
+coins.json
