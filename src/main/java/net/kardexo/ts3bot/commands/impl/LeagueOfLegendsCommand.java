@@ -48,6 +48,8 @@ public class LeagueOfLegendsCommand
 	});
 	private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd.MM");
 	private static final int MAX_RATING = Arrays.stream(Tier.VALUES).mapToInt(tier -> tier.hasRanks() ? Rank.VALUES.length : 1).sum();
+	private static final String RED_COLOR = "#E62142";
+	private static final String BLUE_COLOR = "#4788B6";
 	
 	public static void register(CommandDispatcher<CommandSource> dispatcher)
 	{
@@ -96,7 +98,7 @@ public class LeagueOfLegendsCommand
 			for(int x = 0; x < teams.size(); x++)
 			{
 				var teamMembers = teams.get(x);
-				var color = x % 2 == 0 ? "blue" : "red";
+				var color = x % 2 == 0 ? BLUE_COLOR : RED_COLOR;
 				
 				if(x > 0)
 				{
