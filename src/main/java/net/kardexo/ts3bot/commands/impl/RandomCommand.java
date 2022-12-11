@@ -27,7 +27,7 @@ public class RandomCommand
 	
 	private static int randomBound(CommandContext<CommandSource> context, int bound) throws CommandSyntaxException
 	{
-		int result = TS3Bot.RANDOM.nextInt(bound + 1);
+		int result = TS3Bot.RANDOM.nextInt(bound) + 1;
 		context.getSource().sendFeedback(String.valueOf(result));
 		return result;
 	}
