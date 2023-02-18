@@ -23,6 +23,7 @@ import java.util.stream.StreamSupport;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.MissingNode;
+import com.github.theholywaffle.teamspeak3.api.wrapper.ClientInfo;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.LiteralMessage;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -38,6 +39,7 @@ import net.kardexo.ts3bot.api.LeagueOfLegends.Region;
 import net.kardexo.ts3bot.api.LeagueOfLegends.Tier;
 import net.kardexo.ts3bot.commands.CommandSource;
 import net.kardexo.ts3bot.commands.Commands;
+import net.kardexo.ts3bot.util.UserConfigManager.UserConfig;
 import net.kardexo.ts3bot.util.Util;
 
 public class LeagueOfLegendsCommand
@@ -55,16 +57,19 @@ public class LeagueOfLegendsCommand
 	{
 		dispatcher.register(Commands.literal("lol")
 				.then(Commands.literal("match")
-						.executes(context -> match(context, context.getSource().getClientInfo().getNickname(), TS3Bot.getInstance().getConfig().getLoLRegion()))
+						.executes(context -> match(context, getSummonerNameForUser(context), TS3Bot.getInstance().getConfig().getLoLRegion()))
 						.then(Commands.argument("summoner", StringArgumentType.greedyString())
 								.executes(context -> match(context, StringArgumentType.getString(context, "summoner"), TS3Bot.getInstance().getConfig().getLoLRegion()))))
 				.then(Commands.literal("history")
-						.executes(context -> history(context, context.getSource().getClientInfo().getNickname(), TS3Bot.getInstance().getConfig().getLoLRegion()))
+						.executes(context -> history(context, getSummonerNameForUser(context), TS3Bot.getInstance().getConfig().getLoLRegion()))
 						.then(Commands.argument("summoner", StringArgumentType.greedyString())
 								.executes(context -> history(context, StringArgumentType.getString(context, "summoner"), TS3Bot.getInstance().getConfig().getLoLRegion()))))
 				.then(Commands.literal("lore")
 						.then(Commands.argument("champion", StringArgumentType.greedyString())
-								.executes(context -> lore(context, StringArgumentType.getString(context, "champion"))))));
+								.executes(context -> lore(context, StringArgumentType.getString(context, "champion")))))
+				.then(Commands.literal("alias")
+						.then(Commands.argument("summoner", StringArgumentType.greedyString())
+								.executes(context -> alias(context, StringArgumentType.getString(context, "summoner"))))));
 	}
 	
 	private static int match(CommandContext<CommandSource> context, String username, Region region) throws CommandSyntaxException
@@ -383,6 +388,14 @@ public class LeagueOfLegendsCommand
 		}
 	}
 	
+	private static int alias(CommandContext<CommandSource> context, String alias) throws CommandSyntaxException
+	{
+		UserConfig config = TS3Bot.getInstance().getUserConfig(context.getSource().getClientInfo().getUniqueIdentifier());
+		config.setLeaugeOfLegendsAlias(alias);
+		TS3Bot.getInstance().saveUserConfig(config);
+		return 1;
+	}
+	
 	private static String normalizeChampionName(String champion)
 	{
 		return champion.replaceAll("[^A-Za-z]", "").toLowerCase();
@@ -486,6 +499,19 @@ public class LeagueOfLegendsCommand
 		}
 		
 		return map;
+	}
+	
+	private static String getSummonerNameForUser(CommandContext<CommandSource> context)
+	{
+		ClientInfo clientInfo = context.getSource().getClientInfo();
+		UserConfig config = TS3Bot.getInstance().getUserConfig(clientInfo.getUniqueIdentifier());
+		
+		if(config.getLeaugeOfLegendsAlias() != null)
+		{
+			return config.getLeaugeOfLegendsAlias();
+		}
+		
+		return clientInfo.getNickname();
 	}
 	
 	private static class HistoryStats

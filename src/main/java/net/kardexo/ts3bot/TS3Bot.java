@@ -58,6 +58,8 @@ import net.kardexo.ts3bot.util.APIKeyManager;
 import net.kardexo.ts3bot.util.BonusManager;
 import net.kardexo.ts3bot.util.ChatHistory;
 import net.kardexo.ts3bot.util.CoinManager;
+import net.kardexo.ts3bot.util.UserConfigManager;
+import net.kardexo.ts3bot.util.UserConfigManager.UserConfig;
 import net.kardexo.ts3bot.util.Util;
 
 public class TS3Bot extends TS3EventAdapter implements ConnectionHandler
@@ -82,6 +84,7 @@ public class TS3Bot extends TS3EventAdapter implements ConnectionHandler
 	private final ObjectMapper objectMapper = new ObjectMapper();
 	private final CoinManager coinManager = new CoinManager(Util.createFile("coins.json"), this.objectMapper);
 	private final BonusManager loginBonusManager = new BonusManager(Util.createFile("claims.json"), this.objectMapper, this::loginBonus);
+	private final UserConfigManager userConfigManager = new UserConfigManager(Util.createFile("userconfig.json"), this.objectMapper);
 	private final APIKeyManager apiKeyManager;
 	private Timer timer;
 	private TS3Api api;
@@ -237,6 +240,16 @@ public class TS3Bot extends TS3EventAdapter implements ConnectionHandler
 	public void loginBonus(String user)
 	{
 		this.coinManager.add(user, this.config.getLoginBonus());
+	}
+	
+	public UserConfig getUserConfig(String user)
+	{
+		return this.userConfigManager.getUserConfig(user);
+	}
+	
+	public void saveUserConfig(UserConfig config)
+	{
+		this.userConfigManager.saveUserConfig(config);
 	}
 	
 	public void exit()
