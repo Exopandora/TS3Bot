@@ -390,9 +390,10 @@ public class LeagueOfLegendsCommand
 	
 	private static int alias(CommandContext<CommandSource> context, String alias) throws CommandSyntaxException
 	{
-		UserConfig config = TS3Bot.getInstance().getUserConfig(context.getSource().getClientInfo().getUniqueIdentifier());
+		String user = context.getSource().getClientInfo().getUniqueIdentifier();
+		UserConfig config = TS3Bot.getInstance().getUserConfig(user);
 		config.setLeaugeOfLegendsAlias(alias);
-		TS3Bot.getInstance().saveUserConfig(config);
+		TS3Bot.getInstance().saveUserConfig(user, config);
 		return 1;
 	}
 	

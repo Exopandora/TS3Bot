@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Maps;
@@ -24,14 +24,14 @@ public class UserConfigManager
 	
 	public UserConfig getUserConfig(String user)
 	{
-		return this.users.getOrDefault(user, new UserConfig(user));
+		return this.users.getOrDefault(user, new UserConfig());
 	}
 	
-	public void saveUserConfig(UserConfig config)
+	public void saveUserConfig(String user, UserConfig config)
 	{
 		synchronized(this.users)
 		{
-			this.users.put(config.getUser(), config);
+			this.users.put(user, config);
 			
 			try
 			{
@@ -46,21 +46,8 @@ public class UserConfigManager
 	
 	public static class UserConfig
 	{
-		@JsonIgnore
-		private final String user;
-		
+		@JsonProperty("leauge_of_legends_alias")
 		private String leaugeOfLegendsAlias = null;
-		
-		public UserConfig(String user)
-		{
-			this.user = user;
-		}
-		
-		@JsonIgnore
-		public String getUser()
-		{
-			return user;
-		}
 		
 		public String getLeaugeOfLegendsAlias()
 		{

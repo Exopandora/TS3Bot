@@ -247,9 +247,9 @@ public class TS3Bot extends TS3EventAdapter implements ConnectionHandler
 		return this.userConfigManager.getUserConfig(user);
 	}
 	
-	public void saveUserConfig(UserConfig config)
+	public void saveUserConfig(String user, UserConfig config)
 	{
-		this.userConfigManager.saveUserConfig(config);
+		this.userConfigManager.saveUserConfig(user, config);
 	}
 	
 	public void exit()
