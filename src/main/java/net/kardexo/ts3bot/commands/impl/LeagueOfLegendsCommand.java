@@ -122,7 +122,7 @@ public class LeagueOfLegendsCommand
 						
 						if(overview.summonerName().equalsIgnoreCase(username))
 						{
-							builder.append(" [b]" + overview.summonerName() + "[/b]");
+							builder.append(" [u]" + overview.summonerName() + "[/u]");
 						}
 						else
 						{
@@ -262,7 +262,7 @@ public class LeagueOfLegendsCommand
 			calendar.set(Calendar.MILLISECOND, 0);
 			
 			var today = calendar.getTime();
-			var builder = new StringBuilder();
+			var builder = new StringBuilder("\nMatch history for " + username + ":");
 			var champions = championsFuture.join();
 			var queues = queuesFuture.join();
 			var stats = new HistoryStats();
