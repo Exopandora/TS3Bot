@@ -59,6 +59,18 @@ public class LeagueOfLegends
 		return fetch(uri);
 	}
 	
+	public static JsonNode fetchItems() throws URISyntaxException, IOException
+	{
+		return fetchItems(fetchVersion());
+	}
+	
+	public static JsonNode fetchItems(String version) throws URISyntaxException, IOException
+	{
+		URI uri = DDRAGON_API_URL
+			.resolve("cdn/" + version + "/data/en_US/item.json");
+		return fetch(uri);
+	}
+	
 	public static JsonNode fetchMatchHistory(String summonerId, RegionV5 region, int start, int count) throws URISyntaxException, IOException
 	{
 		URI uri = new URIBuilder(region.getApiUrl().resolve("lol/match/v5/matches/by-puuid/" + summonerId + "/ids"))
