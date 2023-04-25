@@ -12,7 +12,7 @@ public class BotCommand
 	public static void register(CommandDispatcher<CommandSource> dispatcher)
 	{
 		dispatcher.register(Commands.literal("bot")
-				.executes(context -> bot(context)));
+			.executes(context -> bot(context)));
 	}
 	
 	private static int bot(CommandContext<CommandSource> context) throws CommandSyntaxException

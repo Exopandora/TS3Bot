@@ -43,14 +43,14 @@ public class CalculateCommand
 	public static void register(CommandDispatcher<CommandSource> dispatcher)
 	{
 		LiteralCommandNode<CommandSource> calculate = dispatcher.register(Commands.literal("calculate")
-				.then(Commands.argument("expression", StringArgumentType.greedyString())
-						.executes(context -> calculate(context, MATH_CONTEXT, StringArgumentType.getString(context, "expression"))))
-				.then(Commands.literal("precise")
-						.then(Commands.argument("precision", IntegerArgumentType.integer(1))
-								.then(Commands.argument("expression", StringArgumentType.greedyString())
-										.executes(context -> calculate(context, new MathContext(IntegerArgumentType.getInteger(context, "precision")), StringArgumentType.getString(context, "expression")))))));
+			.then(Commands.argument("expression", StringArgumentType.greedyString())
+				.executes(context -> calculate(context, MATH_CONTEXT, StringArgumentType.getString(context, "expression"))))
+			.then(Commands.literal("precise")
+				.then(Commands.argument("precision", IntegerArgumentType.integer(1))
+					.then(Commands.argument("expression", StringArgumentType.greedyString())
+						.executes(context -> calculate(context, new MathContext(IntegerArgumentType.getInteger(context, "precision")), StringArgumentType.getString(context, "expression")))))));
 		dispatcher.register(Commands.literal("calc")
-				.redirect(calculate));
+			.redirect(calculate));
 	}
 	
 	private static int calculate(CommandContext<CommandSource> context, MathContext mathContext, String expression) throws CommandSyntaxException

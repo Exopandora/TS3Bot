@@ -18,7 +18,7 @@ public class TwitchCommand
 		for(Entry<String, String> entry : TS3Bot.getInstance().getConfig().getShortcuts().getTwitch().entrySet())
 		{
 			dispatcher.register(Commands.literal(entry.getKey())
-					.executes(context -> TwitchCommand.twitch(context, entry.getValue())));
+				.executes(context -> TwitchCommand.twitch(context, entry.getValue())));
 		}
 	}
 	

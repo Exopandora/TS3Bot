@@ -17,15 +17,15 @@ public class BalanceCommand
 	public static void register(CommandDispatcher<CommandSource> dispatcher, TS3Bot ts3bot)
 	{
 		dispatcher.register(Commands.literal("balance")
-				.executes(context -> balance(context))
-				.then(Commands.literal("set")
-						.requires(source -> source.hasPermission("admin"))
-						.then(Commands.argument("value", IntegerArgumentType.integer(0))
-								.executes(context -> set(context, IntegerArgumentType.getInteger(context, "value")))
-								.then(Commands.argument("username", TS3UserArgumentType.client(ts3bot))
-										.executes(context -> set(context, IntegerArgumentType.getInteger(context, "value"), TS3UserArgumentType.getClient(context, "username"))))))
-				.then(Commands.argument("username", TS3UserArgumentType.client(ts3bot))
-						.executes(context -> balance(context, TS3UserArgumentType.getClient(context, "username")))));
+			.executes(context -> balance(context))
+			.then(Commands.literal("set")
+				.requires(source -> source.hasPermission("admin"))
+				.then(Commands.argument("value", IntegerArgumentType.integer(0))
+					.executes(context -> set(context, IntegerArgumentType.getInteger(context, "value")))
+					.then(Commands.argument("username", TS3UserArgumentType.client(ts3bot))
+						.executes(context -> set(context, IntegerArgumentType.getInteger(context, "value"), TS3UserArgumentType.getClient(context, "username"))))))
+			.then(Commands.argument("username", TS3UserArgumentType.client(ts3bot))
+				.executes(context -> balance(context, TS3UserArgumentType.getClient(context, "username")))));
 	}
 	
 	private static int set(CommandContext<CommandSource> context, int value) throws CommandSyntaxException

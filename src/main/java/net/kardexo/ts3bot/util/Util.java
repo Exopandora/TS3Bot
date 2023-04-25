@@ -107,13 +107,13 @@ public class Util
 	public static CloseableHttpClient httpClient(String cookieSpec)
 	{
 		RequestConfig config = RequestConfig.custom()
-				.setConnectionRequestTimeout(5000)
-				.setCookieSpec(cookieSpec)
-				.build();
+			.setConnectionRequestTimeout(5000)
+			.setCookieSpec(cookieSpec)
+			.build();
 		CloseableHttpClient client = HttpClientBuilder.create()
-				.setUserAgent(TS3Bot.USER_AGENT)
-				.setDefaultRequestConfig(config)
-				.build();
+			.setUserAgent(TS3Bot.USER_AGENT)
+			.setDefaultRequestConfig(config)
+			.build();
 		return client;
 	}
 	
@@ -159,8 +159,8 @@ public class Util
 	public static List<String> getClientNamesInChannel(int channelId)
 	{
 		return TS3Bot.getInstance().getApi().getClients().stream()
-				.filter(client -> client.getChannelId() == channelId && client.getId() != TS3Bot.getInstance().getId())
-				.map(client -> client.getNickname())
-				.collect(Collectors.toList());
+			.filter(client -> client.getChannelId() == channelId && client.getId() != TS3Bot.getInstance().getId())
+			.map(client -> client.getNickname())
+			.collect(Collectors.toList());
 	}
 }

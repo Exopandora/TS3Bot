@@ -24,10 +24,10 @@ public class TeamsCommand
 	public static void register(CommandDispatcher<CommandSource> dispatcher)
 	{
 		dispatcher.register(Commands.literal("teams")
-				.then(Commands.argument("team_count", IntegerArgumentType.integer())
-						.executes(context -> teams(context, IntegerArgumentType.getInteger(context, "team_count")))
-						.then(Commands.argument("players", WordListArgumentType.list())
-								.executes(context -> teams(context, IntegerArgumentType.getInteger(context, "team_count"), WordListArgumentType.getList(context, "players"))))));
+			.then(Commands.argument("team_count", IntegerArgumentType.integer())
+				.executes(context -> teams(context, IntegerArgumentType.getInteger(context, "team_count")))
+				.then(Commands.argument("players", WordListArgumentType.list())
+					.executes(context -> teams(context, IntegerArgumentType.getInteger(context, "team_count"), WordListArgumentType.getList(context, "players"))))));
 	}
 	
 	private static int teams(CommandContext<CommandSource> context, int teamCount) throws CommandSyntaxException

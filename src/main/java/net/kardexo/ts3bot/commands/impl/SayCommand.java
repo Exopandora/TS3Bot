@@ -14,9 +14,9 @@ public class SayCommand
 	public static void register(CommandDispatcher<CommandSource> dispatcher)
 	{
 		dispatcher.register(Commands.literal("say")
-				.requires(source -> source.getClientInfo().getId() == TS3Bot.getInstance().getId())
-				.then(Commands.argument("message", StringArgumentType.greedyString())
-						.executes(context -> say(context, StringArgumentType.getString(context, "message")))));
+			.requires(source -> source.getClientInfo().getId() == TS3Bot.getInstance().getId())
+			.then(Commands.argument("message", StringArgumentType.greedyString())
+				.executes(context -> say(context, StringArgumentType.getString(context, "message")))));
 	}
 	
 	private static int say(CommandContext<CommandSource> context, String message) throws CommandSyntaxException

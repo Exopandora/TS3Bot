@@ -13,8 +13,8 @@ public class SilentCommand
 	public static void register(CommandDispatcher<CommandSource> dispatcher)
 	{
 		dispatcher.register(Commands.literal("silent")
-				.requires(source -> source.hasPermission("admin"))
-				.executes(context -> silent(context)));
+			.requires(source -> source.hasPermission("admin"))
+			.executes(context -> silent(context)));
 	}
 	
 	private static int silent(CommandContext<CommandSource> context) throws CommandSyntaxException

@@ -19,10 +19,10 @@ public class MoveCommand
 	public static void register(CommandDispatcher<CommandSource> dispatcher)
 	{
 		dispatcher.register(Commands.literal("move")
-				.requires(source -> source.hasPermission("admin") && source.getClientInfo().getId() != TS3Bot.getInstance().getId())
-				.executes(context -> move(context))
-				.then(Commands.argument("channel", StringArgumentType.greedyString())
-						.executes(context -> move(context, StringArgumentType.getString(context, "channel")))));
+			.requires(source -> source.hasPermission("admin") && source.getClientInfo().getId() != TS3Bot.getInstance().getId())
+			.executes(context -> move(context))
+			.then(Commands.argument("channel", StringArgumentType.greedyString())
+				.executes(context -> move(context, StringArgumentType.getString(context, "channel")))));
 	}
 	
 	private static int move(CommandContext<CommandSource> context) throws CommandSyntaxException

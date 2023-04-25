@@ -25,9 +25,9 @@ public class HelpCommand
 	public static void register(CommandDispatcher<CommandSource> dispatcher)
 	{
 		dispatcher.register(Commands.literal("help")
-				.executes(context -> help(context, dispatcher))
-				.then(Commands.argument("command", StringArgumentType.greedyString())
-						.executes(context -> help(context, dispatcher, StringArgumentType.getString(context, "command")))));
+			.executes(context -> help(context, dispatcher))
+			.then(Commands.argument("command", StringArgumentType.greedyString())
+				.executes(context -> help(context, dispatcher, StringArgumentType.getString(context, "command")))));
 	}
 	
 	private static int help(CommandContext<CommandSource> context, CommandDispatcher<CommandSource> dispatcher) throws CommandSyntaxException

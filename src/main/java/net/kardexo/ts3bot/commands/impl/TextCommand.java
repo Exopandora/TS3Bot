@@ -18,7 +18,7 @@ public class TextCommand
 		for(Entry<String, JsonNode> entry : TS3Bot.getInstance().getConfig().getShortcuts().getText().entrySet())
 		{
 			dispatcher.register(Commands.literal(entry.getKey())
-					.executes(context -> text(context, entry.getValue())));
+				.executes(context -> text(context, entry.getValue())));
 		}
 	}
 	

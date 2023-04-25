@@ -17,7 +17,7 @@ public class PlayCommand
 	public static void register(CommandDispatcher<CommandSource> dispatcher)
 	{
 		dispatcher.register(Commands.literal("play")
-				.executes(PlayCommand::play));
+			.executes(PlayCommand::play));
 	}
 	
 	private static int play(CommandContext<CommandSource> context) throws CommandSyntaxException

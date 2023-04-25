@@ -25,23 +25,23 @@ public class Watch2GetherCommand
 	public static void register(CommandDispatcher<CommandSource> dispatcher)
 	{
 		LiteralArgumentBuilder<CommandSource> command = Commands.literal("watch2gether")
-				.executes(context -> watch2gether(context))
-				.then(Commands.argument("share", StringArgumentType.greedyString())
-						.executes(context -> watch2gether(context, Util.extract(StringArgumentType.getString(context, "share")))));
+			.executes(context -> watch2gether(context))
+			.then(Commands.argument("share", StringArgumentType.greedyString())
+				.executes(context -> watch2gether(context, Util.extract(StringArgumentType.getString(context, "share")))));
 		
 		for(Entry<String, String> entry : TS3Bot.getInstance().getConfig().getShortcuts().getYoutube().entrySet())
 		{
 			command = command.then(Commands.literal(entry.getKey())
-					.executes(context -> watch2gether(context, YOUTUBE_URL + YouTube.latestVideo(entry.getValue()).path("snippet").path("resourceId").path("videoId").asText()))
-					.then(Commands.literal("random")
-							.executes(context -> watch2gether(context, YOUTUBE_URL + YouTube.randomVideo(entry.getValue()).path("snippet").path("resourceId").path("videoId").asText()))));
+				.executes(context -> watch2gether(context, YOUTUBE_URL + YouTube.latestVideo(entry.getValue()).path("snippet").path("resourceId").path("videoId").asText()))
+				.then(Commands.literal("random")
+					.executes(context -> watch2gether(context, YOUTUBE_URL + YouTube.randomVideo(entry.getValue()).path("snippet").path("resourceId").path("videoId").asText()))));
 		}
 		
 		LiteralCommandNode<CommandSource> watch2gether = dispatcher.register(command);
 		
 		dispatcher.register(Commands.literal("w2g")
-				.executes(context -> watch2gether(context))
-				.redirect(watch2gether));
+			.executes(context -> watch2gether(context))
+			.redirect(watch2gether));
 	}
 	
 	public static int watch2gether(CommandContext<CommandSource> context) throws CommandSyntaxException

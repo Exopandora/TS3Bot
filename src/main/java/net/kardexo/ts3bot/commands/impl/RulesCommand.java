@@ -15,7 +15,7 @@ public class RulesCommand
 	public static void register(CommandDispatcher<CommandSource> dispatcher)
 	{
 		dispatcher.register(Commands.literal("rules")
-				.executes(context -> rules(context)));
+			.executes(context -> rules(context)));
 	}
 	
 	private static int rules(CommandContext<CommandSource> context) throws CommandSyntaxException

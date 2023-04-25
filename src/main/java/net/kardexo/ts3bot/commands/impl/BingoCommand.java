@@ -18,10 +18,10 @@ public class BingoCommand
 	public static void register(CommandDispatcher<CommandSource> dispatcher)
 	{
 		dispatcher.register(Commands.literal("bingo")
-				.requires(source -> source.getClientInfo().getId() != TS3Bot.getInstance().getId())
-				.executes(context -> bingo(context))
-				.then(Commands.literal("list")
-						.executes(context -> list(context))));
+			.requires(source -> source.getClientInfo().getId() != TS3Bot.getInstance().getId())
+			.executes(context -> bingo(context))
+			.then(Commands.literal("list")
+				.executes(context -> list(context))));
 	}
 	
 	private static int bingo(CommandContext<CommandSource> context)

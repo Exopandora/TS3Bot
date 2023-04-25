@@ -12,8 +12,8 @@ public class ExitCommand
 	public static void register(CommandDispatcher<CommandSource> dispatcher)
 	{
 		dispatcher.register(Commands.literal("exit")
-				.requires(source -> source.hasPermission("admin"))
-				.executes(context -> exit(context)));
+			.requires(source -> source.hasPermission("admin"))
+			.executes(context -> exit(context)));
 	}
 	
 	private static int exit(CommandContext<CommandSource> context) throws CommandSyntaxException

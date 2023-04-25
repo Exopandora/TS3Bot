@@ -20,9 +20,9 @@ public class TransferCommand
 	public static void register(CommandDispatcher<CommandSource> dispatcher, TS3Bot ts3bot)
 	{
 		dispatcher.register(Commands.literal("transfer")
-				.then(Commands.argument("amount", IntegerArgumentType.integer(0))
-						.then(Commands.argument("beneficiary", TS3UserArgumentType.client(ts3bot))
-								.executes(context -> transfer(context, IntegerArgumentType.getInteger(context, "amount"), TS3UserArgumentType.getClient(context, "beneficiary"))))));
+			.then(Commands.argument("amount", IntegerArgumentType.integer(0))
+				.then(Commands.argument("beneficiary", TS3UserArgumentType.client(ts3bot))
+					.executes(context -> transfer(context, IntegerArgumentType.getInteger(context, "amount"), TS3UserArgumentType.getClient(context, "beneficiary"))))));
 	}
 	
 	private static int transfer(CommandContext<CommandSource> context, int amount, Client beneficiary) throws CommandSyntaxException

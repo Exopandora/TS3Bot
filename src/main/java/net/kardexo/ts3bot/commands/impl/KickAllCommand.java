@@ -17,10 +17,10 @@ public class KickAllCommand
 	public static void register(CommandDispatcher<CommandSource> dispatcher)
 	{
 		dispatcher.register(Commands.literal("kickall")
-				.requires(source -> source.hasPermission("admin"))
-				.executes(context -> kick(context))
-				.then(Commands.argument("message", StringArgumentType.greedyString())
-						.executes(context -> kick(context, StringArgumentType.getString(context, "message")))));
+			.requires(source -> source.hasPermission("admin"))
+			.executes(context -> kick(context))
+			.then(Commands.argument("message", StringArgumentType.greedyString())
+				.executes(context -> kick(context, StringArgumentType.getString(context, "message")))));
 	}
 	
 	private static int kick(CommandContext<CommandSource> context) throws CommandSyntaxException

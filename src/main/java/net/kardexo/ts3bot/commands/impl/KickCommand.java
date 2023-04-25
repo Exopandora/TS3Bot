@@ -15,11 +15,11 @@ public class KickCommand
 	public static void register(CommandDispatcher<CommandSource> dispatcher, TS3Bot ts3bot)
 	{
 		dispatcher.register(Commands.literal("kick")
-				.requires(source -> source.getClientInfo().getId() != TS3Bot.getInstance().getId())
-				.executes(context -> kick(context))
-				.then(Commands.argument("username", TS3UserArgumentType.client(ts3bot))
-						.requires(source -> source.hasPermission("admin"))
-						.executes(context -> kick(context, TS3UserArgumentType.getClient(context, "username")))));
+			.requires(source -> source.getClientInfo().getId() != TS3Bot.getInstance().getId())
+			.executes(context -> kick(context))
+			.then(Commands.argument("username", TS3UserArgumentType.client(ts3bot))
+				.requires(source -> source.hasPermission("admin"))
+				.executes(context -> kick(context, TS3UserArgumentType.getClient(context, "username")))));
 	}
 	
 	private static int kick(CommandContext<CommandSource> context) throws CommandSyntaxException
