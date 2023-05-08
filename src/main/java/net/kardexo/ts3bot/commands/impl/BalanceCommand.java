@@ -10,7 +10,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.kardexo.ts3bot.TS3Bot;
 import net.kardexo.ts3bot.commands.CommandSource;
 import net.kardexo.ts3bot.commands.Commands;
-import net.kardexo.ts3bot.commands.arguments.TS3UserArgumentType;
+import net.kardexo.ts3bot.commands.arguments.ClientArgumentType;
 
 public class BalanceCommand
 {
@@ -22,10 +22,10 @@ public class BalanceCommand
 				.requires(source -> source.hasPermission("admin"))
 				.then(Commands.argument("value", IntegerArgumentType.integer(0))
 					.executes(context -> set(context, IntegerArgumentType.getInteger(context, "value")))
-					.then(Commands.argument("username", TS3UserArgumentType.client(ts3bot))
-						.executes(context -> set(context, IntegerArgumentType.getInteger(context, "value"), TS3UserArgumentType.getClient(context, "username"))))))
-			.then(Commands.argument("username", TS3UserArgumentType.client(ts3bot))
-				.executes(context -> balance(context, TS3UserArgumentType.getClient(context, "username")))));
+					.then(Commands.argument("username", ClientArgumentType.client(ts3bot))
+						.executes(context -> set(context, IntegerArgumentType.getInteger(context, "value"), ClientArgumentType.getClient(context, "username"))))))
+			.then(Commands.argument("username", ClientArgumentType.client(ts3bot))
+				.executes(context -> balance(context, ClientArgumentType.getClient(context, "username")))));
 	}
 	
 	private static int set(CommandContext<CommandSource> context, int value) throws CommandSyntaxException

@@ -19,7 +19,7 @@ import com.mojang.brigadier.exceptions.Dynamic2CommandExceptionType;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 
-public class TimerDurationArgumentType implements ArgumentType<Duration>
+public class DurationArgumentType implements ArgumentType<Duration>
 {
 	private static final Map<String, TimeUnit> IDENTIFIER_TO_TIMEUNIT = Arrays.stream(TimeUnit.values()).mapMulti((TimeUnit unit, Consumer<SimpleEntry<String, TimeUnit>> consumer) ->
 	{
@@ -106,9 +106,9 @@ public class TimerDurationArgumentType implements ArgumentType<Duration>
 		return Optional.of(unit.getMapper().apply((long) duration));
 	}
 	
-	public static TimerDurationArgumentType duration()
+	public static DurationArgumentType duration()
 	{
-		return new TimerDurationArgumentType();
+		return new DurationArgumentType();
 	}
 	
 	public static Duration getDuration(final CommandContext<?> context, final String name)

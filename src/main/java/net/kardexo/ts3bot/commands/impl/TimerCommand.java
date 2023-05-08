@@ -12,7 +12,7 @@ import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 
 import net.kardexo.ts3bot.commands.CommandSource;
 import net.kardexo.ts3bot.commands.Commands;
-import net.kardexo.ts3bot.commands.arguments.TimerDurationArgumentType;
+import net.kardexo.ts3bot.commands.arguments.DurationArgumentType;
 import net.kardexo.ts3bot.util.TimerThread;
 import net.kardexo.ts3bot.util.TimerThread.Timer;
 import net.kardexo.ts3bot.util.Util;
@@ -33,8 +33,8 @@ public class TimerCommand
 			.executes(context -> timer(context))
 			.then(Commands.literal("reset")
 				.executes(context -> reset(context)))
-			.then(Commands.argument("duration", TimerDurationArgumentType.duration())
-				.executes(context -> timer(context, TimerDurationArgumentType.getDuration(context, "duration")))));
+			.then(Commands.argument("duration", DurationArgumentType.duration())
+				.executes(context -> timer(context, DurationArgumentType.getDuration(context, "duration")))));
 	}
 	
 	private static int timer(CommandContext<CommandSource> context) throws CommandSyntaxException

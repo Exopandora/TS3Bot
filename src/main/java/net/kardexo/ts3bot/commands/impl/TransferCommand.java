@@ -11,7 +11,7 @@ import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import net.kardexo.ts3bot.TS3Bot;
 import net.kardexo.ts3bot.commands.CommandSource;
 import net.kardexo.ts3bot.commands.Commands;
-import net.kardexo.ts3bot.commands.arguments.TS3UserArgumentType;
+import net.kardexo.ts3bot.commands.arguments.ClientArgumentType;
 
 public class TransferCommand
 {
@@ -21,8 +21,8 @@ public class TransferCommand
 	{
 		dispatcher.register(Commands.literal("transfer")
 			.then(Commands.argument("amount", IntegerArgumentType.integer(0))
-				.then(Commands.argument("beneficiary", TS3UserArgumentType.client(ts3bot))
-					.executes(context -> transfer(context, IntegerArgumentType.getInteger(context, "amount"), TS3UserArgumentType.getClient(context, "beneficiary"))))));
+				.then(Commands.argument("beneficiary", ClientArgumentType.client(ts3bot))
+					.executes(context -> transfer(context, IntegerArgumentType.getInteger(context, "amount"), ClientArgumentType.getClient(context, "beneficiary"))))));
 	}
 	
 	private static int transfer(CommandContext<CommandSource> context, int amount, Client beneficiary) throws CommandSyntaxException
