@@ -29,6 +29,7 @@ import com.mojang.brigadier.CommandDispatcher;
 
 import net.kardexo.ts3bot.commands.CommandSource;
 import net.kardexo.ts3bot.commands.impl.BalanceCommand;
+import net.kardexo.ts3bot.commands.impl.BanCommand;
 import net.kardexo.ts3bot.commands.impl.BingoCommand;
 import net.kardexo.ts3bot.commands.impl.BotCommand;
 import net.kardexo.ts3bot.commands.impl.CalculateCommand;
@@ -148,6 +149,7 @@ public class TS3Bot extends TS3EventAdapter implements ConnectionHandler
 		BalanceCommand.register(this.dispatcher, this);
 		TransferCommand.register(this.dispatcher, this);
 		PlayCommand.register(this.dispatcher);
+		BanCommand.register(this.dispatcher, this);
 	}
 	
 	@Override
