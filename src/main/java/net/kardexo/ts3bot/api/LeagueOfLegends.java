@@ -280,7 +280,7 @@ public class LeagueOfLegends
 		{
 			StringBuilder builder = new StringBuilder(this.tier.getName());
 			
-			if(this.rank != null && this.tier.hasRanks())
+			if(this.rank != null && !this.tier.isApexTier())
 			{
 				builder.append(" " + this.rank);
 			}
@@ -402,6 +402,7 @@ public class LeagueOfLegends
 		SILVER("Silver", true),
 		GOLD("Gold", true),
 		PLATINUM("Platinum", true),
+		EMERALD("Emerald", true),
 		DIAMOND("Diamond", true),
 		MASTER("Master", false),
 		GRANDMASTER("Grandmaster", false),
@@ -412,12 +413,12 @@ public class LeagueOfLegends
 		public static final Tier[] VALUES = Tier.values();
 		
 		private final String name;
-		private final boolean hasRanks;
+		private final boolean isApexTier;
 		
-		private Tier(String name, boolean hasRanks)
+		private Tier(String name, boolean isApexTier)
 		{
 			this.name = name;
-			this.hasRanks = hasRanks;
+			this.isApexTier = isApexTier;
 		}
 		
 		public String getName()
@@ -425,14 +426,14 @@ public class LeagueOfLegends
 			return this.name;
 		}
 		
-		public boolean hasRanks()
+		public boolean isApexTier()
 		{
-			return this.hasRanks;
+			return this.isApexTier;
 		}
 		
 		public int rating(Rank rank)
 		{
-			return (this.ordinal() > 0 ? VALUES[this.ordinal() - 1].rating(Rank.I) : 0) + (this.hasRanks ? rank.getRating() : 1);
+			return (this.ordinal() > 0 ? VALUES[this.ordinal() - 1].rating(Rank.I) : 0) + (this.isApexTier ? rank.getRating() : 1);
 		}
 		
 		public Tier next()

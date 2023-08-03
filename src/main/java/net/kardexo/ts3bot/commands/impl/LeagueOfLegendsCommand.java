@@ -49,7 +49,7 @@ public class LeagueOfLegendsCommand
 		return new LiteralMessage(message != null && message instanceof Throwable ? LeagueOfLegendsCommand.getRootThrowable((Throwable) message).getMessage() : "Error fetching data");
 	});
 	private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd.MM");
-	private static final int MAX_RATING = Arrays.stream(Tier.VALUES).mapToInt(tier -> tier.hasRanks() ? Rank.VALUES.length : 1).sum();
+	private static final int MAX_RATING = Arrays.stream(Tier.VALUES).mapToInt(tier -> tier.isApexTier() ? 1 : Rank.VALUES.length).sum();
 	private static final String RED_COLOR = "#E62142";
 	private static final String BLUE_COLOR = "#4788B6";
 	
@@ -597,7 +597,7 @@ public class LeagueOfLegendsCommand
 			return new League(tier, rank);
 		}
 		
-		if(tier.hasRanks())
+		if(!tier.isApexTier())
 		{
 			if(rating - 1 < Rank.VALUES.length)
 			{
