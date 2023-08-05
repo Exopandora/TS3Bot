@@ -580,7 +580,7 @@ public class LeagueOfLegendsCommand
 		}
 	}
 	
-	private static Optional<League> ratingToLeague(int rating)
+	public static Optional<League> ratingToLeague(int rating)
 	{
 		if(rating <= 0 || rating > MAX_RATING)
 		{

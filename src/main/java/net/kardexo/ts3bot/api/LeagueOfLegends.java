@@ -397,16 +397,16 @@ public class LeagueOfLegends
 	
 	public static enum Tier
 	{
-		IRON("Iron", true),
-		BRONZE("Bronze", true),
-		SILVER("Silver", true),
-		GOLD("Gold", true),
-		PLATINUM("Platinum", true),
-		EMERALD("Emerald", true),
-		DIAMOND("Diamond", true),
-		MASTER("Master", false),
-		GRANDMASTER("Grandmaster", false),
-		CHALLENGER("Challenger", false);
+		IRON("Iron", false),
+		BRONZE("Bronze", false),
+		SILVER("Silver", false),
+		GOLD("Gold", false),
+		PLATINUM("Platinum", false),
+		EMERALD("Emerald", false),
+		DIAMOND("Diamond", false),
+		MASTER("Master", true),
+		GRANDMASTER("Grandmaster", true),
+		CHALLENGER("Challenger", true);
 		
 		public static final Tier HIGHEST = Tier.CHALLENGER;
 		public static final Tier LOWEST = Tier.IRON;
@@ -433,7 +433,7 @@ public class LeagueOfLegends
 		
 		public int rating(Rank rank)
 		{
-			return (this.ordinal() > 0 ? VALUES[this.ordinal() - 1].rating(Rank.I) : 0) + (this.isApexTier ? rank.getRating() : 1);
+			return (this.ordinal() > 0 ? VALUES[this.ordinal() - 1].rating(Rank.I) : 0) + (this.isApexTier ? 1 : rank.getRating());
 		}
 		
 		public Tier next()
