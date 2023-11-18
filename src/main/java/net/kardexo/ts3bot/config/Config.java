@@ -60,6 +60,9 @@ public class Config
 	@JsonProperty("currency")
 	private String currency;
 	
+	@JsonProperty("min_video_duration_youtube")
+	private int minVideoDurationYouTube;
+	
 	public Config()
 	{
 		super();
@@ -163,6 +166,11 @@ public class Config
 	public String getCurrency()
 	{
 		return this.currency;
+	}
+	
+	public int getMinVideoDurationYouTube()
+	{
+		return this.minVideoDurationYouTube;
 	}
 	
 	public static class Shortcuts

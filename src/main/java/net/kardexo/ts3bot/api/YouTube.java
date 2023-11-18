@@ -1,7 +1,9 @@
 package net.kardexo.ts3bot.api;
 
 import java.net.URI;
+import java.time.Duration;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.Predicate;
 
 import org.apache.http.client.utils.URIBuilder;
 
@@ -20,6 +22,12 @@ public class YouTube
 	private static final SimpleCommandExceptionType ERROR_LOADING_PLAYLIST = new SimpleCommandExceptionType(new LiteralMessage("Error loading playlist"));
 	private static final SimpleCommandExceptionType ERROR_LOADING_PLAYLIST_ITEMS = new SimpleCommandExceptionType(new LiteralMessage("Error loading playlist items"));
 	private static final SimpleCommandExceptionType ERROR_LOADING_PLAYLIST_LENGTH = new SimpleCommandExceptionType(new LiteralMessage("Error loading playlist length"));
+	public static final Predicate<JsonNode> MIN_DURATION_PREDICATE = video ->
+	{
+		Duration videoDuration = Duration.parse(video.path("contentDetails").path("duration").asText());
+		Duration minVideoDuration = Duration.ofSeconds(TS3Bot.getInstance().getConfig().getMinVideoDurationYouTube());
+		return videoDuration.compareTo(minVideoDuration) < 0;
+	};
 	
 	public static JsonNode watch(String id, long timestamp) throws CommandSyntaxException
 	{
@@ -47,9 +55,19 @@ public class YouTube
 		throw ERROR_LOADING_VIDEO.create();
 	}
 	
-	public static JsonNode latestVideo(String userId) throws CommandSyntaxException
+	public static JsonNode latestVideo(String userId, Predicate<JsonNode> predicate) throws CommandSyntaxException
 	{
-		return playlistItems(uploadsPlaylistId(userId), null, "snippet", MAX_RESULTS).path("items").get(0);
+		JsonNode videos = playlistItems(uploadsPlaylistId(userId), null, "snippet,contentDetails", MAX_RESULTS).path("items");
+		
+		for(JsonNode video : videos)
+		{
+			if(predicate.test(video))
+			{
+				return video;
+			}
+		}
+		
+		return videos.get(0);
 	}
 	
 	public static JsonNode randomVideo(String userId) throws CommandSyntaxException
