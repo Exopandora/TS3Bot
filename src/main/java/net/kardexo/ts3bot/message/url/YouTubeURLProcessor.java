@@ -46,7 +46,7 @@ public class YouTubeURLProcessor extends DefaultURLProcessor
 			try
 			{
 				long timestamp = YouTubeURLProcessor.parseTimestamp(query.get("t"));
-				JsonNode video = YouTube.watch(id, timestamp);
+				JsonNode video = YouTube.watch(id);
 				JsonNode snippet = video.path("snippet");
 				String channelTitle = snippet.path("channelTitle").asText();
 				String title = snippet.path("title").asText();

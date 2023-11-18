@@ -26,16 +26,21 @@ public class YouTube
 	{
 		Duration videoDuration = Duration.parse(video.path("contentDetails").path("duration").asText());
 		Duration minVideoDuration = Duration.ofSeconds(TS3Bot.getInstance().getConfig().getMinVideoDurationYouTube());
-		return videoDuration.compareTo(minVideoDuration) < 0;
+		return videoDuration.compareTo(minVideoDuration) > 0;
 	};
 	
-	public static JsonNode watch(String id, long timestamp) throws CommandSyntaxException
+	public static JsonNode watch(String id) throws CommandSyntaxException
+	{
+		return watch(id, "snippet");
+	}
+	
+	public static JsonNode watch(String id, String part) throws CommandSyntaxException
 	{
 		try
 		{
 			URI uri = new URIBuilder(API_URL.resolve("videos"))
 				.addParameter("id", id)
-				.addParameter("part", "snippet")
+				.addParameter("part", part)
 				.addParameter("key", TS3Bot.getInstance().getApiKeyManager().requestKey(TS3Bot.API_KEY_YOUTUBE))
 				.build();
 			
@@ -57,11 +62,11 @@ public class YouTube
 	
 	public static JsonNode latestVideo(String userId, Predicate<JsonNode> predicate) throws CommandSyntaxException
 	{
-		JsonNode videos = playlistItems(uploadsPlaylistId(userId), null, "snippet,contentDetails", MAX_RESULTS).path("items");
+		JsonNode videos = playlistItems(uploadsPlaylistId(userId), null, "snippet", MAX_RESULTS).path("items");
 		
 		for(JsonNode video : videos)
 		{
-			if(predicate.test(video))
+			if(predicate.test(watch(video.path("snippet").path("resourceId").path("videoId").asText(), "snippet,contentDetails")))
 			{
 				return video;
 			}
