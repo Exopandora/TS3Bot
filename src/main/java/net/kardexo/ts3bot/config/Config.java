@@ -62,7 +62,7 @@ public class Config
 	
 	@JsonProperty("min_video_duration_youtube")
 	private int minVideoDurationYouTube;
-	@JsonProperty("min_video_duration_youtube")
+	@JsonProperty("max_video_duration_youtube")
 	private int maxVideoDurationYouTube;
 	
 	public Config()
