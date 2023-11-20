@@ -90,5 +90,6 @@
 	},
 	"login_bonus": 500,
 	"currency": " CURRENCY",
-	"min_video_duration_youtube": 60
+	"min_video_duration_youtube": 60,
+	"max_video_duration_youtube": 3600
 }

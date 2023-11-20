@@ -62,6 +62,8 @@ public class Config
 	
 	@JsonProperty("min_video_duration_youtube")
 	private int minVideoDurationYouTube;
+	@JsonProperty("min_video_duration_youtube")
+	private int maxVideoDurationYouTube;
 	
 	public Config()
 	{
@@ -171,6 +173,11 @@ public class Config
 	public int getMinVideoDurationYouTube()
 	{
 		return this.minVideoDurationYouTube;
+	}
+	
+	public int getMaxVideoDurationYouTube()
+	{
+		return this.maxVideoDurationYouTube;
 	}
 	
 	public static class Shortcuts

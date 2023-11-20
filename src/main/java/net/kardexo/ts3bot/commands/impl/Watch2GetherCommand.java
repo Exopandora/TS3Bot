@@ -32,7 +32,7 @@ public class Watch2GetherCommand
 		for(Entry<String, String> entry : TS3Bot.getInstance().getConfig().getShortcuts().getYoutube().entrySet())
 		{
 			command = command.then(Commands.literal(entry.getKey())
-				.executes(context -> watch2gether(context, YOUTUBE_URL + YouTube.latestVideo(entry.getValue(), YouTube.MIN_DURATION_PREDICATE).path("snippet").path("resourceId").path("videoId").asText()))
+				.executes(context -> watch2gether(context, YOUTUBE_URL + YouTube.latestVideo(entry.getValue(), YouTube.VIDEO_DURATION_PREDICATE).path("snippet").path("resourceId").path("videoId").asText()))
 				.then(Commands.literal("random")
 					.executes(context -> watch2gether(context, YOUTUBE_URL + YouTube.randomVideo(entry.getValue()).path("snippet").path("resourceId").path("videoId").asText()))));
 		}

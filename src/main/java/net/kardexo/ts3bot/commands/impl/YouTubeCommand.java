@@ -21,7 +21,7 @@ public class YouTubeCommand
 		for(Entry<String, String> entry : TS3Bot.getInstance().getConfig().getShortcuts().getYoutube().entrySet())
 		{
 			dispatcher.register(Commands.literal(entry.getKey())
-				.executes(context -> youtube(context, YouTube.latestVideo(entry.getValue(), YouTube.MIN_DURATION_PREDICATE)))
+				.executes(context -> youtube(context, YouTube.latestVideo(entry.getValue(), YouTube.VIDEO_DURATION_PREDICATE)))
 				.then(Commands.literal("random")
 					.executes(context -> youtube(context, YouTube.randomVideo(entry.getValue())))));
 		}

@@ -28,6 +28,13 @@ public class YouTube
 		Duration minVideoDuration = Duration.ofSeconds(TS3Bot.getInstance().getConfig().getMinVideoDurationYouTube());
 		return videoDuration.compareTo(minVideoDuration) > 0;
 	};
+	public static final Predicate<JsonNode> MAX_DURATION_PREDICATE = video ->
+	{
+		Duration videoDuration = Duration.parse(video.path("contentDetails").path("duration").asText());
+		Duration maxVideoDuration = Duration.ofSeconds(TS3Bot.getInstance().getConfig().getMaxVideoDurationYouTube());
+		return videoDuration.compareTo(maxVideoDuration) <= 0;
+	};
+	public static final Predicate<JsonNode> VIDEO_DURATION_PREDICATE = MIN_DURATION_PREDICATE.and(MAX_DURATION_PREDICATE);
 	
 	public static JsonNode watch(String id) throws CommandSyntaxException
 	{
