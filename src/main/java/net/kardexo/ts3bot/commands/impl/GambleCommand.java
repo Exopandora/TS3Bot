@@ -39,13 +39,13 @@ public class GambleCommand
 		if(TS3Bot.RANDOM.nextBoolean())
 		{
 			manager.add(uuid, amount);
-			context.getSource().sendFeedback("You won " + amount + TS3Bot.getInstance().getConfig().getCurrency() + ". New balance: " + manager.get(uuid));
+			context.getSource().sendFeedback("You won " + amount + TS3Bot.getInstance().getConfig().getCurrency() + ". New balance: " + manager.get(uuid) + TS3Bot.getInstance().getConfig().getCurrency());
 			return (int) amount;
 		}
 		else
 		{
 			manager.subtract(uuid, amount);
-			context.getSource().sendFeedback("You lost " + amount + TS3Bot.getInstance().getConfig().getCurrency() + ". New balance: " + manager.get(uuid));
+			context.getSource().sendFeedback("You lost " + amount + TS3Bot.getInstance().getConfig().getCurrency() + ". New balance: " + manager.get(uuid) + TS3Bot.getInstance().getConfig().getCurrency());
 			return (int) -amount;
 		}
 	}
