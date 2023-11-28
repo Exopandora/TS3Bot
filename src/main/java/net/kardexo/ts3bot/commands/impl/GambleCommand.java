@@ -30,6 +30,7 @@ public class GambleCommand
 	{
 		CoinManager manager = TS3Bot.getInstance().getCoinManager();
 		String uuid = context.getSource().getClientInfo().getUniqueIdentifier();
+		String currency = TS3Bot.getInstance().getConfig().getCurrency();
 		
 		if(!manager.hasCoins(uuid, amount))
 		{
@@ -39,13 +40,13 @@ public class GambleCommand
 		if(TS3Bot.RANDOM.nextBoolean())
 		{
 			manager.add(uuid, amount);
-			context.getSource().sendFeedback("You won " + amount + TS3Bot.getInstance().getConfig().getCurrency() + ". New balance: " + manager.get(uuid) + TS3Bot.getInstance().getConfig().getCurrency());
+			context.getSource().sendFeedback("You won " + amount + currency + ". New balance: " + manager.get(uuid) + currency);
 			return (int) amount;
 		}
 		else
 		{
 			manager.subtract(uuid, amount);
-			context.getSource().sendFeedback("You lost " + amount + TS3Bot.getInstance().getConfig().getCurrency() + ". New balance: " + manager.get(uuid) + TS3Bot.getInstance().getConfig().getCurrency());
+			context.getSource().sendFeedback("You lost " + amount + currency + ". New balance: " + manager.get(uuid) + currency);
 			return (int) -amount;
 		}
 	}
