@@ -22,9 +22,9 @@ public class GambleCommand
 	{
 		CommandNode<CommandSource> gamble = dispatcher.register(Commands.literal("gamble")
 			.then(Commands.argument("amount", IntegerArgumentType.integer(1))
-				.executes(context -> gamble(context, IntegerArgumentType.getInteger(context, "gamble"), 0.5D))
+				.executes(context -> gamble(context, IntegerArgumentType.getInteger(context, "amount"), 0.5D))
 				.then(Commands.argument("win_chance", DoubleArgumentType.doubleArg(Double.MIN_VALUE, 1.0D))
-					.executes(context -> gamble(context, IntegerArgumentType.getInteger(context, "gamble"), DoubleArgumentType.getDouble(context, "win_chance"))))));
+					.executes(context -> gamble(context, IntegerArgumentType.getInteger(context, "amount"), DoubleArgumentType.getDouble(context, "win_chance"))))));
 		
 		dispatcher.register(Commands.literal("g").redirect(gamble));
 	}
