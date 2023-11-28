@@ -2,6 +2,7 @@ package net.kardexo.ts3bot.commands.impl;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.LiteralMessage;
+import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -21,13 +22,20 @@ public class GambleCommand
 	{
 		CommandNode<CommandSource> gamble = dispatcher.register(Commands.literal("gamble")
 			.then(Commands.argument("amount", IntegerArgumentType.integer(1))
-				.executes(context -> gamble(context, IntegerArgumentType.getInteger(context, "gamble")))));
+				.executes(context -> gamble(context, IntegerArgumentType.getInteger(context, "gamble"), 0.5D))
+				.then(Commands.argument("win_chance", DoubleArgumentType.doubleArg(Double.MIN_VALUE, 1.0D))
+					.executes(context -> gamble(context, IntegerArgumentType.getInteger(context, "gamble"), DoubleArgumentType.getDouble(context, "win_chance"))))));
 		
 		dispatcher.register(Commands.literal("g").redirect(gamble));
 	}
 	
-	private static int gamble(CommandContext<CommandSource> context, long amount) throws CommandSyntaxException
+	private static int gamble(CommandContext<CommandSource> context, long amount, double winpct) throws CommandSyntaxException
 	{
+		if(winpct >= 1.0D)
+		{
+			throw CommandSyntaxException.BUILT_IN_EXCEPTIONS.doubleTooHigh().create(winpct, 1.0D);
+		}
+		
 		CoinManager manager = TS3Bot.getInstance().getCoinManager();
 		String uuid = context.getSource().getClientInfo().getUniqueIdentifier();
 		String currency = TS3Bot.getInstance().getConfig().getCurrency();
@@ -37,10 +45,11 @@ public class GambleCommand
 			throw NOT_ENOUGH_COINS.create();
 		}
 		
-		if(TS3Bot.RANDOM.nextBoolean())
+		if(TS3Bot.RANDOM.nextDouble(1.0D) < winpct)
 		{
-			manager.add(uuid, amount);
-			context.getSource().sendFeedback("You won " + amount + currency + ". New balance: " + manager.get(uuid) + currency);
+			double multiplier = 1.0D / winpct;
+			manager.add(uuid, (long) Math.floor(amount * multiplier));
+			context.getSource().sendFeedback("You won " + amount + currency + " (multiplier: " + multiplier + "). New balance: " + manager.get(uuid) + currency);
 			return (int) amount;
 		}
 		else
