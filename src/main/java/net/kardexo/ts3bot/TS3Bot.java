@@ -34,6 +34,7 @@ import net.kardexo.ts3bot.commands.impl.BingoCommand;
 import net.kardexo.ts3bot.commands.impl.BotCommand;
 import net.kardexo.ts3bot.commands.impl.CalculateCommand;
 import net.kardexo.ts3bot.commands.impl.ExitCommand;
+import net.kardexo.ts3bot.commands.impl.GambleCommand;
 import net.kardexo.ts3bot.commands.impl.HelpCommand;
 import net.kardexo.ts3bot.commands.impl.KickAllCommand;
 import net.kardexo.ts3bot.commands.impl.KickCommand;
@@ -150,6 +151,7 @@ public class TS3Bot extends TS3EventAdapter implements ConnectionHandler
 		TransferCommand.register(this.dispatcher, this);
 		PlayCommand.register(this.dispatcher);
 		BanCommand.register(this.dispatcher, this);
+		GambleCommand.register(this.dispatcher);
 	}
 	
 	@Override
