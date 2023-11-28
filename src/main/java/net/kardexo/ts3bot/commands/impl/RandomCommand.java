@@ -4,6 +4,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.tree.LiteralCommandNode;
 
 import net.kardexo.ts3bot.TS3Bot;
 import net.kardexo.ts3bot.commands.CommandSource;
@@ -16,13 +17,15 @@ public class RandomCommand
 {
 	public static void register(CommandDispatcher<CommandSource> dispatcher)
 	{
-		dispatcher.register(Commands.literal("random")
+		LiteralCommandNode<CommandSource> random = dispatcher.register(Commands.literal("random")
 			.then(Commands.argument("bound", IntegerArgumentType.integer(1, Integer.MAX_VALUE - 1))
 				.executes(context -> randomBound(context, IntegerArgumentType.getInteger(context, "bound"))))
 			.then(Commands.argument("range", IntRangeArgumentType.range(0, Integer.MAX_VALUE))
 				.executes(context -> randomRange(context, IntRangeArgumentType.getRange(context, "range"))))
 			.then(Commands.argument("words", WordListArgumentType.list())
 				.executes(context -> randomWord(context, WordListArgumentType.getList(context, "words")))));
+		
+		dispatcher.register(Commands.literal("r").redirect(random));
 	}
 	
 	private static int randomBound(CommandContext<CommandSource> context, int bound) throws CommandSyntaxException
