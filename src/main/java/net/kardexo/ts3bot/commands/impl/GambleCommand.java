@@ -31,11 +31,6 @@ public class GambleCommand
 	
 	private static int gamble(CommandContext<CommandSource> context, long amount, double winpct) throws CommandSyntaxException
 	{
-		if(winpct >= 1.0D)
-		{
-			throw CommandSyntaxException.BUILT_IN_EXCEPTIONS.doubleTooHigh().create(winpct, 1.0D);
-		}
-		
 		CoinManager manager = TS3Bot.getInstance().getCoinManager();
 		String uuid = context.getSource().getClientInfo().getUniqueIdentifier();
 		String currency = TS3Bot.getInstance().getConfig().getCurrency();
@@ -47,7 +42,7 @@ public class GambleCommand
 		
 		if(TS3Bot.RANDOM.nextDouble(1.0D) < winpct)
 		{
-			double multiplier = 1.0D / winpct;
+			double multiplier = 1.0D / (1.0D - winpct);
 			manager.add(uuid, (long) Math.floor(amount * multiplier));
 			context.getSource().sendFeedback("You won " + amount + currency + " (multiplier: " + multiplier + "). New balance: " + manager.get(uuid) + currency);
 			return (int) amount;
