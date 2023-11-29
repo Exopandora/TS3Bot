@@ -74,7 +74,7 @@ public class YouTube
 		
 		for(JsonNode video : videos)
 		{
-			if(predicate.test(watch(videoId(video), "snippet,contentDetails")) && index++ < skip)
+			if(predicate.test(watch(videoId(video), "snippet,contentDetails")) && index++ >= skip)
 			{
 				return video;
 			}
