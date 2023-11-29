@@ -4,6 +4,7 @@ import java.util.Map.Entry;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
@@ -32,9 +33,11 @@ public class Watch2GetherCommand
 		for(Entry<String, String> entry : TS3Bot.getInstance().getConfig().getShortcuts().getYoutube().entrySet())
 		{
 			command = command.then(Commands.literal(entry.getKey())
-				.executes(context -> watch2gether(context, YOUTUBE_URL + YouTube.latestVideo(entry.getValue(), YouTube.VIDEO_DURATION_PREDICATE).path("snippet").path("resourceId").path("videoId").asText()))
+				.executes(context -> watch2gether(context, YOUTUBE_URL + YouTube.videoId(YouTube.latestVideo(entry.getValue(), YouTube.VIDEO_DURATION_PREDICATE, 0))))
 				.then(Commands.literal("random")
-					.executes(context -> watch2gether(context, YOUTUBE_URL + YouTube.randomVideo(entry.getValue()).path("snippet").path("resourceId").path("videoId").asText()))));
+					.executes(context -> watch2gether(context, YOUTUBE_URL + YouTube.videoId(YouTube.randomVideo(entry.getValue())))))
+				.then(Commands.argument("skip", IntegerArgumentType.integer(1, 25))
+					.executes(context -> watch2gether(context, YOUTUBE_URL + YouTube.videoId(YouTube.latestVideo(entry.getValue(), YouTube.VIDEO_DURATION_PREDICATE, IntegerArgumentType.getInteger(context, "skip")))))));
 		}
 		
 		LiteralCommandNode<CommandSource> watch2gether = dispatcher.register(command);

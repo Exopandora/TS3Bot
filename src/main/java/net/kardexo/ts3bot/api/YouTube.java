@@ -67,13 +67,14 @@ public class YouTube
 		throw ERROR_LOADING_VIDEO.create();
 	}
 	
-	public static JsonNode latestVideo(String userId, Predicate<JsonNode> predicate) throws CommandSyntaxException
+	public static JsonNode latestVideo(String userId, Predicate<JsonNode> predicate, int skip) throws CommandSyntaxException
 	{
 		JsonNode videos = playlistItems(uploadsPlaylistId(userId), null, "snippet", MAX_RESULTS).path("items");
+		int index = 0;
 		
 		for(JsonNode video : videos)
 		{
-			if(predicate.test(watch(video.path("snippet").path("resourceId").path("videoId").asText(), "snippet,contentDetails")))
+			if(predicate.test(watch(videoId(video), "snippet,contentDetails")) && index++ < skip)
 			{
 				return video;
 			}
@@ -198,5 +199,10 @@ public class YouTube
 		}
 		
 		throw ERROR_LOADING_PLAYLIST_ITEMS.create();
+	}
+	
+	public static String videoId(JsonNode video)
+	{
+		return video.path("snippet").path("resourceId").path("videoId").asText();
 	}
 }

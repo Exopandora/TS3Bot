@@ -4,6 +4,7 @@ import java.util.Map.Entry;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
@@ -21,9 +22,11 @@ public class YouTubeCommand
 		for(Entry<String, String> entry : TS3Bot.getInstance().getConfig().getShortcuts().getYoutube().entrySet())
 		{
 			dispatcher.register(Commands.literal(entry.getKey())
-				.executes(context -> youtube(context, YouTube.latestVideo(entry.getValue(), YouTube.VIDEO_DURATION_PREDICATE)))
+				.executes(context -> youtube(context, YouTube.latestVideo(entry.getValue(), YouTube.VIDEO_DURATION_PREDICATE, 0)))
 				.then(Commands.literal("random")
-					.executes(context -> youtube(context, YouTube.randomVideo(entry.getValue())))));
+					.executes(context -> youtube(context, YouTube.randomVideo(entry.getValue()))))
+				.then(Commands.argument("skip", IntegerArgumentType.integer(1, 25))
+					.executes(context -> youtube(context, YouTube.latestVideo(entry.getValue(), YouTube.VIDEO_DURATION_PREDICATE, IntegerArgumentType.getInteger(context, "skip"))))));
 		}
 	}
 	
