@@ -21,7 +21,7 @@ public class GambleCommand
 	public static void register(CommandDispatcher<CommandSource> dispatcher)
 	{
 		CommandNode<CommandSource> gamble = dispatcher.register(Commands.literal("gamble")
-			.then(Commands.argument("amount", IntegerArgumentType.integer(1))
+			.then(Commands.argument("amount", IntegerArgumentType.integer(5))
 				.executes(context -> gamble(context, IntegerArgumentType.getInteger(context, "amount"), 0.5D))
 				.then(Commands.argument("win_chance", DoubleArgumentType.doubleArg(Double.MIN_VALUE, 1.0D))
 					.executes(context -> gamble(context, IntegerArgumentType.getInteger(context, "amount"), DoubleArgumentType.getDouble(context, "win_chance"))))));
@@ -48,8 +48,9 @@ public class GambleCommand
 		if(TS3Bot.RANDOM.nextDouble(1.0D) < winpct)
 		{
 			double multiplier = (1.0D / winpct) - 1;
-			manager.add(uuid, (long) Math.floor(amount * multiplier));
-			context.getSource().sendFeedback("You won " + amount + currency + " (multiplier: " + multiplier + "). New balance: " + manager.get(uuid) + currency);
+			long win = (long) Math.floor(amount * multiplier);
+			manager.add(uuid, win);
+			context.getSource().sendFeedback("You won " + win + currency + " (multiplier: " + multiplier + "). New balance: " + manager.get(uuid) + currency);
 			return (int) amount;
 		}
 		else
