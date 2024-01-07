@@ -71,9 +71,9 @@ public class LeagueOfLegends
 		return fetch(uri);
 	}
 	
-	public static JsonNode fetchMatchHistory(String summonerId, RegionV5 region, int start, int count) throws URISyntaxException, IOException
+	public static JsonNode fetchMatchHistory(String puuid, RegionV5 region, int start, int count) throws URISyntaxException, IOException
 	{
-		URI uri = new URIBuilder(region.getApiUrl().resolve("lol/match/v5/matches/by-puuid/" + summonerId + "/ids"))
+		URI uri = new URIBuilder(region.getApiUrl().resolve("lol/match/v5/matches/by-puuid/" + puuid + "/ids"))
 			.addParameter("start", String.valueOf(start))
 			.addParameter("count", String.valueOf(count))
 			.build();
@@ -87,10 +87,10 @@ public class LeagueOfLegends
 		return fetch(uri, true);
 	}
 	
-	public static JsonNode fetchChampionMastery(String summonderId, long championId, Region region) throws URISyntaxException, IOException
+	public static JsonNode fetchChampionMastery(String puuid, long championId, Region region) throws URISyntaxException, IOException
 	{
 		URI uri = region.getApiUrl()
-			.resolve("lol/champion-mastery/v4/champion-masteries/by-summoner/" + summonderId + "/by-champion/" + championId);
+			.resolve("lol/champion-mastery/v4/champion-masteries/by-puuid/" + puuid + "/by-champion/" + championId);
 		return fetch(uri, true);
 	}
 	

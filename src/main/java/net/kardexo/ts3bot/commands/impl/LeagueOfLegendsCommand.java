@@ -318,8 +318,9 @@ public class LeagueOfLegendsCommand
 		if(!participant.path("bot").asBoolean())
 		{
 			var summonerId = LeagueOfLegends.encodeSummonerName(participant.path("summonerId").asText());
+			var puuid = participant.path("puuid").asText();
 			var league = CompletableFuture.supplyAsync(wrapException(() -> LeagueOfLegends.fetchLeague(summonerId, region)));
-			var mastery = CompletableFuture.supplyAsync(wrapException(() -> LeagueOfLegends.fetchChampionMastery(summonerId, championId, region)));
+			var mastery = CompletableFuture.supplyAsync(wrapException(() -> LeagueOfLegends.fetchChampionMastery(puuid, championId, region)));
 			return CompletableFuture.allOf(championFuture, league, mastery).thenApply(__ -> new SummonerOverview(summonerName, championFuture.join(), league.join(), mastery.join()));
 		}
 		
