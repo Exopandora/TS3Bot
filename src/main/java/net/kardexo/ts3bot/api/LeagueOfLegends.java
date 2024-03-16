@@ -111,7 +111,7 @@ public class LeagueOfLegends
 	public static JsonNode fetchActiveMatch(String puuid, Platform platform) throws URISyntaxException, IOException
 	{
 		URI uri = platform.getApiUrl()
-			.resolve("lol/spectator/v4/active-games/by-summoner/" + encode(puuid));
+			.resolve("lol/spectator/v5/active-games/by-summoner/" + encode(puuid));
 		return fetch(uri, true);
 	}
 	
