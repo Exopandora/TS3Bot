@@ -59,13 +59,13 @@ public class LeagueOfLegendsCommand
 	{
 		dispatcher.register(Commands.literal("lol")
 			.then(Commands.literal("match")
-				.executes(context -> match(context, riotIdForUser(context), TS3Bot.getInstance().getConfig().getLoLRegion()))
-				.then(Commands.argument("riot_id", RiotIdArgumentType.greedy(TS3Bot.getInstance().getConfig().getLoLRegion()))
-					.executes(context -> match(context, RiotIdArgumentType.getRiotId(context, "riot_id"), TS3Bot.getInstance().getConfig().getLoLRegion()))))
+				.executes(context -> match(context, riotIdForUser(context), TS3Bot.getInstance().getConfig().getLoLPlatform()))
+				.then(Commands.argument("riot_id", RiotIdArgumentType.greedy(TS3Bot.getInstance().getConfig().getLoLPlatform()))
+					.executes(context -> match(context, RiotIdArgumentType.getRiotId(context, "riot_id"), TS3Bot.getInstance().getConfig().getLoLPlatform()))))
 			.then(Commands.literal("history")
-				.executes(context -> history(context, riotIdForUser(context), TS3Bot.getInstance().getConfig().getLoLRegion()))
-				.then(Commands.argument("riot_id", RiotIdArgumentType.greedy(TS3Bot.getInstance().getConfig().getLoLRegion()))
-					.executes(context -> history(context, RiotIdArgumentType.getRiotId(context, "riot_id"), TS3Bot.getInstance().getConfig().getLoLRegion()))))
+				.executes(context -> history(context, riotIdForUser(context), TS3Bot.getInstance().getConfig().getLoLPlatform()))
+				.then(Commands.argument("riot_id", RiotIdArgumentType.greedy(TS3Bot.getInstance().getConfig().getLoLPlatform()))
+					.executes(context -> history(context, RiotIdArgumentType.getRiotId(context, "riot_id"), TS3Bot.getInstance().getConfig().getLoLPlatform()))))
 			.then(Commands.literal("lore")
 				.then(Commands.argument("champion", StringArgumentType.greedyString())
 					.executes(context -> lore(context, StringArgumentType.getString(context, "champion")))))
@@ -75,19 +75,19 @@ public class LeagueOfLegendsCommand
 			.then(Commands.literal("build")
 				.then(Commands.literal("for")
 					.then(Commands.argument("champion", StringArgumentType.string())
-						.executes(context -> build(context, BuildSelector.MINE, StringArgumentType.getString(context, "champion"), riotIdForUser(context), TS3Bot.getInstance().getConfig().getLoLRegion()))
-						.then(Commands.argument("riot_id", RiotIdArgumentType.greedy(TS3Bot.getInstance().getConfig().getLoLRegion()))
-							.executes(context -> build(context, BuildSelector.MINE, StringArgumentType.getString(context, "champion"), RiotIdArgumentType.getRiotId(context, "riot_id"), TS3Bot.getInstance().getConfig().getLoLRegion()))))
+						.executes(context -> build(context, BuildSelector.MINE, StringArgumentType.getString(context, "champion"), riotIdForUser(context), TS3Bot.getInstance().getConfig().getLoLPlatform()))
+						.then(Commands.argument("riot_id", RiotIdArgumentType.greedy(TS3Bot.getInstance().getConfig().getLoLPlatform()))
+							.executes(context -> build(context, BuildSelector.MINE, StringArgumentType.getString(context, "champion"), RiotIdArgumentType.getRiotId(context, "riot_id"), TS3Bot.getInstance().getConfig().getLoLPlatform()))))
 					.then(Commands.literal("enemy")
 						.then(Commands.argument("champion", StringArgumentType.string())
-							.executes(context -> build(context, BuildSelector.ENEMY, StringArgumentType.getString(context, "champion"), riotIdForUser(context), TS3Bot.getInstance().getConfig().getLoLRegion()))
-							.then(Commands.argument("riot_id", RiotIdArgumentType.greedy(TS3Bot.getInstance().getConfig().getLoLRegion()))
-									.executes(context -> build(context, BuildSelector.ENEMY, StringArgumentType.getString(context, "champion"), RiotIdArgumentType.getRiotId(context, "riot_id"), TS3Bot.getInstance().getConfig().getLoLRegion())))))
+							.executes(context -> build(context, BuildSelector.ENEMY, StringArgumentType.getString(context, "champion"), riotIdForUser(context), TS3Bot.getInstance().getConfig().getLoLPlatform()))
+							.then(Commands.argument("riot_id", RiotIdArgumentType.greedy(TS3Bot.getInstance().getConfig().getLoLPlatform()))
+									.executes(context -> build(context, BuildSelector.ENEMY, StringArgumentType.getString(context, "champion"), RiotIdArgumentType.getRiotId(context, "riot_id"), TS3Bot.getInstance().getConfig().getLoLPlatform())))))
 					.then(Commands.literal("ally")
 						.then(Commands.argument("champion", StringArgumentType.string())
-							.executes(context -> build(context, BuildSelector.ALLY, StringArgumentType.getString(context, "champion"), riotIdForUser(context), TS3Bot.getInstance().getConfig().getLoLRegion()))
-							.then(Commands.argument("riot_id", RiotIdArgumentType.greedy(TS3Bot.getInstance().getConfig().getLoLRegion()))
-								.executes(context -> build(context, BuildSelector.ALLY, StringArgumentType.getString(context, "champion"), RiotIdArgumentType.getRiotId(context, "riot_id"), TS3Bot.getInstance().getConfig().getLoLRegion()))))))));
+							.executes(context -> build(context, BuildSelector.ALLY, StringArgumentType.getString(context, "champion"), riotIdForUser(context), TS3Bot.getInstance().getConfig().getLoLPlatform()))
+							.then(Commands.argument("riot_id", RiotIdArgumentType.greedy(TS3Bot.getInstance().getConfig().getLoLPlatform()))
+								.executes(context -> build(context, BuildSelector.ALLY, StringArgumentType.getString(context, "champion"), RiotIdArgumentType.getRiotId(context, "riot_id"), TS3Bot.getInstance().getConfig().getLoLPlatform()))))))));
 	}
 	
 	private static int build(CommandContext<CommandSource> context, BuildSelector selector, String champion, RiotId riotId, Platform platform) throws CommandSyntaxException
@@ -649,7 +649,7 @@ public class LeagueOfLegendsCommand
 	{
 		ClientInfo clientInfo = context.getSource().getClientInfo();
 		UserConfig config = TS3Bot.getInstance().getUserConfig(clientInfo.getUniqueIdentifier());
-		Platform platform = TS3Bot.getInstance().getConfig().getLoLRegion();
+		Platform platform = TS3Bot.getInstance().getConfig().getLoLPlatform();
 		
 		if(config.getLeaugeOfLegendsAlias() != null)
 		{

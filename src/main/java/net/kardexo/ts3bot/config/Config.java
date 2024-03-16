@@ -125,7 +125,7 @@ public class Config
 		return this.defaultW2GBGOpacity;
 	}
 	
-	public Platform getLoLRegion()
+	public Platform getLoLPlatform()
 	{
 		return this.lolRegion;
 	}
