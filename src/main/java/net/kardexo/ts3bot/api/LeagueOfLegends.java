@@ -291,25 +291,33 @@ public class LeagueOfLegends
 	
 	public static enum Region
 	{
-		BR("br1", RegionV5.AMERICAS), 
-		EUNE("eun1", RegionV5.EUROPE),
-		EUW("euw1", RegionV5.EUROPE),
-		JP("jp1", RegionV5.ASIA),
-		KR("kr", RegionV5.ASIA),
-		LAN("la1", RegionV5.AMERICAS),
-		LAS("la2", RegionV5.AMERICAS),
-		NA("na1", RegionV5.AMERICAS),
-		OCE("oc1", RegionV5.AMERICAS),
-		TR("tr1", RegionV5.EUROPE),
-		RU("ru", RegionV5.EUROPE);
+		BR("br1", RegionV5.AMERICAS, "BR"), 
+		EUNE("eun1", RegionV5.EUROPE, "EUNE"),
+		EUW("euw1", RegionV5.EUROPE, "EUW"),
+		JP("jp1", RegionV5.ASIA, "JP"),
+		KR("kr", RegionV5.ASIA, "KR"),
+		LAN("la1", RegionV5.AMERICAS, "LAN"),
+		LAS("la2", RegionV5.AMERICAS, "LAS"),
+		NA("na1", RegionV5.AMERICAS, "NA"),
+		OCE("oc1", RegionV5.SEA, "OCE"),
+		TR("tr1", RegionV5.EUROPE, "TR"),
+		RU("ru", RegionV5.EUROPE, "RU"),
+		PH("ph2", RegionV5.SEA, "PH"),
+		SG("sg2", RegionV5.SEA, "SG"),
+		TH("th2", RegionV5.SEA, "TH"),
+		TW("tw2", RegionV5.SEA, "TW"),
+		VN("vn2", RegionV5.SEA, "VN"),
+		PBE("pbe", RegionV5.PBE, "PBE");
 		
 		private final String id;
+		private final String defaultTagLine;
 		private final RegionV5 regionV5;
 		
-		private Region(String id, RegionV5 regionV5)
+		private Region(String id, RegionV5 regionV5, String defaultTagLine)
 		{
 			this.id = id;
 			this.regionV5 = regionV5;
+			this.defaultTagLine = defaultTagLine;
 		}
 		
 		public String getId()
@@ -320,6 +328,11 @@ public class LeagueOfLegends
 		public RegionV5 getRegionV5()
 		{
 			return this.regionV5;
+		}
+		
+		public String getDefaultTagLine()
+		{
+			return this.defaultTagLine;
 		}
 		
 		public URI getApiUrl()
@@ -351,7 +364,11 @@ public class LeagueOfLegends
 	{
 		AMERICAS("americas"),
 		ASIA("asia"),
-		EUROPE("europe");
+		EUROPE("europe"),
+		SEA("sea"),
+		GARENA("garena"),
+		PBE("pbe"),
+		ESPORTS("esports");
 		
 		private final String id;
 		
