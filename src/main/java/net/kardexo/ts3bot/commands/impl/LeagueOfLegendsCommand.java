@@ -36,9 +36,11 @@ import net.kardexo.ts3bot.api.LeagueOfLegends;
 import net.kardexo.ts3bot.api.LeagueOfLegends.League;
 import net.kardexo.ts3bot.api.LeagueOfLegends.Rank;
 import net.kardexo.ts3bot.api.LeagueOfLegends.Region;
+import net.kardexo.ts3bot.api.LeagueOfLegends.RiotId;
 import net.kardexo.ts3bot.api.LeagueOfLegends.Tier;
 import net.kardexo.ts3bot.commands.CommandSource;
 import net.kardexo.ts3bot.commands.Commands;
+import net.kardexo.ts3bot.commands.arguments.RiotIdArgumentType;
 import net.kardexo.ts3bot.util.UserConfigManager.UserConfig;
 import net.kardexo.ts3bot.util.Util;
 
@@ -57,13 +59,13 @@ public class LeagueOfLegendsCommand
 	{
 		dispatcher.register(Commands.literal("lol")
 			.then(Commands.literal("match")
-				.executes(context -> match(context, getSummonerNameForUser(context), TS3Bot.getInstance().getConfig().getLoLRegion()))
-				.then(Commands.argument("summoner", StringArgumentType.greedyString())
-					.executes(context -> match(context, StringArgumentType.getString(context, "summoner"), TS3Bot.getInstance().getConfig().getLoLRegion()))))
+				.executes(context -> match(context, riotIdForUser(context), TS3Bot.getInstance().getConfig().getLoLRegion()))
+				.then(Commands.argument("riot_id", RiotIdArgumentType.greedy(TS3Bot.getInstance().getConfig().getLoLRegion()))
+					.executes(context -> match(context, RiotIdArgumentType.getRiotId(context, "riot_id"), TS3Bot.getInstance().getConfig().getLoLRegion()))))
 			.then(Commands.literal("history")
-				.executes(context -> history(context, getSummonerNameForUser(context), TS3Bot.getInstance().getConfig().getLoLRegion()))
-				.then(Commands.argument("summoner", StringArgumentType.greedyString())
-					.executes(context -> history(context, StringArgumentType.getString(context, "summoner"), TS3Bot.getInstance().getConfig().getLoLRegion()))))
+				.executes(context -> history(context, riotIdForUser(context), TS3Bot.getInstance().getConfig().getLoLRegion()))
+				.then(Commands.argument("riot_id", RiotIdArgumentType.greedy(TS3Bot.getInstance().getConfig().getLoLRegion()))
+					.executes(context -> history(context, RiotIdArgumentType.getRiotId(context, "riot_id"), TS3Bot.getInstance().getConfig().getLoLRegion()))))
 			.then(Commands.literal("lore")
 				.then(Commands.argument("champion", StringArgumentType.greedyString())
 					.executes(context -> lore(context, StringArgumentType.getString(context, "champion")))))
@@ -73,41 +75,41 @@ public class LeagueOfLegendsCommand
 			.then(Commands.literal("build")
 				.then(Commands.literal("for")
 					.then(Commands.argument("champion", StringArgumentType.string())
-						.executes(context -> build(context, BuildSelector.MINE, StringArgumentType.getString(context, "champion"), getSummonerNameForUser(context), TS3Bot.getInstance().getConfig().getLoLRegion()))
-						.then(Commands.argument("summoner", StringArgumentType.greedyString())
-							.executes(context -> build(context, BuildSelector.MINE, StringArgumentType.getString(context, "champion"), StringArgumentType.getString(context, "summoner"), TS3Bot.getInstance().getConfig().getLoLRegion()))))
+						.executes(context -> build(context, BuildSelector.MINE, StringArgumentType.getString(context, "champion"), riotIdForUser(context), TS3Bot.getInstance().getConfig().getLoLRegion()))
+						.then(Commands.argument("riot_id", RiotIdArgumentType.greedy(TS3Bot.getInstance().getConfig().getLoLRegion()))
+							.executes(context -> build(context, BuildSelector.MINE, StringArgumentType.getString(context, "champion"), RiotIdArgumentType.getRiotId(context, "riot_id"), TS3Bot.getInstance().getConfig().getLoLRegion()))))
 					.then(Commands.literal("enemy")
 						.then(Commands.argument("champion", StringArgumentType.string())
-							.executes(context -> build(context, BuildSelector.ENEMY, StringArgumentType.getString(context, "champion"), getSummonerNameForUser(context), TS3Bot.getInstance().getConfig().getLoLRegion()))
-							.then(Commands.argument("summoner", StringArgumentType.greedyString())
-									.executes(context -> build(context, BuildSelector.ENEMY, StringArgumentType.getString(context, "champion"), StringArgumentType.getString(context, "summoner"), TS3Bot.getInstance().getConfig().getLoLRegion())))))
+							.executes(context -> build(context, BuildSelector.ENEMY, StringArgumentType.getString(context, "champion"), riotIdForUser(context), TS3Bot.getInstance().getConfig().getLoLRegion()))
+							.then(Commands.argument("riot_id", RiotIdArgumentType.greedy(TS3Bot.getInstance().getConfig().getLoLRegion()))
+									.executes(context -> build(context, BuildSelector.ENEMY, StringArgumentType.getString(context, "champion"), RiotIdArgumentType.getRiotId(context, "riot_id"), TS3Bot.getInstance().getConfig().getLoLRegion())))))
 					.then(Commands.literal("ally")
 						.then(Commands.argument("champion", StringArgumentType.string())
-							.executes(context -> build(context, BuildSelector.ALLY, StringArgumentType.getString(context, "champion"), getSummonerNameForUser(context), TS3Bot.getInstance().getConfig().getLoLRegion()))
-							.then(Commands.argument("summoner", StringArgumentType.greedyString())
-								.executes(context -> build(context, BuildSelector.ALLY, StringArgumentType.getString(context, "champion"), StringArgumentType.getString(context, "summoner"), TS3Bot.getInstance().getConfig().getLoLRegion()))))))));
+							.executes(context -> build(context, BuildSelector.ALLY, StringArgumentType.getString(context, "champion"), riotIdForUser(context), TS3Bot.getInstance().getConfig().getLoLRegion()))
+							.then(Commands.argument("riot_id", RiotIdArgumentType.greedy(TS3Bot.getInstance().getConfig().getLoLRegion()))
+								.executes(context -> build(context, BuildSelector.ALLY, StringArgumentType.getString(context, "champion"), RiotIdArgumentType.getRiotId(context, "riot_id"), TS3Bot.getInstance().getConfig().getLoLRegion()))))))));
 	}
 	
-	private static int build(CommandContext<CommandSource> context, BuildSelector selector, String champion, String username, Region region) throws CommandSyntaxException
+	private static int build(CommandContext<CommandSource> context, BuildSelector selector, String champion, RiotId riotId, Region region) throws CommandSyntaxException
 	{
 		var itemsFuture = CompletableFuture.supplyAsync(wrapException(() -> LeagueOfLegends.fetchItems()));
 		var build = CompletableFuture.supplyAsync(wrapException(() ->
 		{
-			var summoner = LeagueOfLegends.fetchSummoner(username, region);
+			var account = LeagueOfLegends.fetchAccount(riotId, region);
 			
-			if(summoner.hasNonNull("status"))
+			if(account.hasNonNull("status"))
 			{
-				throw new RuntimeException("Could not find summoner " + username);
+				throw new RuntimeException("Could not find user " + riotId);
 			}
 			
-			return summoner.path("puuid").asText();
+			return account.path("puuid").asText();
 		})).thenApplyAsync(wrapException(puuid ->
 		{
 			var matchIds = LeagueOfLegends.fetchMatchHistory(puuid, region.getRegionV5(), 0, 20);
 			
 			if(matchIds.isEmpty())
 			{
-				throw new RuntimeException(username + " has not played any games yet");
+				throw new RuntimeException(riotId + " has not played any games yet");
 			}
 			
 			var matches = new ArrayList<CompletableFuture<JsonNode>>(matchIds.size());
@@ -186,11 +188,11 @@ public class LeagueOfLegendsCommand
 			switch(selector)
 			{
 				case MINE:
-					throw new RuntimeException("Could not find build for " + champion + " in the match history for " + username);
+					throw new RuntimeException("Could not find build for " + champion + " in the match history for " + riotId);
 				case ALLY:
-					throw new RuntimeException("Could not find build for ally " + champion + " in the match history for " + username);
+					throw new RuntimeException("Could not find build for ally " + champion + " in the match history for " + riotId);
 				case ENEMY:
-					throw new RuntimeException("Could not find build for enemy " + champion + " in the match history for " + username);
+					throw new RuntimeException("Could not find build for enemy " + champion + " in the match history for " + riotId);
 				default:
 					throw new RuntimeException("Invalid build selector " + selector);
 			}
@@ -206,24 +208,25 @@ public class LeagueOfLegendsCommand
 		}
 	}
 	
-	private static int match(CommandContext<CommandSource> context, String username, Region region) throws CommandSyntaxException
+	private static int match(CommandContext<CommandSource> context, RiotId riotId, Region region) throws CommandSyntaxException
 	{
 		var championsFuture = CompletableFuture.supplyAsync(wrapException(() -> LeagueOfLegends.fetchChampions()));
 		var queuesFuture = CompletableFuture.supplyAsync(wrapException(LeagueOfLegends::fetchQueues));
 		var match = CompletableFuture.supplyAsync(wrapException(() ->
 		{
-			var summoner = LeagueOfLegends.fetchSummoner(username, region);
+			var account = LeagueOfLegends.fetchAccount(riotId, region);
 			
-			if(summoner.hasNonNull("status"))
+			if(account.hasNonNull("status"))
 			{
-				throw new RuntimeException("Could not find summoner " + username);
+				throw new RuntimeException("Could not find user " + riotId);
 			}
 			
-			var activeMatch = LeagueOfLegends.fetchActiveMatch(summoner.path("id").asText(), region);
+			var puuid = account.path("puuid").asText();
+			var activeMatch = LeagueOfLegends.fetchActiveMatch(puuid, region);
 			
 			if(activeMatch.hasNonNull("status"))
 			{
-				throw new RuntimeException(username + " is currently not in an active game");
+				throw new RuntimeException(riotId + " is currently not in an active game");
 			}
 			
 			var participants = activeMatch.path("participants");
@@ -254,7 +257,7 @@ public class LeagueOfLegendsCommand
 						
 						builder.append("\n[color=" + color + "]" + overview.champion() + "[/color]");
 						
-						if(overview.summonerName().equalsIgnoreCase(username))
+						if(puuid.equals(overview.puuid()))
 						{
 							builder.append(" [u]" + overview.summonerName() + "[/u]");
 						}
@@ -317,17 +320,17 @@ public class LeagueOfLegendsCommand
 		
 		if(!participant.path("bot").asBoolean())
 		{
-			var summonerId = LeagueOfLegends.encodeSummonerName(participant.path("summonerId").asText());
+			var summonerId = LeagueOfLegends.encode(participant.path("summonerId").asText());
 			var puuid = participant.path("puuid").asText();
 			var league = CompletableFuture.supplyAsync(wrapException(() -> LeagueOfLegends.fetchLeague(summonerId, region)));
 			var mastery = CompletableFuture.supplyAsync(wrapException(() -> LeagueOfLegends.fetchChampionMastery(puuid, championId, region)));
-			return CompletableFuture.allOf(championFuture, league, mastery).thenApply(__ -> new SummonerOverview(summonerName, championFuture.join(), league.join(), mastery.join()));
+			return CompletableFuture.allOf(championFuture, league, mastery).thenApply(__ -> new SummonerOverview(summonerName, puuid, championFuture.join(), league.join(), mastery.join()));
 		}
 		
-		return championFuture.thenApply(champion -> new SummonerOverview(summonerName, champion, null, null));
+		return championFuture.thenApply(champion -> new SummonerOverview(summonerName, null, champion, null, null));
 	}
 	
-	private static record SummonerOverview(String summonerName, String champion, JsonNode league, JsonNode mastery)
+	private static record SummonerOverview(String summonerName, String puuid, String champion, JsonNode league, JsonNode mastery)
 	{
 		public String masteryString()
 		{
@@ -360,27 +363,27 @@ public class LeagueOfLegendsCommand
 		}
 	}
 	
-	private static int history(CommandContext<CommandSource> context, String username, Region region) throws CommandSyntaxException
+	private static int history(CommandContext<CommandSource> context, RiotId riotId, Region region) throws CommandSyntaxException
 	{
 		var queuesFuture = CompletableFuture.supplyAsync(wrapException(LeagueOfLegends::fetchQueues));
 		var championsFuture = CompletableFuture.supplyAsync(wrapException(() -> LeagueOfLegends.fetchChampions()));
 		var history = CompletableFuture.supplyAsync(wrapException(() ->
 		{
-			var summoner = LeagueOfLegends.fetchSummoner(username, region);
+			var account = LeagueOfLegends.fetchAccount(riotId, region);
 			
-			if(summoner.hasNonNull("status"))
+			if(account.hasNonNull("status"))
 			{
-				throw new RuntimeException("Could not find summoner " + username);
+				throw new RuntimeException("Could not find user " + riotId);
 			}
 			
-			return summoner.path("puuid").asText();
+			return account.path("puuid").asText();
 		})).thenApplyAsync(wrapException(puuid ->
 		{
 			var matchIds = LeagueOfLegends.fetchMatchHistory(puuid, region.getRegionV5(), 0, 20);
 			
 			if(matchIds.isEmpty())
 			{
-				throw new RuntimeException(username + " has not played any games yet");
+				throw new RuntimeException(riotId + " has not played any games yet");
 			}
 			
 			var matches = new ArrayList<CompletableFuture<JsonNode>>(matchIds.size());
@@ -397,7 +400,7 @@ public class LeagueOfLegendsCommand
 			calendar.set(Calendar.MILLISECOND, 0);
 			
 			var today = calendar.getTime();
-			var builder = new StringBuilder("\nMatch history for " + username + ":");
+			var builder = new StringBuilder("\nMatch history for " + riotId + ":");
 			var champions = championsFuture.join();
 			var queues = queuesFuture.join();
 			var stats = new HistoryStats();
@@ -642,17 +645,18 @@ public class LeagueOfLegendsCommand
 		return map;
 	}
 	
-	private static String getSummonerNameForUser(CommandContext<CommandSource> context)
+	private static RiotId riotIdForUser(CommandContext<CommandSource> context)
 	{
 		ClientInfo clientInfo = context.getSource().getClientInfo();
 		UserConfig config = TS3Bot.getInstance().getUserConfig(clientInfo.getUniqueIdentifier());
+		Region region = TS3Bot.getInstance().getConfig().getLoLRegion();
 		
 		if(config.getLeaugeOfLegendsAlias() != null)
 		{
-			return config.getLeaugeOfLegendsAlias();
+			return RiotId.parse(config.getLeaugeOfLegendsAlias(), region);
 		}
 		
-		return clientInfo.getNickname();
+		return RiotId.parse(clientInfo.getNickname(), region);
 	}
 	
 	private static String createBuildResponse(JsonNode participant, JsonNode player, JsonNode items)

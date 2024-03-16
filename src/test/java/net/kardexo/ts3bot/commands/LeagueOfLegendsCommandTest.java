@@ -6,11 +6,26 @@ import org.junit.jupiter.api.Test;
 
 import net.kardexo.ts3bot.api.LeagueOfLegends.League;
 import net.kardexo.ts3bot.api.LeagueOfLegends.Rank;
+import net.kardexo.ts3bot.api.LeagueOfLegends.Region;
+import net.kardexo.ts3bot.api.LeagueOfLegends.RiotId;
 import net.kardexo.ts3bot.api.LeagueOfLegends.Tier;
 import net.kardexo.ts3bot.commands.impl.LeagueOfLegendsCommand;
 
 class LeagueOfLegendsCommandTest
 {
+	@Test
+	void testRiotIdParsing()
+	{
+		assertEquals(new RiotId("abc", "ABC"), RiotId.parse("abc#ABC", Region.EUW));
+		assertEquals(new RiotId("abc", "FIVE5"), RiotId.parse("abc#FIVE5", Region.EUW));
+		assertEquals(new RiotId("abc#SIX666", "EUW"), RiotId.parse("abc#SIX666", Region.EUW));
+		assertEquals(new RiotId("abc#T2", "EUW"), RiotId.parse("abc#T2", Region.EUW));
+		assertEquals(new RiotId("abc", "NA"), RiotId.parse("abc", Region.NA));
+		assertEquals(new RiotId("#abc", "EUW"), RiotId.parse("#abc", Region.EUW));
+		assertEquals(new RiotId("#abc", "NA"), RiotId.parse("#abc#NA", Region.NA));
+		assertEquals(new RiotId("#abc#N", "EUW"), RiotId.parse("#abc#N", Region.EUW));
+	}
+	
 	@Test
 	void testLeagueToRating()
 	{

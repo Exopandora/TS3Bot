@@ -94,10 +94,10 @@ public class LeagueOfLegends
 		return fetch(uri, true);
 	}
 	
-	public static JsonNode fetchSummoner(String summonerName, Region region) throws URISyntaxException, IOException
+	public static JsonNode fetchAccount(RiotId riotId, Region region) throws URISyntaxException, IOException
 	{
-		URI uri = region.getApiUrl()
-			.resolve("lol/summoner/v4/summoners/by-name/" + encodeSummonerName(summonerName));
+		URI uri = region.getRegionApiUrl()
+			.resolve("riot/account/v1/accounts/by-riot-id/" + encode(riotId.name()) + "/" + encode(riotId.tagLine()));
 		return fetch(uri, true);
 	}
 	
@@ -108,10 +108,10 @@ public class LeagueOfLegends
 		return fetch(uri, true);
 	}
 	
-	public static JsonNode fetchActiveMatch(String summonerId, Region region) throws URISyntaxException, IOException
+	public static JsonNode fetchActiveMatch(String puuid, Region region) throws URISyntaxException, IOException
 	{
 		URI uri = region.getApiUrl()
-			.resolve("lol/spectator/v4/active-games/by-summoner/" + summonerId);
+			.resolve("lol/spectator/v4/active-games/by-summoner/" + encode(puuid));
 		return fetch(uri, true);
 	}
 	
@@ -140,7 +140,7 @@ public class LeagueOfLegends
 		}
 	}
 	
-	public static String encodeSummonerName(String summonerName)
+	public static String encode(String summonerName)
 	{
 		try
 		{
@@ -340,6 +340,11 @@ public class LeagueOfLegends
 			return URI.create(String.format(API_URL, this.id));
 		}
 		
+		public URI getRegionApiUrl()
+		{
+			return URI.create(String.format(API_URL, this.regionV5));
+		}
+		
 		@Override
 		public String toString()
 		{
@@ -351,6 +356,19 @@ public class LeagueOfLegends
 			for(Region region : Region.values())
 			{
 				if(region.name().equals(input))
+				{
+					return region;
+				}
+			}
+			
+			return null;
+		}
+		
+		public static Region fromTagLine(String tagLine)
+		{
+			for(Region region : Region.values())
+			{
+				if(region.getDefaultTagLine().equals(tagLine))
 				{
 					return region;
 				}
@@ -478,6 +496,32 @@ public class LeagueOfLegends
 		public Rank next()
 		{
 			return VALUES[(this.ordinal() + 1) % VALUES.length];
+		}
+	}
+	
+	public static record RiotId(String name, String tagLine)
+	{
+		@Override
+		public String toString()
+		{
+			return this.name + "#" + this.tagLine;
+		}
+		
+		public static RiotId parse(String riotId, Region defaultRegion)
+		{
+			int index = riotId.lastIndexOf('#');
+			
+			if(index > 0 && riotId.length() - index - 1 <= 5 && index + 2 < riotId.length())
+			{
+				String tagLine = riotId.substring(index + 1);
+				
+				if(tagLine.matches("[0-9a-zA-Z]{3,5}") || Region.fromTagLine(tagLine) != null)
+				{
+					return new RiotId(riotId.substring(0, index), tagLine);
+				}
+			}
+			
+			return new RiotId(riotId, defaultRegion.getDefaultTagLine());
 		}
 	}
 }
