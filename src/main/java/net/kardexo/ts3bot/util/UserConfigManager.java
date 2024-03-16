@@ -51,7 +51,7 @@ public class UserConfigManager
 		
 		public String getLeaugeOfLegendsAlias()
 		{
-			return leaugeOfLegendsAlias;
+			return this.leaugeOfLegendsAlias;
 		}
 		
 		public void setLeaugeOfLegendsAlias(String leaugeOfLegendsAlias)
