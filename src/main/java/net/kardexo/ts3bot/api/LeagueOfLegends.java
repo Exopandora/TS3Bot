@@ -71,7 +71,7 @@ public class LeagueOfLegends
 		return fetch(uri);
 	}
 	
-	public static JsonNode fetchMatchHistory(String puuid, RegionV5 region, int start, int count) throws URISyntaxException, IOException
+	public static JsonNode fetchMatchHistory(String puuid, Region region, int start, int count) throws URISyntaxException, IOException
 	{
 		URI uri = new URIBuilder(region.getApiUrl().resolve("lol/match/v5/matches/by-puuid/" + puuid + "/ids"))
 			.addParameter("start", String.valueOf(start))
@@ -80,37 +80,37 @@ public class LeagueOfLegends
 		return fetch(uri, true);
 	}
 	
-	public static JsonNode fetchMatch(String matchId, RegionV5 region) throws URISyntaxException, IOException
+	public static JsonNode fetchMatch(String matchId, Region region) throws URISyntaxException, IOException
 	{
 		URI uri = region.getApiUrl()
 			.resolve("lol/match/v5/matches/" + matchId);
 		return fetch(uri, true);
 	}
 	
-	public static JsonNode fetchChampionMastery(String puuid, long championId, Region region) throws URISyntaxException, IOException
+	public static JsonNode fetchChampionMastery(String puuid, long championId, Platform platform) throws URISyntaxException, IOException
 	{
-		URI uri = region.getApiUrl()
+		URI uri = platform.getApiUrl()
 			.resolve("lol/champion-mastery/v4/champion-masteries/by-puuid/" + puuid + "/by-champion/" + championId);
 		return fetch(uri, true);
 	}
 	
-	public static JsonNode fetchAccount(RiotId riotId, Region region) throws URISyntaxException, IOException
+	public static JsonNode fetchAccount(RiotId riotId, Platform platform) throws URISyntaxException, IOException
 	{
-		URI uri = region.getRegionApiUrl()
+		URI uri = platform.getRegion().getApiUrl()
 			.resolve("riot/account/v1/accounts/by-riot-id/" + encode(riotId.name()) + "/" + encode(riotId.tagLine()));
 		return fetch(uri, true);
 	}
 	
-	public static JsonNode fetchLeague(String summonerId, Region region) throws URISyntaxException, IOException
+	public static JsonNode fetchLeague(String summonerId, Platform platform) throws URISyntaxException, IOException
 	{
-		URI uri = region.getApiUrl()
+		URI uri = platform.getApiUrl()
 			.resolve("lol/league/v4/entries/by-summoner/" + summonerId);
 		return fetch(uri, true);
 	}
 	
-	public static JsonNode fetchActiveMatch(String puuid, Region region) throws URISyntaxException, IOException
+	public static JsonNode fetchActiveMatch(String puuid, Platform platform) throws URISyntaxException, IOException
 	{
-		URI uri = region.getApiUrl()
+		URI uri = platform.getApiUrl()
 			.resolve("lol/spectator/v4/active-games/by-summoner/" + encode(puuid));
 		return fetch(uri, true);
 	}
@@ -289,34 +289,34 @@ public class LeagueOfLegends
 		}
 	}
 	
-	public static enum Region
+	public static enum Platform
 	{
-		BR("br1", RegionV5.AMERICAS, "BR"), 
-		EUNE("eun1", RegionV5.EUROPE, "EUNE"),
-		EUW("euw1", RegionV5.EUROPE, "EUW"),
-		JP("jp1", RegionV5.ASIA, "JP"),
-		KR("kr", RegionV5.ASIA, "KR"),
-		LAN("la1", RegionV5.AMERICAS, "LAN"),
-		LAS("la2", RegionV5.AMERICAS, "LAS"),
-		NA("na1", RegionV5.AMERICAS, "NA"),
-		OCE("oc1", RegionV5.SEA, "OCE"),
-		TR("tr1", RegionV5.EUROPE, "TR"),
-		RU("ru", RegionV5.EUROPE, "RU"),
-		PH("ph2", RegionV5.SEA, "PH"),
-		SG("sg2", RegionV5.SEA, "SG"),
-		TH("th2", RegionV5.SEA, "TH"),
-		TW("tw2", RegionV5.SEA, "TW"),
-		VN("vn2", RegionV5.SEA, "VN"),
-		PBE("pbe", RegionV5.PBE, "PBE");
+		BR("br1", Region.AMERICAS, "BR"), 
+		EUNE("eun1", Region.EUROPE, "EUNE"),
+		EUW("euw1", Region.EUROPE, "EUW"),
+		JP("jp1", Region.ASIA, "JP"),
+		KR("kr", Region.ASIA, "KR"),
+		LAN("la1", Region.AMERICAS, "LAN"),
+		LAS("la2", Region.AMERICAS, "LAS"),
+		NA("na1", Region.AMERICAS, "NA"),
+		OCE("oc1", Region.SEA, "OCE"),
+		TR("tr1", Region.EUROPE, "TR"),
+		RU("ru", Region.EUROPE, "RU"),
+		PH("ph2", Region.SEA, "PH"),
+		SG("sg2", Region.SEA, "SG"),
+		TH("th2", Region.SEA, "TH"),
+		TW("tw2", Region.SEA, "TW"),
+		VN("vn2", Region.SEA, "VN"),
+		PBE("pbe", Region.PBE, "PBE");
 		
 		private final String id;
 		private final String defaultTagLine;
-		private final RegionV5 regionV5;
+		private final Region regionV5;
 		
-		private Region(String id, RegionV5 regionV5, String defaultTagLine)
+		private Platform(String id, Region region, String defaultTagLine)
 		{
 			this.id = id;
-			this.regionV5 = regionV5;
+			this.regionV5 = region;
 			this.defaultTagLine = defaultTagLine;
 		}
 		
@@ -325,7 +325,7 @@ public class LeagueOfLegends
 			return this.id;
 		}
 		
-		public RegionV5 getRegionV5()
+		public Region getRegion()
 		{
 			return this.regionV5;
 		}
@@ -340,37 +340,32 @@ public class LeagueOfLegends
 			return URI.create(String.format(API_URL, this.id));
 		}
 		
-		public URI getRegionApiUrl()
-		{
-			return URI.create(String.format(API_URL, this.regionV5));
-		}
-		
 		@Override
 		public String toString()
 		{
 			return this.name();
 		}
 		
-		public static Region parse(String input)
+		public static Platform fromId(String input)
 		{
-			for(Region region : Region.values())
+			for(Platform platform : Platform.values())
 			{
-				if(region.name().equals(input))
+				if(platform.name().equals(input))
 				{
-					return region;
+					return platform;
 				}
 			}
 			
 			return null;
 		}
 		
-		public static Region fromTagLine(String tagLine)
+		public static Platform fromTagLine(String tagLine)
 		{
-			for(Region region : Region.values())
+			for(Platform platform : Platform.values())
 			{
-				if(region.getDefaultTagLine().equals(tagLine))
+				if(platform.getDefaultTagLine().equals(tagLine))
 				{
-					return region;
+					return platform;
 				}
 			}
 			
@@ -378,7 +373,7 @@ public class LeagueOfLegends
 		}
 	}
 	
-	public static enum RegionV5
+	public static enum Region
 	{
 		AMERICAS("americas"),
 		ASIA("asia"),
@@ -390,7 +385,7 @@ public class LeagueOfLegends
 		
 		private final String id;
 		
-		private RegionV5(String id)
+		private Region(String id)
 		{
 			this.id = id;
 		}
@@ -507,7 +502,7 @@ public class LeagueOfLegends
 			return this.name + "#" + this.tagLine;
 		}
 		
-		public static RiotId parse(String riotId, Region defaultRegion)
+		public static RiotId parse(String riotId, Platform defaultPlatform)
 		{
 			int index = riotId.lastIndexOf('#');
 			
@@ -515,13 +510,13 @@ public class LeagueOfLegends
 			{
 				String tagLine = riotId.substring(index + 1);
 				
-				if(tagLine.matches("[0-9a-zA-Z]{3,5}") || Region.fromTagLine(tagLine) != null)
+				if(tagLine.matches("[0-9a-zA-Z]{3,5}") || Platform.fromTagLine(tagLine) != null)
 				{
 					return new RiotId(riotId.substring(0, index), tagLine);
 				}
 			}
 			
-			return new RiotId(riotId, defaultRegion.getDefaultTagLine());
+			return new RiotId(riotId, defaultPlatform.getDefaultTagLine());
 		}
 	}
 }

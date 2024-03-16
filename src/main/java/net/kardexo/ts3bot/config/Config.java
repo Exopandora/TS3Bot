@@ -7,7 +7,7 @@ import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 
-import net.kardexo.ts3bot.api.LeagueOfLegends.Region;
+import net.kardexo.ts3bot.api.LeagueOfLegends.Platform;
 
 public class Config
 {
@@ -38,7 +38,7 @@ public class Config
 	@JsonProperty("default_watch2gether_bg_opacity")
 	private int defaultW2GBGOpacity;
 	@JsonProperty("league_of_legends_region")
-	private Region lolRegion;
+	private Platform lolRegion;
 	
 	@JsonProperty("gameservers")
 	private Map<String, File> gameservers;
@@ -125,12 +125,12 @@ public class Config
 		return this.defaultW2GBGOpacity;
 	}
 	
-	public Region getLoLRegion()
+	public Platform getLoLRegion()
 	{
 		return this.lolRegion;
 	}
 	
-	public void setLoLRegion(Region lolRegion)
+	public void setLoLRegion(Platform lolRegion)
 	{
 		this.lolRegion = lolRegion;
 	}

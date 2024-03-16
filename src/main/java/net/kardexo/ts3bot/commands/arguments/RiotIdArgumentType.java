@@ -6,15 +6,15 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
-import net.kardexo.ts3bot.api.LeagueOfLegends.Region;
+import net.kardexo.ts3bot.api.LeagueOfLegends.Platform;
 import net.kardexo.ts3bot.api.LeagueOfLegends.RiotId;
 
 public class RiotIdArgumentType implements ArgumentType<RiotId>
 {
 	private final StringArgumentType delegate;
-	private final Region defaultRegion;
+	private final Platform defaultRegion;
 	
-	private RiotIdArgumentType(Region defaultRegion)
+	private RiotIdArgumentType(Platform defaultRegion)
 	{
 		this.delegate = StringArgumentType.greedyString();
 		this.defaultRegion = defaultRegion;
@@ -26,7 +26,7 @@ public class RiotIdArgumentType implements ArgumentType<RiotId>
 		return RiotId.parse(this.delegate.parse(reader), this.defaultRegion);
 	}
 	
-	public static RiotIdArgumentType greedy(Region defaultRegion)
+	public static RiotIdArgumentType greedy(Platform defaultRegion)
 	{
 		return new RiotIdArgumentType(defaultRegion);
 	}

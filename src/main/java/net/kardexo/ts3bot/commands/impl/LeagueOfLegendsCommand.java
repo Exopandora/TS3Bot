@@ -35,7 +35,7 @@ import net.kardexo.ts3bot.TS3Bot;
 import net.kardexo.ts3bot.api.LeagueOfLegends;
 import net.kardexo.ts3bot.api.LeagueOfLegends.League;
 import net.kardexo.ts3bot.api.LeagueOfLegends.Rank;
-import net.kardexo.ts3bot.api.LeagueOfLegends.Region;
+import net.kardexo.ts3bot.api.LeagueOfLegends.Platform;
 import net.kardexo.ts3bot.api.LeagueOfLegends.RiotId;
 import net.kardexo.ts3bot.api.LeagueOfLegends.Tier;
 import net.kardexo.ts3bot.commands.CommandSource;
@@ -90,12 +90,12 @@ public class LeagueOfLegendsCommand
 								.executes(context -> build(context, BuildSelector.ALLY, StringArgumentType.getString(context, "champion"), RiotIdArgumentType.getRiotId(context, "riot_id"), TS3Bot.getInstance().getConfig().getLoLRegion()))))))));
 	}
 	
-	private static int build(CommandContext<CommandSource> context, BuildSelector selector, String champion, RiotId riotId, Region region) throws CommandSyntaxException
+	private static int build(CommandContext<CommandSource> context, BuildSelector selector, String champion, RiotId riotId, Platform platform) throws CommandSyntaxException
 	{
 		var itemsFuture = CompletableFuture.supplyAsync(wrapException(() -> LeagueOfLegends.fetchItems()));
 		var build = CompletableFuture.supplyAsync(wrapException(() ->
 		{
-			var account = LeagueOfLegends.fetchAccount(riotId, region);
+			var account = LeagueOfLegends.fetchAccount(riotId, platform);
 			
 			if(account.hasNonNull("status"))
 			{
@@ -105,7 +105,7 @@ public class LeagueOfLegendsCommand
 			return account.path("puuid").asText();
 		})).thenApplyAsync(wrapException(puuid ->
 		{
-			var matchIds = LeagueOfLegends.fetchMatchHistory(puuid, region.getRegionV5(), 0, 20);
+			var matchIds = LeagueOfLegends.fetchMatchHistory(puuid, platform.getRegion(), 0, 20);
 			
 			if(matchIds.isEmpty())
 			{
@@ -116,7 +116,7 @@ public class LeagueOfLegendsCommand
 			
 			for(JsonNode matchId : matchIds)
 			{
-				matches.add(CompletableFuture.supplyAsync(wrapException(() -> LeagueOfLegends.fetchMatch(matchId.asText(), region.getRegionV5()))));
+				matches.add(CompletableFuture.supplyAsync(wrapException(() -> LeagueOfLegends.fetchMatch(matchId.asText(), platform.getRegion()))));
 			}
 			
 			var targetChampion = LeagueOfLegendsCommand.normalizeChampionName(champion);
@@ -143,7 +143,7 @@ public class LeagueOfLegendsCommand
 				switch(selector)
 				{
 					case MINE:
-						if(targetChampion.equals(LeagueOfLegendsCommand.normalizeChampionName(player.path("championName").asText())))
+						if(targetChampion.equals(normalizeChampionName(player.path("championName").asText())))
 						{
 							String response = createBuildResponse(player, player, itemsFuture.join());
 							context.getSource().sendFeedback(response);
@@ -158,7 +158,7 @@ public class LeagueOfLegendsCommand
 								continue;
 							}
 							
-							if(team != participant.path("teamId").asInt() && targetChampion.equals(LeagueOfLegendsCommand.normalizeChampionName(participant.path("championName").asText())))
+							if(team != participant.path("teamId").asInt() && targetChampion.equals(normalizeChampionName(participant.path("championName").asText())))
 							{
 								String response = createBuildResponse(participant, player, itemsFuture.join());
 								context.getSource().sendFeedback(response);
@@ -174,7 +174,7 @@ public class LeagueOfLegendsCommand
 								continue;
 							}
 							
-							if(team == participant.path("teamId").asInt() && targetChampion.equals(LeagueOfLegendsCommand.normalizeChampionName(participant.path("championName").asText())))
+							if(team == participant.path("teamId").asInt() && targetChampion.equals(normalizeChampionName(participant.path("championName").asText())))
 							{
 								String response = createBuildResponse(participant, player, itemsFuture.join());
 								context.getSource().sendFeedback(response);
@@ -208,13 +208,13 @@ public class LeagueOfLegendsCommand
 		}
 	}
 	
-	private static int match(CommandContext<CommandSource> context, RiotId riotId, Region region) throws CommandSyntaxException
+	private static int match(CommandContext<CommandSource> context, RiotId riotId, Platform platform) throws CommandSyntaxException
 	{
 		var championsFuture = CompletableFuture.supplyAsync(wrapException(() -> LeagueOfLegends.fetchChampions()));
 		var queuesFuture = CompletableFuture.supplyAsync(wrapException(LeagueOfLegends::fetchQueues));
 		var match = CompletableFuture.supplyAsync(wrapException(() ->
 		{
-			var account = LeagueOfLegends.fetchAccount(riotId, region);
+			var account = LeagueOfLegends.fetchAccount(riotId, platform);
 			
 			if(account.hasNonNull("status"))
 			{
@@ -222,7 +222,7 @@ public class LeagueOfLegendsCommand
 			}
 			
 			var puuid = account.path("puuid").asText();
-			var activeMatch = LeagueOfLegends.fetchActiveMatch(puuid, region);
+			var activeMatch = LeagueOfLegends.fetchActiveMatch(puuid, platform);
 			
 			if(activeMatch.hasNonNull("status"))
 			{
@@ -231,7 +231,7 @@ public class LeagueOfLegendsCommand
 			
 			var participants = activeMatch.path("participants");
 			var builder = new StringBuilder();
-			var teams = LeagueOfLegendsCommand.groupAndLoad(participants, championsFuture, region).entrySet().stream()
+			var teams = LeagueOfLegendsCommand.groupAndLoad(participants, championsFuture, platform).entrySet().stream()
 					.sorted((a, b) -> Integer.compare(a.getKey(), b.getKey()))
 					.map(Entry::getValue)
 					.collect(Collectors.toList());
@@ -312,7 +312,7 @@ public class LeagueOfLegendsCommand
 		}
 	}
 	
-	private static CompletableFuture<SummonerOverview> loadParticipantAsync(JsonNode participant, CompletableFuture<JsonNode> championsFuture, Region region)
+	private static CompletableFuture<SummonerOverview> loadParticipantAsync(JsonNode participant, CompletableFuture<JsonNode> championsFuture, Platform platform)
 	{
 		var championId = participant.path("championId").asLong();
 		var championFuture = championsFuture.thenApply(champions -> LeagueOfLegendsCommand.championById(championId, champions));
@@ -322,8 +322,8 @@ public class LeagueOfLegendsCommand
 		{
 			var summonerId = LeagueOfLegends.encode(participant.path("summonerId").asText());
 			var puuid = participant.path("puuid").asText();
-			var league = CompletableFuture.supplyAsync(wrapException(() -> LeagueOfLegends.fetchLeague(summonerId, region)));
-			var mastery = CompletableFuture.supplyAsync(wrapException(() -> LeagueOfLegends.fetchChampionMastery(puuid, championId, region)));
+			var league = CompletableFuture.supplyAsync(wrapException(() -> LeagueOfLegends.fetchLeague(summonerId, platform)));
+			var mastery = CompletableFuture.supplyAsync(wrapException(() -> LeagueOfLegends.fetchChampionMastery(puuid, championId, platform)));
 			return CompletableFuture.allOf(championFuture, league, mastery).thenApply(__ -> new SummonerOverview(summonerName, puuid, championFuture.join(), league.join(), mastery.join()));
 		}
 		
@@ -363,13 +363,13 @@ public class LeagueOfLegendsCommand
 		}
 	}
 	
-	private static int history(CommandContext<CommandSource> context, RiotId riotId, Region region) throws CommandSyntaxException
+	private static int history(CommandContext<CommandSource> context, RiotId riotId, Platform platform) throws CommandSyntaxException
 	{
 		var queuesFuture = CompletableFuture.supplyAsync(wrapException(LeagueOfLegends::fetchQueues));
 		var championsFuture = CompletableFuture.supplyAsync(wrapException(() -> LeagueOfLegends.fetchChampions()));
 		var history = CompletableFuture.supplyAsync(wrapException(() ->
 		{
-			var account = LeagueOfLegends.fetchAccount(riotId, region);
+			var account = LeagueOfLegends.fetchAccount(riotId, platform);
 			
 			if(account.hasNonNull("status"))
 			{
@@ -379,7 +379,7 @@ public class LeagueOfLegendsCommand
 			return account.path("puuid").asText();
 		})).thenApplyAsync(wrapException(puuid ->
 		{
-			var matchIds = LeagueOfLegends.fetchMatchHistory(puuid, region.getRegionV5(), 0, 20);
+			var matchIds = LeagueOfLegends.fetchMatchHistory(puuid, platform.getRegion(), 0, 20);
 			
 			if(matchIds.isEmpty())
 			{
@@ -390,7 +390,7 @@ public class LeagueOfLegendsCommand
 			
 			for(JsonNode matchId : matchIds)
 			{
-				matches.add(CompletableFuture.supplyAsync(wrapException(() -> LeagueOfLegends.fetchMatch(matchId.asText(), region.getRegionV5()))));
+				matches.add(CompletableFuture.supplyAsync(wrapException(() -> LeagueOfLegends.fetchMatch(matchId.asText(), platform.getRegion()))));
 			}
 			
 			var calendar = Calendar.getInstance();
@@ -631,7 +631,7 @@ public class LeagueOfLegendsCommand
 		return "Unknown Queue";
 	}
 	
-	private static Map<Integer, List<CompletableFuture<SummonerOverview>>> groupAndLoad(JsonNode participants, CompletableFuture<JsonNode> champions, Region region)
+	private static Map<Integer, List<CompletableFuture<SummonerOverview>>> groupAndLoad(JsonNode participants, CompletableFuture<JsonNode> champions, Platform platform)
 	{
 		Map<Integer, List<CompletableFuture<SummonerOverview>>> map = new HashMap<Integer, List<CompletableFuture<SummonerOverview>>>();
 		
@@ -639,7 +639,7 @@ public class LeagueOfLegendsCommand
 		{
 			JsonNode participant = participants.get(x);
 			List<CompletableFuture<SummonerOverview>> team = map.computeIfAbsent(participant.path("teamId").asInt(), key -> new ArrayList<CompletableFuture<SummonerOverview>>());
-			team.add(LeagueOfLegendsCommand.loadParticipantAsync(participant, champions, region));
+			team.add(LeagueOfLegendsCommand.loadParticipantAsync(participant, champions, platform));
 		}
 		
 		return map;
@@ -649,14 +649,14 @@ public class LeagueOfLegendsCommand
 	{
 		ClientInfo clientInfo = context.getSource().getClientInfo();
 		UserConfig config = TS3Bot.getInstance().getUserConfig(clientInfo.getUniqueIdentifier());
-		Region region = TS3Bot.getInstance().getConfig().getLoLRegion();
+		Platform platform = TS3Bot.getInstance().getConfig().getLoLRegion();
 		
 		if(config.getLeaugeOfLegendsAlias() != null)
 		{
-			return RiotId.parse(config.getLeaugeOfLegendsAlias(), region);
+			return RiotId.parse(config.getLeaugeOfLegendsAlias(), platform);
 		}
 		
-		return RiotId.parse(clientInfo.getNickname(), region);
+		return RiotId.parse(clientInfo.getNickname(), platform);
 	}
 	
 	private static String createBuildResponse(JsonNode participant, JsonNode player, JsonNode items)
