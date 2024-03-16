@@ -232,9 +232,9 @@ public class LeagueOfLegendsCommand
 			var participants = activeMatch.path("participants");
 			var builder = new StringBuilder();
 			var teams = LeagueOfLegendsCommand.groupAndLoad(participants, championsFuture, platform).entrySet().stream()
-					.sorted((a, b) -> Integer.compare(a.getKey(), b.getKey()))
-					.map(Entry::getValue)
-					.collect(Collectors.toList());
+				.sorted((a, b) -> Integer.compare(a.getKey(), b.getKey()))
+				.map(Entry::getValue)
+				.collect(Collectors.toList());
 			var teamRatings = new int[teams.size()];
 			
 			for(int x = 0; x < teams.size(); x++)
@@ -287,9 +287,9 @@ public class LeagueOfLegendsCommand
 			}
 			
 			var ranks = Arrays.stream(teamRatings)
-					.mapToObj(LeagueOfLegendsCommand::ratingToLeague)
-					.map(league -> league.map(League::toString).orElse("Unranked"))
-					.collect(Collectors.joining(" vs "));
+				.mapToObj(LeagueOfLegendsCommand::ratingToLeague)
+				.map(league -> league.map(League::toString).orElse("Unranked"))
+				.collect(Collectors.joining(" vs "));
 			var gameLength = activeMatch.path("gameLength").asLong();
 			var formattedGameLength = gameLength < 0 ? "Loading Screen" : Util.formatDuration(gameLength);
 			var queue = LeagueOfLegendsCommand.formatQueue(queuesFuture.join(), activeMatch.path("gameQueueConfigId").asInt());
