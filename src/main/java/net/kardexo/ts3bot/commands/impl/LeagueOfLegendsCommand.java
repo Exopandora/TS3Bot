@@ -34,8 +34,8 @@ import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import net.kardexo.ts3bot.TS3Bot;
 import net.kardexo.ts3bot.api.LeagueOfLegends;
 import net.kardexo.ts3bot.api.LeagueOfLegends.League;
-import net.kardexo.ts3bot.api.LeagueOfLegends.Rank;
 import net.kardexo.ts3bot.api.LeagueOfLegends.Platform;
+import net.kardexo.ts3bot.api.LeagueOfLegends.Rank;
 import net.kardexo.ts3bot.api.LeagueOfLegends.RiotId;
 import net.kardexo.ts3bot.api.LeagueOfLegends.Tier;
 import net.kardexo.ts3bot.commands.CommandSource;
@@ -224,7 +224,7 @@ public class LeagueOfLegendsCommand
 			var puuid = account.path("puuid").asText();
 			var activeMatch = LeagueOfLegends.fetchActiveMatch(puuid, platform);
 			
-			if(activeMatch.hasNonNull("status"))
+			if(activeMatch.hasNonNull("status") || activeMatch.isTextual())
 			{
 				throw new RuntimeException(riotId + " is currently not in an active game");
 			}
@@ -259,11 +259,11 @@ public class LeagueOfLegendsCommand
 						
 						if(puuid.equals(overview.puuid()))
 						{
-							builder.append(" [u]" + overview.summonerName() + "[/u]");
+							builder.append(" [u]" + overview.riotId() + "[/u]");
 						}
 						else
 						{
-							builder.append(" " + overview.summonerName());
+							builder.append(" " + overview.riotId());
 						}
 						
 						var league = overview.highestRank();
@@ -316,7 +316,6 @@ public class LeagueOfLegendsCommand
 	{
 		var championId = participant.path("championId").asLong();
 		var championFuture = championsFuture.thenApply(champions -> LeagueOfLegendsCommand.championById(championId, champions));
-		var summonerName = participant.path("summonerName").asText();
 		
 		if(!participant.path("bot").asBoolean())
 		{
@@ -324,13 +323,19 @@ public class LeagueOfLegendsCommand
 			var puuid = participant.path("puuid").asText();
 			var league = CompletableFuture.supplyAsync(wrapException(() -> LeagueOfLegends.fetchLeague(summonerId, platform)));
 			var mastery = CompletableFuture.supplyAsync(wrapException(() -> LeagueOfLegends.fetchChampionMastery(puuid, championId, platform)));
-			return CompletableFuture.allOf(championFuture, league, mastery).thenApply(__ -> new SummonerOverview(summonerName, puuid, championFuture.join(), league.join(), mastery.join()));
+			var accountFuture = CompletableFuture.supplyAsync(wrapException(() -> LeagueOfLegends.fetchAccount(puuid, platform)));
+			return CompletableFuture.allOf(championFuture, league, mastery, accountFuture).thenApply(__ ->
+			{
+				var account = accountFuture.join();
+				var riotId = new RiotId(account.path("gameName").asText(), account.path("tagLine").asText());
+				return new SummonerOverview(riotId, puuid, championFuture.join(), league.join(), mastery.join());
+			});
 		}
 		
-		return championFuture.thenApply(champion -> new SummonerOverview(summonerName, null, champion, null, null));
+		return championFuture.thenApply(champion -> new SummonerOverview(new RiotId("Bot " + champion), null, champion, null, null));
 	}
 	
-	private static record SummonerOverview(String summonerName, String puuid, String champion, JsonNode league, JsonNode mastery)
+	private static record SummonerOverview(RiotId riotId, String puuid, String champion, JsonNode league, JsonNode mastery)
 	{
 		public String masteryString()
 		{

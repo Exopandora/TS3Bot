@@ -101,6 +101,13 @@ public class LeagueOfLegends
 		return fetch(uri, true);
 	}
 	
+	public static JsonNode fetchAccount(String puuid, Platform platform) throws URISyntaxException, IOException
+	{
+		URI uri = platform.getRegion().getApiUrl()
+			.resolve("riot/account/v1/accounts/by-puuid/" + encode(puuid));
+		return fetch(uri, true);
+	}
+	
 	public static JsonNode fetchLeague(String summonerId, Platform platform) throws URISyntaxException, IOException
 	{
 		URI uri = platform.getApiUrl()
@@ -496,10 +503,22 @@ public class LeagueOfLegends
 	
 	public static record RiotId(String name, String tagLine)
 	{
+		public RiotId(String name)
+		{
+			this(name, null);
+		}
+		
 		@Override
 		public String toString()
 		{
-			return this.name + "#" + this.tagLine;
+			String result = this.name;
+			
+			if(this.tagLine != null && !this.tagLine.isBlank())
+			{
+				result += "#" + this.tagLine;
+			}
+			
+			return result;
 		}
 		
 		public static RiotId parse(String riotId, Platform defaultPlatform)
