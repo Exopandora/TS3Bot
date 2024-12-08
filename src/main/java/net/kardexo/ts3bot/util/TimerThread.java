@@ -1,13 +1,14 @@
 package net.kardexo.ts3bot.util;
 
 import java.time.Instant;
+import java.util.Comparator;
 import java.util.Optional;
 import java.util.PriorityQueue;
 import java.util.Queue;
 
 public class TimerThread extends Thread
 {
-	private final Queue<Timer> queue = new PriorityQueue<Timer>((a, b) -> a.getEnd().compareTo(b.getEnd()));
+	private final Queue<Timer> queue = new PriorityQueue<Timer>(Comparator.comparing(Timer::getEnd));
 	
 	public TimerThread()
 	{
