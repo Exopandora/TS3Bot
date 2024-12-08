@@ -27,7 +27,7 @@ public class TransferCommand
 	
 	private static int transfer(CommandContext<CommandSource> context, int amount, Client beneficiary) throws CommandSyntaxException
 	{
-		if(!TS3Bot.getInstance().getCoinManager().transfer(context.getSource().getClientInfo().getUniqueIdentifier(), beneficiary.getUniqueIdentifier(), amount))
+		if(!TS3Bot.getInstance().getEconomyService().transfer(context.getSource().getClientInfo().getUniqueIdentifier(), beneficiary.getUniqueIdentifier(), amount))
 		{
 			throw NOT_ENOUGH_COINS.create();
 		}

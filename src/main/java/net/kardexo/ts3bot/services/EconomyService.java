@@ -1,22 +1,23 @@
-package net.kardexo.ts3bot.util;
+package net.kardexo.ts3bot.services;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import net.kardexo.ts3bot.util.Util;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class CoinManager
+public class EconomyService
 {
 	private final ObjectMapper objectMapper;
 	private final Map<String, Long> wallet;
 	private final File file;
 	
-	public CoinManager(File file, ObjectMapper objectMapper) throws JsonParseException, JsonMappingException, IOException
+	public EconomyService(File file, ObjectMapper objectMapper) throws JsonParseException, JsonMappingException, IOException
 	{
 		this.file = file;
 		this.objectMapper = objectMapper;

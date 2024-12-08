@@ -31,7 +31,7 @@ public class BalanceCommand
 	private static int set(CommandContext<CommandSource> context, int value) throws CommandSyntaxException
 	{
 		ClientInfo client = context.getSource().getClientInfo();
-		TS3Bot.getInstance().getCoinManager().set(client.getUniqueIdentifier(), value);
+		TS3Bot.getInstance().getEconomyService().set(client.getUniqueIdentifier(), value);
 		context.getSource().sendFeedback("Set balance of " + client.getNickname() + " to " + value + TS3Bot.getInstance().getConfig().getCurrency());
 		return value;
 	}
@@ -39,7 +39,7 @@ public class BalanceCommand
 	private static int set(CommandContext<CommandSource> context, int value, Client client) throws CommandSyntaxException
 	{
 		String uuid = client.getUniqueIdentifier();
-		TS3Bot.getInstance().getCoinManager().set(uuid, value);
+		TS3Bot.getInstance().getEconomyService().set(uuid, value);
 		context.getSource().sendFeedback("Set balance of " + client.getNickname() + " to " + value + TS3Bot.getInstance().getConfig().getCurrency());
 		return value;
 	}
@@ -47,14 +47,14 @@ public class BalanceCommand
 	private static int balance(CommandContext<CommandSource> context) throws CommandSyntaxException
 	{
 		ClientInfo client = context.getSource().getClientInfo();
-		long coins = TS3Bot.getInstance().getCoinManager().get(client.getUniqueIdentifier());
+		long coins = TS3Bot.getInstance().getEconomyService().get(client.getUniqueIdentifier());
 		context.getSource().sendFeedback(client.getNickname() + " has " + coins + TS3Bot.getInstance().getConfig().getCurrency());
 		return (int) coins;
 	}
 	
 	private static int balance(CommandContext<CommandSource> context, Client client) throws CommandSyntaxException
 	{
-		long coins = TS3Bot.getInstance().getCoinManager().get(client.getUniqueIdentifier());
+		long coins = TS3Bot.getInstance().getEconomyService().get(client.getUniqueIdentifier());
 		context.getSource().sendFeedback(client.getNickname() + " has " + coins + TS3Bot.getInstance().getConfig().getCurrency());
 		return (int) coins;
 	}

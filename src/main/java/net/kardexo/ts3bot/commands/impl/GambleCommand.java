@@ -12,7 +12,7 @@ import com.mojang.brigadier.tree.CommandNode;
 import net.kardexo.ts3bot.TS3Bot;
 import net.kardexo.ts3bot.commands.CommandSource;
 import net.kardexo.ts3bot.commands.Commands;
-import net.kardexo.ts3bot.util.CoinManager;
+import net.kardexo.ts3bot.services.EconomyService;
 
 public class GambleCommand
 {
@@ -36,7 +36,7 @@ public class GambleCommand
 			throw CommandSyntaxException.BUILT_IN_EXCEPTIONS.doubleTooHigh().create(winpct, 1.0D);
 		}
 		
-		CoinManager manager = TS3Bot.getInstance().getCoinManager();
+		EconomyService manager = TS3Bot.getInstance().getEconomyService();
 		String uuid = context.getSource().getClientInfo().getUniqueIdentifier();
 		String currency = TS3Bot.getInstance().getConfig().getCurrency();
 		

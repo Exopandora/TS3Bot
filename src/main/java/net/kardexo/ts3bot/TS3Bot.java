@@ -22,7 +22,7 @@ import net.kardexo.ts3bot.message.URLMessageProcessor;
 import net.kardexo.ts3bot.services.APIKeyService;
 import net.kardexo.ts3bot.services.BonusService;
 import net.kardexo.ts3bot.util.ChatHistory;
-import net.kardexo.ts3bot.util.CoinManager;
+import net.kardexo.ts3bot.services.EconomyService;
 import net.kardexo.ts3bot.util.PermissionProvider;
 import net.kardexo.ts3bot.util.UserConfigManager;
 import net.kardexo.ts3bot.util.UserConfigManager.UserConfig;
@@ -59,7 +59,7 @@ public class TS3Bot extends TS3EventAdapter implements ConnectionHandler, Permis
 	private final ChatHistory history;
 	private final List<IMessageProcessor> messageProcessors = List.of(new CommandMessageProcessor(this), new URLMessageProcessor());
 	private final ObjectMapper objectMapper = new ObjectMapper();
-	private final CoinManager coinManager = new CoinManager(Util.createFile("coins.json"), this.objectMapper);
+	private final EconomyService economyService = new EconomyService(Util.createFile("coins.json"), this.objectMapper);
 	private final BonusService loginBonusService = new BonusService(Util.createFile("claims.json"), this.objectMapper, this::loginBonus);
 	private final UserConfigManager userConfigManager = new UserConfigManager(Util.createFile("userconfig.json"), this.objectMapper);
 	private final APIKeyService apiKeyService;
@@ -215,7 +215,7 @@ public class TS3Bot extends TS3EventAdapter implements ConnectionHandler, Permis
 	
 	public void loginBonus(String user)
 	{
-		this.coinManager.add(user, this.config.getLoginBonus());
+		this.economyService.add(user, this.config.getLoginBonus());
 	}
 	
 	public UserConfig getUserConfig(String user)
@@ -290,9 +290,9 @@ public class TS3Bot extends TS3EventAdapter implements ConnectionHandler, Permis
 		return this.history;
 	}
 	
-	public CoinManager getCoinManager()
+	public EconomyService getEconomyService()
 	{
-		return this.coinManager;
+		return this.economyService;
 	}
 	
 	public static TS3Bot getInstance()
