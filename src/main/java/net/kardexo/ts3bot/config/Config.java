@@ -40,9 +40,6 @@ public class Config
 	@JsonProperty("league_of_legends_region")
 	private Platform lolRegion;
 	
-	@JsonProperty("gameservers")
-	private Map<String, File> gameservers;
-	
 	@JsonProperty("rules")
 	private List<String> rules;
 	
@@ -133,11 +130,6 @@ public class Config
 	public void setLoLRegion(Platform lolRegion)
 	{
 		this.lolRegion = lolRegion;
-	}
-	
-	public Map<String, File> getGameservers()
-	{
-		return this.gameservers;
 	}
 	
 	public List<String> getRules()
