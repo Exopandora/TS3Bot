@@ -30,8 +30,7 @@ public class ClientArgumentType implements ArgumentType<Client>
 		SimpleEntry<Client, String> result = this.ts3bot.getApi().getClients().stream()
 			.map(client -> new SimpleEntry<Client, String>(client, normalize(client.getNickname())))
 			.filter(pair -> username.startsWith(pair.getValue()))
-			.sorted(Comparator.comparingInt(pair -> -pair.getValue().length()))
-			.findFirst()
+			.max(Comparator.comparingInt(pair -> pair.getValue().length()))
 			.orElseThrow(() -> USER_NOT_FOUND.createWithContext(reader, username));
 		reader.setCursor(reader.getCursor() + result.getValue().length());
 		return result.getKey();
