@@ -21,7 +21,7 @@ import net.kardexo.ts3bot.message.IMessageProcessor;
 import net.kardexo.ts3bot.message.URLMessageProcessor;
 import net.kardexo.ts3bot.services.APIKeyService;
 import net.kardexo.ts3bot.services.BonusService;
-import net.kardexo.ts3bot.util.ChatHistory;
+import net.kardexo.ts3bot.domain.ChatHistory;
 import net.kardexo.ts3bot.services.EconomyService;
 import net.kardexo.ts3bot.util.PermissionProvider;
 import net.kardexo.ts3bot.services.UserConfigService;
