@@ -89,3 +89,6 @@ src/integrationTest/
 
 claims.json
 coins.json
+
+### IntelliJ Idea ###
+.idea/
