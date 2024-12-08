@@ -2,6 +2,7 @@ package net.kardexo.ts3bot.api;
 
 import java.net.URI;
 
+import net.kardexo.ts3bot.services.APIKeyService;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URIBuilder;
@@ -29,8 +30,8 @@ public class Twitch
 				.build();
 			
 			HttpGet httpGet = new HttpGet(uri);
-			httpGet.setHeader("Client-ID", TS3Bot.getInstance().getApiKeyManager().requestToken(TS3Bot.API_KEY_TWITCH, "client_id"));
-			httpGet.setHeader("Authorization", "Bearer " + TS3Bot.getInstance().getApiKeyManager().requestToken(TS3Bot.API_KEY_TWITCH, "oauth_token"));
+			httpGet.setHeader("Client-ID", TS3Bot.getInstance().getApiKeyManager().requestToken(APIKeyService.API_KEY_TWITCH, "client_id"));
+			httpGet.setHeader("Authorization", "Bearer " + TS3Bot.getInstance().getApiKeyManager().requestToken(APIKeyService.API_KEY_TWITCH, "oauth_token"));
 			
 			try(CloseableHttpResponse response = client.execute(httpGet))
 			{

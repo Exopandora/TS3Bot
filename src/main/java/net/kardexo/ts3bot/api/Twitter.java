@@ -2,6 +2,7 @@ package net.kardexo.ts3bot.api;
 
 import java.net.URI;
 
+import net.kardexo.ts3bot.services.APIKeyService;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URIBuilder;
@@ -32,7 +33,7 @@ public class Twitter
 				.build();
 			
 			HttpGet httpGet = new HttpGet(uri);
-			httpGet.setHeader("Authorization", "Bearer " + TS3Bot.getInstance().getApiKeyManager().requestToken(TS3Bot.API_KEY_TWITTER, "bearer_token"));
+			httpGet.setHeader("Authorization", "Bearer " + TS3Bot.getInstance().getApiKeyManager().requestToken(APIKeyService.API_KEY_TWITTER, "bearer_token"));
 			
 			try(CloseableHttpResponse response = client.execute(httpGet))
 			{
@@ -56,7 +57,7 @@ public class Twitter
 				.build();
 			
 			HttpGet httpGet = new HttpGet(uri);
-			httpGet.setHeader("Authorization", "Bearer " + TS3Bot.getInstance().getApiKeyManager().requestToken(TS3Bot.API_KEY_TWITTER, "bearer_token"));
+			httpGet.setHeader("Authorization", "Bearer " + TS3Bot.getInstance().getApiKeyManager().requestToken(APIKeyService.API_KEY_TWITTER, "bearer_token"));
 			
 			try(CloseableHttpResponse response = client.execute(httpGet))
 			{

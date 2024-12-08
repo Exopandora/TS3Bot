@@ -5,6 +5,7 @@ import java.time.Duration;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Predicate;
 
+import net.kardexo.ts3bot.services.APIKeyService;
 import org.apache.http.client.utils.URIBuilder;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -48,7 +49,7 @@ public class YouTube
 			URI uri = new URIBuilder(API_URL.resolve("videos"))
 				.addParameter("id", id)
 				.addParameter("part", part)
-				.addParameter("key", TS3Bot.getInstance().getApiKeyManager().requestKey(TS3Bot.API_KEY_YOUTUBE))
+				.addParameter("key", TS3Bot.getInstance().getApiKeyManager().requestKey(APIKeyService.API_KEY_YOUTUBE))
 				.build();
 			
 			JsonNode node = TS3Bot.getInstance().getObjectMapper().readTree(uri.toURL());
@@ -129,7 +130,7 @@ public class YouTube
 			URI uri = new URIBuilder(API_URL.resolve("channels"))
 				.addParameter("id", userId)
 				.addParameter("part", "contentDetails")
-				.addParameter("key", TS3Bot.getInstance().getApiKeyManager().requestKey(TS3Bot.API_KEY_YOUTUBE))
+				.addParameter("key", TS3Bot.getInstance().getApiKeyManager().requestKey(APIKeyService.API_KEY_YOUTUBE))
 				.build();
 			JsonNode node = TS3Bot.getInstance().getObjectMapper().readTree(uri.toURL());
 			JsonNode items = node.path("items");
@@ -154,7 +155,7 @@ public class YouTube
 			URI uri = new URIBuilder(API_URL.resolve("playlists"))
 				.addParameter("id", playlist)
 				.addParameter("part", "contentDetails")
-				.addParameter("key", TS3Bot.getInstance().getApiKeyManager().requestKey(TS3Bot.API_KEY_YOUTUBE))
+				.addParameter("key", TS3Bot.getInstance().getApiKeyManager().requestKey(APIKeyService.API_KEY_YOUTUBE))
 				.build();
 			JsonNode node = TS3Bot.getInstance().getObjectMapper().readTree(uri.toURL());
 			JsonNode items = node.path("items");
@@ -179,7 +180,7 @@ public class YouTube
 			URIBuilder builder = new URIBuilder(API_URL.resolve("playlistItems"))
 				.addParameter("playlistId", playlist)
 				.addParameter("maxResults", String.valueOf(maxResults))
-				.addParameter("key", TS3Bot.getInstance().getApiKeyManager().requestKey(TS3Bot.API_KEY_YOUTUBE));
+				.addParameter("key", TS3Bot.getInstance().getApiKeyManager().requestKey(APIKeyService.API_KEY_YOUTUBE));
 			
 			if(part != null)
 			{

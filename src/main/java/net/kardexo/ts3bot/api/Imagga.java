@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import net.kardexo.ts3bot.services.APIKeyService;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -25,7 +26,7 @@ public class Imagga
 	public static JsonNode tagImage(CloseableHttpClient client, HttpGet httpGet, String url) throws URISyntaxException, ClientProtocolException, IOException, CommandSyntaxException
 	{
 		httpGet.setURI(new URIBuilder(API_URL).addParameter("image_url", url).build());
-		httpGet.setHeader("Authorization", "Basic " + TS3Bot.getInstance().getApiKeyManager().requestKey(TS3Bot.API_KEY_IMAGGA));
+		httpGet.setHeader("Authorization", "Basic " + TS3Bot.getInstance().getApiKeyManager().requestKey(APIKeyService.API_KEY_IMAGGA));
 		
 		try(CloseableHttpResponse response = client.execute(httpGet))
 		{

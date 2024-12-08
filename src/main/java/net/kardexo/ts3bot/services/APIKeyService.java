@@ -11,6 +11,12 @@ import net.kardexo.ts3bot.config.Config.APIKey.Limit;
 
 public class APIKeyService
 {
+	public static final String API_KEY_WATCH_2_GETHER = "watch_2_gether";
+	public static final String API_KEY_TWITCH = "twitch";
+	public static final String API_KEY_YOUTUBE = "youtube";
+	public static final String API_KEY_TWITTER = "twitter";
+	public static final String API_KEY_LEAGUE_OF_LEGENDS = "league_of_legends";
+	public static final String API_KEY_IMAGGA = "imagga";
 	private static final long BUFFER_TIME = 250;
 	
 	private final Map<String, APIKey> apiKeys;

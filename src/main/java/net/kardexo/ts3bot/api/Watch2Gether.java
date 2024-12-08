@@ -4,6 +4,7 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.kardexo.ts3bot.services.APIKeyService;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
@@ -28,7 +29,7 @@ public class Watch2Gether
 		try(CloseableHttpClient client = Util.httpClient())
 		{
 			Map<String, Object> watch2gether = new HashMap<String, Object>();
-			watch2gether.put("w2g_api_key", TS3Bot.getInstance().getApiKeyManager().requestKey(TS3Bot.API_KEY_WATCH_2_GETHER));
+			watch2gether.put("w2g_api_key", TS3Bot.getInstance().getApiKeyManager().requestKey(APIKeyService.API_KEY_WATCH_2_GETHER));
 			watch2gether.put("share", share);
 			watch2gether.put("bg_color", TS3Bot.getInstance().getConfig().getDefaultW2GBGColor());
 			watch2gether.put("bg_opacity", TS3Bot.getInstance().getConfig().getDefaultW2GBGOpacity());

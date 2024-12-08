@@ -8,6 +8,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
+import net.kardexo.ts3bot.services.APIKeyService;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URIBuilder;
@@ -137,7 +138,7 @@ public class LeagueOfLegends
 			
 			if(apikey)
 			{
-				httpGet.addHeader("X-Riot-Token", TS3Bot.getInstance().getApiKeyManager().requestKey(TS3Bot.API_KEY_LEAGUE_OF_LEGENDS));
+				httpGet.addHeader("X-Riot-Token", TS3Bot.getInstance().getApiKeyManager().requestKey(APIKeyService.API_KEY_LEAGUE_OF_LEGENDS));
 			}
 			
 			try(CloseableHttpResponse response = client.execute(httpGet))

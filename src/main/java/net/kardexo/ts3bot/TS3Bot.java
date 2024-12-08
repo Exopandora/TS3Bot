@@ -43,12 +43,6 @@ import java.util.concurrent.TimeUnit;
 public class TS3Bot extends TS3EventAdapter implements ConnectionHandler, PermissionProvider
 {
 	public static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.246";
-	public static final String API_KEY_WATCH_2_GETHER = "watch_2_gether";
-	public static final String API_KEY_TWITCH = "twitch";
-	public static final String API_KEY_YOUTUBE = "youtube";
-	public static final String API_KEY_TWITTER = "twitter";
-	public static final String API_KEY_LEAGUE_OF_LEGENDS = "league_of_legends";
-	public static final String API_KEY_IMAGGA = "imagga";
 	public static final Random RANDOM = new Random();
 	public static final Logger LOGGER = LogManager.getLogger(TS3Bot.class);
 	
