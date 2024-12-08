@@ -13,7 +13,7 @@ import net.kardexo.ts3bot.TS3Bot;
 import net.kardexo.ts3bot.commands.CommandSource;
 import net.kardexo.ts3bot.commands.impl.HelpCommand;
 
-public class CommandMessageProcressor implements IMessageProcessor
+public class CommandMessageProcessor implements IMessageProcessor
 {
 	@Override
 	public void process(TS3Bot bot, String message, int invokerId, TextMessageTargetMode targetMode)

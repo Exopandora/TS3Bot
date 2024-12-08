@@ -40,7 +40,7 @@ import net.kardexo.ts3bot.commands.impl.TwitchCommand;
 import net.kardexo.ts3bot.commands.impl.Watch2GetherCommand;
 import net.kardexo.ts3bot.commands.impl.YouTubeCommand;
 import net.kardexo.ts3bot.config.Config;
-import net.kardexo.ts3bot.message.CommandMessageProcressor;
+import net.kardexo.ts3bot.message.CommandMessageProcessor;
 import net.kardexo.ts3bot.message.IMessageProcessor;
 import net.kardexo.ts3bot.message.URLMessageProcessor;
 import net.kardexo.ts3bot.util.APIKeyManager;
@@ -81,7 +81,7 @@ public class TS3Bot extends TS3EventAdapter implements ConnectionHandler
 	private final Config config;
 	private final ChatHistory history;
 	private final CommandDispatcher<CommandSource> dispatcher = new CommandDispatcher<CommandSource>();
-	private final List<IMessageProcessor> messageProcessors = List.of(new CommandMessageProcressor(), new URLMessageProcessor());
+	private final List<IMessageProcessor> messageProcessors = List.of(new CommandMessageProcessor(), new URLMessageProcessor());
 	private final ObjectMapper objectMapper = new ObjectMapper();
 	private final CoinManager coinManager = new CoinManager(Util.createFile("coins.json"), this.objectMapper);
 	private final BonusManager loginBonusManager = new BonusManager(Util.createFile("claims.json"), this.objectMapper, this::loginBonus);
