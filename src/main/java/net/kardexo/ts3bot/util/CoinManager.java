@@ -1,14 +1,14 @@
 package net.kardexo.ts3bot.util;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Map;
-
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.Maps;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class CoinManager
 {
@@ -20,7 +20,7 @@ public class CoinManager
 	{
 		this.file = file;
 		this.objectMapper = objectMapper;
-		this.wallet = Util.readJsonFile(this.file, this.objectMapper, new TypeReference<Map<String, Long>>() {}, Maps::newHashMap);
+		this.wallet = Util.readJsonFile(this.file, this.objectMapper, new TypeReference<Map<String, Long>>() {}, HashMap::new);
 	}
 	
 	public void add(String user, long coins)

@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 
 import com.github.theholywaffle.teamspeak3.api.TextMessageTargetMode;
 import com.mojang.brigadier.ParseResults;
+import com.mojang.brigadier.context.ParsedCommandNode;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.CommandNode;
 
@@ -46,7 +47,9 @@ public class CommandMessageProcressor implements IMessageProcessor
 		{
 			if(e.getCursor() != -1)
 			{
-				List<CommandNode<CommandSource>> nodes = HelpCommand.nodeMapToList(parse.getContext().getLastChild().getNodes());
+				List<CommandNode<CommandSource>> nodes = parse.getContext().getLastChild().getNodes().stream()
+					.map(ParsedCommandNode::getNode)
+					.toList();
 				
 				if(nodes.isEmpty())
 				{

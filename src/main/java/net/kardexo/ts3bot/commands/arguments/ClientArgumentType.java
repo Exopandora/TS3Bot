@@ -1,8 +1,5 @@
 package net.kardexo.ts3bot.commands.arguments;
 
-import java.util.AbstractMap.SimpleEntry;
-import java.util.Comparator;
-
 import com.github.theholywaffle.teamspeak3.api.wrapper.Client;
 import com.mojang.brigadier.LiteralMessage;
 import com.mojang.brigadier.StringReader;
@@ -10,8 +7,10 @@ import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
-
 import net.kardexo.ts3bot.TS3Bot;
+
+import java.util.AbstractMap.SimpleEntry;
+import java.util.Comparator;
 
 public class ClientArgumentType implements ArgumentType<Client>
 {
@@ -25,7 +24,7 @@ public class ClientArgumentType implements ArgumentType<Client>
 	}
 	
 	@Override
-	public <S> Client parse(StringReader reader) throws CommandSyntaxException
+	public Client parse(StringReader reader) throws CommandSyntaxException
 	{
 		String username = normalize(reader.getRemaining());
 		SimpleEntry<Client, String> result = this.ts3bot.getApi().getClients().stream()

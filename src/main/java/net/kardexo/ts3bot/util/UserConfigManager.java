@@ -1,13 +1,13 @@
 package net.kardexo.ts3bot.util;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Map;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.Maps;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class UserConfigManager
 {
@@ -19,7 +19,7 @@ public class UserConfigManager
 	{
 		this.file = file;
 		this.objectMapper = objectMapper;
-		this.users = Util.readJsonFile(this.file, this.objectMapper, new TypeReference<Map<String, UserConfig>>() {}, Maps::newHashMap);
+		this.users = Util.readJsonFile(this.file, this.objectMapper, new TypeReference<Map<String, UserConfig>>() {}, HashMap::new);
 	}
 	
 	public UserConfig getUserConfig(String user)

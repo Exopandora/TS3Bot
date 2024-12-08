@@ -1,16 +1,16 @@
 package net.kardexo.ts3bot.util;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.TimerTask;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
-
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.Sets;
 
 public class BonusManager
 {
@@ -23,7 +23,7 @@ public class BonusManager
 	{
 		this.file = file;
 		this.objectMapper = objectMapper;
-		this.claimed = Util.readJsonFile(this.file, this.objectMapper, new TypeReference<Set<String>>() {}, Sets::newHashSet);
+		this.claimed = Util.readJsonFile(this.file, this.objectMapper, new TypeReference<Set<String>>() {}, HashSet::new);
 		this.reward = reward;
 	}
 	

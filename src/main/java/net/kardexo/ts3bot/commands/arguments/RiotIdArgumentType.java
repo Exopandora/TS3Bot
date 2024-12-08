@@ -5,7 +5,6 @@ import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-
 import net.kardexo.ts3bot.api.LeagueOfLegends.Platform;
 import net.kardexo.ts3bot.api.LeagueOfLegends.RiotId;
 
@@ -21,7 +20,7 @@ public class RiotIdArgumentType implements ArgumentType<RiotId>
 	}
 	
 	@Override
-	public <S> RiotId parse(StringReader reader) throws CommandSyntaxException
+	public RiotId parse(StringReader reader) throws CommandSyntaxException
 	{
 		return RiotId.parse(this.delegate.parse(reader), this.defaultRegion);
 	}

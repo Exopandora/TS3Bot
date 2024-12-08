@@ -8,7 +8,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 public class WordListArgumentType implements ArgumentType<String[]>
 {
 	@Override
-	public <S> String[] parse(StringReader reader) throws CommandSyntaxException
+	public String[] parse(StringReader reader) throws CommandSyntaxException
 	{
 		String text = reader.getRemaining();
 		reader.setCursor(reader.getTotalLength());

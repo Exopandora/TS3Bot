@@ -1,5 +1,14 @@
 package net.kardexo.ts3bot.commands.arguments;
 
+import com.mojang.brigadier.LiteralMessage;
+import com.mojang.brigadier.StringReader;
+import com.mojang.brigadier.arguments.ArgumentType;
+import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.exceptions.Dynamic2CommandExceptionType;
+import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
+import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
+
 import java.time.Duration;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Arrays;
@@ -9,15 +18,6 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
-import com.mojang.brigadier.LiteralMessage;
-import com.mojang.brigadier.StringReader;
-import com.mojang.brigadier.arguments.ArgumentType;
-import com.mojang.brigadier.context.CommandContext;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import com.mojang.brigadier.exceptions.Dynamic2CommandExceptionType;
-import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
-import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 
 public class DurationArgumentType implements ArgumentType<Duration>
 {
@@ -34,7 +34,7 @@ public class DurationArgumentType implements ArgumentType<Duration>
 	private static final DynamicCommandExceptionType DURATION_TOO_LOW = new DynamicCommandExceptionType((found) -> new LiteralMessage("Duration must be at least 0, found " + found));
 	
 	@Override
-	public <S> Duration parse(StringReader reader) throws CommandSyntaxException
+	public Duration parse(StringReader reader) throws CommandSyntaxException
 	{
 		final int start = reader.getCursor();
 		Duration duration = Duration.ZERO;

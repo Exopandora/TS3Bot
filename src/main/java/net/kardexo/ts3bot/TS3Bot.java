@@ -1,18 +1,5 @@
 package net.kardexo.ts3bot;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.Scanner;
-import java.util.Timer;
-import java.util.concurrent.TimeUnit;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.theholywaffle.teamspeak3.TS3Api;
 import com.github.theholywaffle.teamspeak3.TS3Config;
@@ -25,8 +12,8 @@ import com.github.theholywaffle.teamspeak3.api.reconnect.ConnectionHandler;
 import com.github.theholywaffle.teamspeak3.api.reconnect.ReconnectStrategy;
 import com.github.theholywaffle.teamspeak3.api.wrapper.Channel;
 import com.github.theholywaffle.teamspeak3.api.wrapper.Client;
+import com.github.theholywaffle.teamspeak3.api.wrapper.Wrapper;
 import com.mojang.brigadier.CommandDispatcher;
-
 import net.kardexo.ts3bot.commands.CommandSource;
 import net.kardexo.ts3bot.commands.impl.BalanceCommand;
 import net.kardexo.ts3bot.commands.impl.BanCommand;
@@ -63,6 +50,18 @@ import net.kardexo.ts3bot.util.CoinManager;
 import net.kardexo.ts3bot.util.UserConfigManager;
 import net.kardexo.ts3bot.util.UserConfigManager.UserConfig;
 import net.kardexo.ts3bot.util.Util;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.Scanner;
+import java.util.Timer;
+import java.util.concurrent.TimeUnit;
 
 public class TS3Bot extends TS3EventAdapter implements ConnectionHandler
 {
@@ -101,7 +100,7 @@ public class TS3Bot extends TS3EventAdapter implements ConnectionHandler
 		this.apiKeyManager = new APIKeyManager(this.config.getApiKeys());
 	}
 	
-	public void start() throws InterruptedException
+	public void start()
 	{
 		Runtime.getRuntime().addShutdownHook(new Thread(this::exit));
 		
@@ -121,7 +120,7 @@ public class TS3Bot extends TS3EventAdapter implements ConnectionHandler
 				Map<String, String> map = new HashMap<String, String>();
 				map.put("msg", scanner.nextLine().replaceFirst("^!*", "!"));
 				map.put("invokerid", String.valueOf(-1));
-				this.onTextMessage(new TextMessageEvent(map));
+				this.onTextMessage(new TextMessageEvent(new Wrapper(map)));
 			}
 		}
 	}
@@ -184,11 +183,11 @@ public class TS3Bot extends TS3EventAdapter implements ConnectionHandler
 	}
 	
 	@Override
-	public void onConnect(TS3Query ts3Query)
+	public void onConnect(TS3Api api)
 	{
 		TS3Bot.LOGGER.info("Connected to " + this.config.getHostAddress());
 		
-		this.api = ts3Query.getApi();
+		this.api = api;
 		
 		try
 		{

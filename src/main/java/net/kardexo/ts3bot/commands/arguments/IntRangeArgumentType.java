@@ -24,7 +24,7 @@ public class IntRangeArgumentType implements ArgumentType<IntRangeArgumentType.I
 	}
 	
 	@Override
-	public <S> IntRange parse(StringReader reader) throws CommandSyntaxException
+	public IntRange parse(StringReader reader) throws CommandSyntaxException
 	{
 		int start = reader.getCursor();
 		int lowerBound = this.readNumber(reader);

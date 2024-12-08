@@ -1,22 +1,21 @@
 package net.kardexo.ts3bot.commands.impl;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.LiteralMessage;
 import com.mojang.brigadier.ParseResults;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
-import com.mojang.brigadier.context.StringRange;
+import com.mojang.brigadier.context.ParsedCommandNode;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.tree.CommandNode;
-
 import net.kardexo.ts3bot.commands.CommandSource;
 import net.kardexo.ts3bot.commands.Commands;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 public class HelpCommand
 {
@@ -63,12 +62,14 @@ public class HelpCommand
 			}
 		}
 		
-		Map<CommandNode<CommandSource>, StringRange> nodes = parse.getContext().getLastChild().getNodes();
+		List<CommandNode<CommandSource>> nodes = parse.getContext().getLastChild().getNodes().stream()
+			.map(ParsedCommandNode::getNode)
+			.toList();
 		StringBuilder builder = new StringBuilder("Usage: !" + command);
 		
 		if(!nodes.isEmpty())
 		{
-			HelpCommand.appendAllUsage(builder, dispatcher,  HelpCommand.nodeMapToList(nodes), context.getSource(), true);
+			HelpCommand.appendAllUsage(builder, dispatcher, nodes, context.getSource(), true);
 		}
 		
 		context.getSource().sendFeedback(builder.toString());
@@ -91,10 +92,5 @@ public class HelpCommand
 		{
 			builder.append(" [" + String.join(", ", usages) + "]");
 		}
-	}
-	
-	public static List<CommandNode<CommandSource>> nodeMapToList(Map<CommandNode<CommandSource>, StringRange> nodes)
-	{
-		return nodes.entrySet().stream().sorted((a, b) -> Integer.compare(a.getValue().getEnd(), b.getValue().getEnd())).map(Entry::getKey).toList();
 	}
 }
