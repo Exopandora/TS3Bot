@@ -1,6 +1,7 @@
 package net.kardexo.ts3bot.services;
 
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -82,7 +83,7 @@ public class APIKeyService
 	
 	private void removeExpired(long time, List<Limit> limits, LinkedList<Long> requests)
 	{
-		long bound = time - Collections.max(limits, (a, b) -> Long.compare(a.getDuration(), b.getDuration())).getDuration();
+		long bound = time - Collections.max(limits, Comparator.comparingLong(Limit::getDuration)).getDuration();
 		
 		while(!requests.isEmpty() && bound > requests.peek())
 		{
