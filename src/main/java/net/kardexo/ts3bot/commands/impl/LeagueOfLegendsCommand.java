@@ -41,7 +41,7 @@ import net.kardexo.ts3bot.api.LeagueOfLegends.Tier;
 import net.kardexo.ts3bot.commands.CommandSource;
 import net.kardexo.ts3bot.commands.Commands;
 import net.kardexo.ts3bot.commands.arguments.RiotIdArgumentType;
-import net.kardexo.ts3bot.util.UserConfigManager.UserConfig;
+import net.kardexo.ts3bot.services.UserConfigService.UserConfig;
 import net.kardexo.ts3bot.util.Util;
 
 public class LeagueOfLegendsCommand

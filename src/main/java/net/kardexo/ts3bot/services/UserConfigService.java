@@ -1,21 +1,22 @@
-package net.kardexo.ts3bot.util;
+package net.kardexo.ts3bot.services;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import net.kardexo.ts3bot.util.Util;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class UserConfigManager
+public class UserConfigService
 {
 	private final ObjectMapper objectMapper;
 	private final Map<String, UserConfig> users;
 	private final File file;
 	
-	public UserConfigManager(File file, ObjectMapper objectMapper) throws IOException
+	public UserConfigService(File file, ObjectMapper objectMapper) throws IOException
 	{
 		this.file = file;
 		this.objectMapper = objectMapper;

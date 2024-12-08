@@ -24,8 +24,8 @@ import net.kardexo.ts3bot.services.BonusService;
 import net.kardexo.ts3bot.util.ChatHistory;
 import net.kardexo.ts3bot.services.EconomyService;
 import net.kardexo.ts3bot.util.PermissionProvider;
-import net.kardexo.ts3bot.util.UserConfigManager;
-import net.kardexo.ts3bot.util.UserConfigManager.UserConfig;
+import net.kardexo.ts3bot.services.UserConfigService;
+import net.kardexo.ts3bot.services.UserConfigService.UserConfig;
 import net.kardexo.ts3bot.util.Util;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -61,7 +61,7 @@ public class TS3Bot extends TS3EventAdapter implements ConnectionHandler, Permis
 	private final ObjectMapper objectMapper = new ObjectMapper();
 	private final EconomyService economyService = new EconomyService(Util.createFile("coins.json"), this.objectMapper);
 	private final BonusService loginBonusService = new BonusService(Util.createFile("claims.json"), this.objectMapper, this::loginBonus);
-	private final UserConfigManager userConfigManager = new UserConfigManager(Util.createFile("userconfig.json"), this.objectMapper);
+	private final UserConfigService userConfigService = new UserConfigService(Util.createFile("userconfig.json"), this.objectMapper);
 	private final APIKeyService apiKeyService;
 	private Timer timer;
 	private TS3Api api;
@@ -220,12 +220,12 @@ public class TS3Bot extends TS3EventAdapter implements ConnectionHandler, Permis
 	
 	public UserConfig getUserConfig(String user)
 	{
-		return this.userConfigManager.getUserConfig(user);
+		return this.userConfigService.getUserConfig(user);
 	}
 	
 	public void saveUserConfig(String user, UserConfig config)
 	{
-		this.userConfigManager.saveUserConfig(user, config);
+		this.userConfigService.saveUserConfig(user, config);
 	}
 	
 	public void exit()
