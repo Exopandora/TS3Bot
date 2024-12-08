@@ -37,16 +37,16 @@ public class IntRangeArgumentType implements ArgumentType<IntRangeArgumentType.I
 			throw INVALID_RANGE.createWithContext(reader);
 		}
 		
-		if(lowerBound < this.minimum || upperBound < this.minimum)
+		if(lowerBound < this.minimum)
 		{
 			reader.setCursor(start);
-			throw INTERVAL_TOO_LOW.createWithContext(reader, Math.min(lowerBound, upperBound), this.minimum);
+			throw INTERVAL_TOO_LOW.createWithContext(reader, lowerBound, this.minimum);
 		}
 		
 		if(lowerBound > this.maximum || upperBound > this.maximum)
 		{
 			reader.setCursor(start);
-			throw INTERVAL_TOO_HIGH.createWithContext(reader, Math.max(lowerBound, upperBound), this.maximum);
+			throw INTERVAL_TOO_HIGH.createWithContext(reader, upperBound, this.maximum);
 		}
 		
 		return new IntRange(lowerBound, upperBound);

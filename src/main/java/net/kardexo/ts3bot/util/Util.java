@@ -1,5 +1,14 @@
 package net.kardexo.ts3bot.util;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.theholywaffle.teamspeak3.api.wrapper.Client;
+import net.kardexo.ts3bot.TS3Bot;
+import org.apache.http.client.config.CookieSpecs;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -14,21 +23,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import org.apache.http.client.config.CookieSpecs;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
-
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import net.kardexo.ts3bot.TS3Bot;
-
 public class Util
 {
-	public static final Pattern URL_PATTERN = Pattern.compile("https?:\\/\\/[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]");
-	public static final Pattern WRAPPED_URL_PATTERN = Pattern.compile("\\[URL\\].*\\[\\/URL\\]");
-	public static final String QUERY_SPLIT = "\\?|&";
+	public static final Pattern URL_PATTERN = Pattern.compile("https?://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]");
+	public static final Pattern WRAPPED_URL_PATTERN = Pattern.compile("\\[URL].*\\[/URL]");
+	public static final String QUERY_SPLIT = "[?&]";
 	public static final Pattern PARAMETER_PATTERN = Pattern.compile("([^=]+)=([^=]+)");
 	
 	public static String extract(String url)
@@ -85,18 +84,6 @@ public class Util
 		}
 		
 		return String.format("%02d:%02d", minutes, seconds);
-	}	
-	
-	public static String repeat(CharSequence sequence, int repetitions)
-	{
-		StringBuilder builder = new StringBuilder();
-		
-		for(int x = 0; x < repetitions; x++)
-		{
-			builder.append(sequence);
-		}
-		
-		return builder.toString();
 	}
 	
 	public static CloseableHttpClient httpClient()
@@ -110,11 +97,10 @@ public class Util
 			.setConnectionRequestTimeout(5000)
 			.setCookieSpec(cookieSpec)
 			.build();
-		CloseableHttpClient client = HttpClientBuilder.create()
+		return HttpClientBuilder.create()
 			.setUserAgent(TS3Bot.USER_AGENT)
 			.setDefaultRequestConfig(config)
 			.build();
-		return client;
 	}
 	
 	public static File createFile(String fileName) throws IOException
@@ -160,7 +146,7 @@ public class Util
 	{
 		return TS3Bot.getInstance().getApi().getClients().stream()
 			.filter(client -> client.getChannelId() == channelId && client.getId() != TS3Bot.getInstance().getId())
-			.map(client -> client.getNickname())
+			.map(Client::getNickname)
 			.collect(Collectors.toList());
 	}
 }

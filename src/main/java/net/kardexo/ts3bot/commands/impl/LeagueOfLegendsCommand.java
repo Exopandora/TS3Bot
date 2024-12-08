@@ -234,7 +234,7 @@ public class LeagueOfLegendsCommand
 			var teams = LeagueOfLegendsCommand.groupAndLoad(participants, championsFuture, platform).entrySet().stream()
 				.sorted((a, b) -> Integer.compare(a.getKey(), b.getKey()))
 				.map(Entry::getValue)
-				.collect(Collectors.toList());
+				.toList();
 			var teamRatings = new int[teams.size()];
 			
 			for(int x = 0; x < teams.size(); x++)
@@ -244,7 +244,7 @@ public class LeagueOfLegendsCommand
 				
 				if(x > 0)
 				{
-					builder.append("\n" + Util.repeat("\t", 7) + "[b]VS[/b]");
+					builder.append("\n" + "\t".repeat(7) + "[b]VS[/b]");
 				}
 				
 				if(!teamMembers.isEmpty())
