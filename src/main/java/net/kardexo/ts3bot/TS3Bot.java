@@ -17,30 +17,6 @@ import com.github.theholywaffle.teamspeak3.api.wrapper.ClientInfo;
 import com.github.theholywaffle.teamspeak3.api.wrapper.Wrapper;
 import com.mojang.brigadier.CommandDispatcher;
 import net.kardexo.ts3bot.commands.CommandSource;
-import net.kardexo.ts3bot.commands.impl.BalanceCommand;
-import net.kardexo.ts3bot.commands.impl.BanCommand;
-import net.kardexo.ts3bot.commands.impl.BingoCommand;
-import net.kardexo.ts3bot.commands.impl.BotCommand;
-import net.kardexo.ts3bot.commands.impl.CalculateCommand;
-import net.kardexo.ts3bot.commands.impl.ExitCommand;
-import net.kardexo.ts3bot.commands.impl.GambleCommand;
-import net.kardexo.ts3bot.commands.impl.HelpCommand;
-import net.kardexo.ts3bot.commands.impl.KickAllCommand;
-import net.kardexo.ts3bot.commands.impl.KickCommand;
-import net.kardexo.ts3bot.commands.impl.LeagueOfLegendsCommand;
-import net.kardexo.ts3bot.commands.impl.MoveCommand;
-import net.kardexo.ts3bot.commands.impl.PlayCommand;
-import net.kardexo.ts3bot.commands.impl.RandomCommand;
-import net.kardexo.ts3bot.commands.impl.RulesCommand;
-import net.kardexo.ts3bot.commands.impl.SayCommand;
-import net.kardexo.ts3bot.commands.impl.SilentCommand;
-import net.kardexo.ts3bot.commands.impl.TeamsCommand;
-import net.kardexo.ts3bot.commands.impl.TextCommand;
-import net.kardexo.ts3bot.commands.impl.TimerCommand;
-import net.kardexo.ts3bot.commands.impl.TransferCommand;
-import net.kardexo.ts3bot.commands.impl.TwitchCommand;
-import net.kardexo.ts3bot.commands.impl.Watch2GetherCommand;
-import net.kardexo.ts3bot.commands.impl.YouTubeCommand;
 import net.kardexo.ts3bot.config.Config;
 import net.kardexo.ts3bot.message.CommandMessageProcessor;
 import net.kardexo.ts3bot.message.IMessageProcessor;
@@ -83,8 +59,7 @@ public class TS3Bot extends TS3EventAdapter implements ConnectionHandler, Permis
 	private int id;
 	private final Config config;
 	private final ChatHistory history;
-	private final CommandDispatcher<CommandSource> dispatcher = new CommandDispatcher<CommandSource>();
-	private final List<IMessageProcessor> messageProcessors = List.of(new CommandMessageProcessor(), new URLMessageProcessor());
+	private final List<IMessageProcessor> messageProcessors = List.of(new CommandMessageProcessor(this), new URLMessageProcessor());
 	private final ObjectMapper objectMapper = new ObjectMapper();
 	private final CoinManager coinManager = new CoinManager(Util.createFile("coins.json"), this.objectMapper);
 	private final BonusManager loginBonusManager = new BonusManager(Util.createFile("claims.json"), this.objectMapper, this::loginBonus);
@@ -112,7 +87,6 @@ public class TS3Bot extends TS3EventAdapter implements ConnectionHandler, Permis
 		config.setReconnectStrategy(ReconnectStrategy.constantBackoff());
 		config.setConnectionHandler(this);
 		
-		this.registerCommands();
 		this.query = new TS3Query(config);
 		this.query.connect();
 		
@@ -126,34 +100,6 @@ public class TS3Bot extends TS3EventAdapter implements ConnectionHandler, Permis
 				this.onTextMessage(new TextMessageEvent(new Wrapper(map)));
 			}
 		}
-	}
-	
-	private void registerCommands()
-	{
-		ExitCommand.register(this.dispatcher);
-		BotCommand.register(this.dispatcher);
-		HelpCommand.register(this.dispatcher);
-		TwitchCommand.register(this.dispatcher);
-		TeamsCommand.register(this.dispatcher);
-		Watch2GetherCommand.register(this.dispatcher);
-		RandomCommand.register(this.dispatcher);
-		MoveCommand.register(this.dispatcher);
-		SilentCommand.register(this.dispatcher);
-		LeagueOfLegendsCommand.register(this.dispatcher);
-		TextCommand.register(this.dispatcher);
-		KickCommand.register(this.dispatcher, this);
-		KickAllCommand.register(this.dispatcher);
-		YouTubeCommand.register(this.dispatcher);
-		RulesCommand.register(this.dispatcher);
-		SayCommand.register(this.dispatcher);
-		TimerCommand.register(this.dispatcher);
-		BingoCommand.register(this.dispatcher);
-		CalculateCommand.register(this.dispatcher);
-		BalanceCommand.register(this.dispatcher, this);
-		TransferCommand.register(this.dispatcher, this);
-		PlayCommand.register(this.dispatcher);
-		BanCommand.register(this.dispatcher, this);
-		GambleCommand.register(this.dispatcher);
 	}
 	
 	@Override
@@ -339,11 +285,6 @@ public class TS3Bot extends TS3EventAdapter implements ConnectionHandler, Permis
 	public boolean isSilent()
 	{
 		return this.silent;
-	}
-	
-	public CommandDispatcher<CommandSource> getCommandDispatcher()
-	{
-		return this.dispatcher;
 	}
 	
 	public ChatHistory getChatHistory()
