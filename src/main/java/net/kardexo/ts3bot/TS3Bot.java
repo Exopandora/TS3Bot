@@ -20,7 +20,7 @@ import net.kardexo.ts3bot.message.CommandMessageProcessor;
 import net.kardexo.ts3bot.message.IMessageProcessor;
 import net.kardexo.ts3bot.message.URLMessageProcessor;
 import net.kardexo.ts3bot.services.APIKeyService;
-import net.kardexo.ts3bot.util.BonusManager;
+import net.kardexo.ts3bot.services.BonusService;
 import net.kardexo.ts3bot.util.ChatHistory;
 import net.kardexo.ts3bot.util.CoinManager;
 import net.kardexo.ts3bot.util.PermissionProvider;
@@ -60,7 +60,7 @@ public class TS3Bot extends TS3EventAdapter implements ConnectionHandler, Permis
 	private final List<IMessageProcessor> messageProcessors = List.of(new CommandMessageProcessor(this), new URLMessageProcessor());
 	private final ObjectMapper objectMapper = new ObjectMapper();
 	private final CoinManager coinManager = new CoinManager(Util.createFile("coins.json"), this.objectMapper);
-	private final BonusManager loginBonusManager = new BonusManager(Util.createFile("claims.json"), this.objectMapper, this::loginBonus);
+	private final BonusService loginBonusService = new BonusService(Util.createFile("claims.json"), this.objectMapper, this::loginBonus);
 	private final UserConfigManager userConfigManager = new UserConfigManager(Util.createFile("userconfig.json"), this.objectMapper);
 	private final APIKeyService apiKeyService;
 	private Timer timer;
@@ -165,9 +165,9 @@ public class TS3Bot extends TS3EventAdapter implements ConnectionHandler, Permis
 			
 			TS3Bot.LOGGER.info("Logged in as " + this.config.getLoginName());
 			
-			this.loginBonusManager.claim(this.getAllClientUids());
+			this.loginBonusService.claim(this.getAllClientUids());
 			this.timer = new Timer();
-			this.timer.schedule(this.loginBonusManager.createTimerTask(this::getAllClientUids), Util.tomorrow(), TimeUnit.DAYS.toMillis(1));
+			this.timer.schedule(this.loginBonusService.createTimerTask(this::getAllClientUids), Util.tomorrow(), TimeUnit.DAYS.toMillis(1));
 		}
 		catch(Exception e)
 		{
@@ -178,7 +178,7 @@ public class TS3Bot extends TS3EventAdapter implements ConnectionHandler, Permis
 	@Override
 	public void onClientJoin(ClientJoinEvent event)
 	{
-		this.loginBonusManager.claim(event.getUniqueClientIdentifier());
+		this.loginBonusService.claim(event.getUniqueClientIdentifier());
 	}
 	
 	@Override

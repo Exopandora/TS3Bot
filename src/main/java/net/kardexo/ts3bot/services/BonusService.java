@@ -1,7 +1,8 @@
-package net.kardexo.ts3bot.util;
+package net.kardexo.ts3bot.services;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import net.kardexo.ts3bot.util.Util;
 
 import java.io.File;
 import java.io.IOException;
@@ -12,14 +13,14 @@ import java.util.TimerTask;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-public class BonusManager
+public class BonusService
 {
 	private final ObjectMapper objectMapper;
 	private final Set<String> claimed;
 	private final Consumer<String> reward;
 	private final File file;
 	
-	public BonusManager(File file, ObjectMapper objectMapper, Consumer<String> reward) throws IOException
+	public BonusService(File file, ObjectMapper objectMapper, Consumer<String> reward) throws IOException
 	{
 		this.file = file;
 		this.objectMapper = objectMapper;
@@ -100,8 +101,8 @@ public class BonusManager
 			@Override
 			public void run()
 			{
-				BonusManager.this.reset();
-				BonusManager.this.claim(users.get());
+				BonusService.this.reset();
+				BonusService.this.claim(users.get());
 			}
 		};
 	}
