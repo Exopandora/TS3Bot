@@ -1,5 +1,6 @@
 package net.kardexo.ts3bot;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.theholywaffle.teamspeak3.TS3Api;
 import com.github.theholywaffle.teamspeak3.TS3Config;
@@ -12,6 +13,7 @@ import com.github.theholywaffle.teamspeak3.api.reconnect.ConnectionHandler;
 import com.github.theholywaffle.teamspeak3.api.reconnect.ReconnectStrategy;
 import com.github.theholywaffle.teamspeak3.api.wrapper.Channel;
 import com.github.theholywaffle.teamspeak3.api.wrapper.Client;
+import com.github.theholywaffle.teamspeak3.api.wrapper.ClientInfo;
 import com.github.theholywaffle.teamspeak3.api.wrapper.Wrapper;
 import com.mojang.brigadier.CommandDispatcher;
 import net.kardexo.ts3bot.commands.CommandSource;
@@ -47,6 +49,7 @@ import net.kardexo.ts3bot.util.APIKeyManager;
 import net.kardexo.ts3bot.util.BonusManager;
 import net.kardexo.ts3bot.util.ChatHistory;
 import net.kardexo.ts3bot.util.CoinManager;
+import net.kardexo.ts3bot.util.PermissionProvider;
 import net.kardexo.ts3bot.util.UserConfigManager;
 import net.kardexo.ts3bot.util.UserConfigManager.UserConfig;
 import net.kardexo.ts3bot.util.Util;
@@ -63,7 +66,7 @@ import java.util.Scanner;
 import java.util.Timer;
 import java.util.concurrent.TimeUnit;
 
-public class TS3Bot extends TS3EventAdapter implements ConnectionHandler
+public class TS3Bot extends TS3EventAdapter implements ConnectionHandler, PermissionProvider
 {
 	public static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.246";
 	public static final String API_KEY_WATCH_2_GETHER = "watch_2_gether";
@@ -238,6 +241,32 @@ public class TS3Bot extends TS3EventAdapter implements ConnectionHandler
 	public void onDisconnect(TS3Query ts3Query)
 	{
 		this.timer.cancel();
+	}
+	
+	@Override
+	public boolean hasPermission(ClientInfo clientInfo, String permission)
+	{
+		if(clientInfo.getId() == this.id)
+		{
+			return true;
+		}
+		
+		JsonNode group = this.getConfig().getPermissions().get(permission);
+		
+		if(group != null)
+		{
+			String uid = clientInfo.getUniqueIdentifier();
+			
+			for(JsonNode jsonNode : group)
+			{
+				if(jsonNode.asText().equals(uid))
+				{
+					return true;
+				}
+			}
+		}
+		
+		return false;
 	}
 	
 	public void loginBonus(String user)

@@ -1,24 +1,23 @@
 package net.kardexo.ts3bot.message;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 import com.github.theholywaffle.teamspeak3.api.TextMessageTargetMode;
 import com.mojang.brigadier.ParseResults;
 import com.mojang.brigadier.context.ParsedCommandNode;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.CommandNode;
-
 import net.kardexo.ts3bot.TS3Bot;
 import net.kardexo.ts3bot.commands.CommandSource;
 import net.kardexo.ts3bot.commands.impl.HelpCommand;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class CommandMessageProcessor implements IMessageProcessor
 {
 	@Override
 	public void process(TS3Bot bot, String message, int invokerId, TextMessageTargetMode targetMode)
 	{
-		CommandSource source = new CommandSource(bot.getApi(), bot.getApi().getClientInfo(invokerId == -1 ? bot.getId() : invokerId), targetMode);
+		CommandSource source = new CommandSource(bot, bot.getApi().getClientInfo(invokerId == -1 ? bot.getId() : invokerId), targetMode);
 		
 		if(bot.isSilent() && (!source.hasPermission("admin") || invokerId != -1))
 		{
