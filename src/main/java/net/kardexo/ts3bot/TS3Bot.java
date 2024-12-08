@@ -15,13 +15,11 @@ import com.github.theholywaffle.teamspeak3.api.wrapper.Channel;
 import com.github.theholywaffle.teamspeak3.api.wrapper.Client;
 import com.github.theholywaffle.teamspeak3.api.wrapper.ClientInfo;
 import com.github.theholywaffle.teamspeak3.api.wrapper.Wrapper;
-import com.mojang.brigadier.CommandDispatcher;
-import net.kardexo.ts3bot.commands.CommandSource;
 import net.kardexo.ts3bot.config.Config;
 import net.kardexo.ts3bot.message.CommandMessageProcessor;
 import net.kardexo.ts3bot.message.IMessageProcessor;
 import net.kardexo.ts3bot.message.URLMessageProcessor;
-import net.kardexo.ts3bot.util.APIKeyManager;
+import net.kardexo.ts3bot.services.APIKeyService;
 import net.kardexo.ts3bot.util.BonusManager;
 import net.kardexo.ts3bot.util.ChatHistory;
 import net.kardexo.ts3bot.util.CoinManager;
@@ -64,7 +62,7 @@ public class TS3Bot extends TS3EventAdapter implements ConnectionHandler, Permis
 	private final CoinManager coinManager = new CoinManager(Util.createFile("coins.json"), this.objectMapper);
 	private final BonusManager loginBonusManager = new BonusManager(Util.createFile("claims.json"), this.objectMapper, this::loginBonus);
 	private final UserConfigManager userConfigManager = new UserConfigManager(Util.createFile("userconfig.json"), this.objectMapper);
-	private final APIKeyManager apiKeyManager;
+	private final APIKeyService apiKeyService;
 	private Timer timer;
 	private TS3Api api;
 	private TS3Query query;
@@ -75,7 +73,7 @@ public class TS3Bot extends TS3EventAdapter implements ConnectionHandler, Permis
 		TS3Bot.instance = this;
 		this.config = this.objectMapper.readValue(config, Config.class);
 		this.history = new ChatHistory(this.config.getChatHistorySize());
-		this.apiKeyManager = new APIKeyManager(this.config.getApiKeys());
+		this.apiKeyService = new APIKeyService(this.config.getApiKeys());
 	}
 	
 	public void start()
@@ -272,9 +270,9 @@ public class TS3Bot extends TS3EventAdapter implements ConnectionHandler, Permis
 		return this.id;
 	}
 	
-	public APIKeyManager getApiKeyManager()
+	public APIKeyService getApiKeyManager()
 	{
-		return this.apiKeyManager;
+		return this.apiKeyService;
 	}
 	
 	public void setSilent(boolean silent)
