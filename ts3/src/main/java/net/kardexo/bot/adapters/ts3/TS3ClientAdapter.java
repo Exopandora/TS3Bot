@@ -55,7 +55,7 @@ public class TS3ClientAdapter implements IClient
 			return false;
 		}
 		
-		return this.clientId == other.clientId && Objects.equals(this.api, other.api);
+		return this.clientId == other.clientId;
 	}
 	
 	@Override
