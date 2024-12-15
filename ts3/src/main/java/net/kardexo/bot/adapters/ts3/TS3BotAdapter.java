@@ -62,7 +62,7 @@ public class TS3BotAdapter extends AbstractBot
 			@Override
 			public void onClientJoin(ClientJoinEvent event)
 			{
-				TS3BotAdapter.this.onClientJoin(new TS3ClientAdapter(TS3BotAdapter.this.api, event.getInvokerId()));
+				TS3BotAdapter.this.onClientJoin(new TS3ClientAdapter(TS3BotAdapter.this.api, event.getClientId()));
 			}
 		};
 		ConnectionHandler connectionHandler = new ConnectionHandler()
