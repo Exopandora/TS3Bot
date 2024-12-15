@@ -23,11 +23,21 @@ public class MessageService implements IMessageService
 	private final List<IMessageProcessor> messageProcessors = new ArrayList<IMessageProcessor>();
 	private final IBotClient bot;
 	
-	public MessageService(IBotClient bot, Config config, IAPIKeyService apiKeyService, IPermissionService permissionService, IEconomyService economyService, IUserConfigService userConfigService, Random random)
+	public MessageService
+	(
+		IBotClient bot,
+		Config config,
+		IAPIKeyService apiKeyService,
+		IPermissionService permissionService,
+		IEconomyService economyService,
+		IUserConfigService userConfigService,
+		Random random
+	)
 	{
 		this.bot = bot;
-		this.messageProcessors.add(new CommandMessageProcessor(bot, config, apiKeyService, permissionService, economyService, userConfigService, random));
-		this.messageProcessors.add(new URLMessageProcessor(apiKeyService));
+		URLMessageProcessor urlMessageProcessor = new URLMessageProcessor(apiKeyService);
+		this.messageProcessors.add(new CommandMessageProcessor(bot, config, apiKeyService, permissionService, economyService, userConfigService, urlMessageProcessor, random));
+		this.messageProcessors.add(urlMessageProcessor);
 	}
 	
 	@Override

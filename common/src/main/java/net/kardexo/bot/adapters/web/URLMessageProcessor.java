@@ -14,6 +14,7 @@ import net.kardexo.bot.domain.api.MessageTarget;
 import net.kardexo.bot.domain.Util;
 import net.kardexo.bot.services.api.IAPIKeyService;
 import net.kardexo.bot.services.api.IMessageProcessor;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,7 +40,7 @@ public class URLMessageProcessor implements IMessageProcessor
 	@Override
 	public void process(IBotClient bot, String message, IClient client, MessageTarget target, ChatHistory chatHistory)
 	{
-		String response = this.response(message, chatHistory, true);
+		String response = this.processMessage(message, chatHistory);
 		
 		if(response != null)
 		{
@@ -53,9 +54,9 @@ public class URLMessageProcessor implements IMessageProcessor
 		return target == MessageTarget.CHANNEL && !(client instanceof IBotClient);
 	}
 	
-	private String response(String message, ChatHistory chatHistory, boolean checkHistory)
+	public String processMessage(String message, @NotNull ChatHistory chatHistory)
 	{
-		if(!checkHistory || chatHistory.appendAndCheckIfNew(message, MESSAGE_LIFETIME_MILLIS))
+		if(chatHistory.appendAndCheckIfNew(message, MESSAGE_LIFETIME_MILLIS))
 		{
 			return this.processMessage(message);
 		}
@@ -63,9 +64,9 @@ public class URLMessageProcessor implements IMessageProcessor
 		return null;
 	}
 	
-	private String processMessage(String message)
+	public String processMessage(String message)
 	{
-		String url = Util.extract(message);
+		String url = Util.extractURL(message);
 		
 		if(url != null)
 		{

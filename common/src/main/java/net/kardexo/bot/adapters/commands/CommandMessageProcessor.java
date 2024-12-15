@@ -29,6 +29,7 @@ import net.kardexo.bot.adapters.commands.impl.TransferCommand;
 import net.kardexo.bot.adapters.commands.impl.TwitchCommand;
 import net.kardexo.bot.adapters.commands.impl.Watch2GetherCommand;
 import net.kardexo.bot.adapters.commands.impl.YouTubeCommand;
+import net.kardexo.bot.adapters.web.URLMessageProcessor;
 import net.kardexo.bot.domain.ChatHistory;
 import net.kardexo.bot.domain.api.IBotClient;
 import net.kardexo.bot.domain.api.IClient;
@@ -50,7 +51,17 @@ public class CommandMessageProcessor implements IMessageProcessor
 	private final IPermissionService permissionService;
 	private final Random random;
 	
-	public CommandMessageProcessor(IBotClient bot, Config config, IAPIKeyService apiKeyService, IPermissionService permissionService, IEconomyService economyService, IUserConfigService userConfigService, Random random)
+	public CommandMessageProcessor
+	(
+		IBotClient bot,
+		Config config,
+		IAPIKeyService apiKeyService,
+		IPermissionService permissionService,
+		IEconomyService economyService,
+		IUserConfigService userConfigService,
+		URLMessageProcessor urlMessageProcessor,
+		Random random
+	)
 	{
 		this.permissionService = permissionService;
 		this.random = random;
@@ -59,7 +70,7 @@ public class CommandMessageProcessor implements IMessageProcessor
 		HelpCommand.register(this.dispatcher);
 		TwitchCommand.register(this.dispatcher, config, apiKeyService);
 		TeamsCommand.register(this.dispatcher);
-		Watch2GetherCommand.register(this.dispatcher, config, apiKeyService);
+		Watch2GetherCommand.register(this.dispatcher, config, apiKeyService, urlMessageProcessor);
 		RandomCommand.register(this.dispatcher);
 		MoveCommand.register(this.dispatcher, bot, permissionService);
 		SilentCommand.register(this.dispatcher, permissionService);

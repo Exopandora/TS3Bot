@@ -32,7 +32,7 @@ public class Util
 	public static final Pattern WRAPPED_URL_PATTERN = Pattern.compile("\\[URL].*\\[/URL]");
 	public static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.246";
 	
-	public static String extract(String url)
+	public static String extractURL(String url)
 	{
 		if(url == null)
 		{
