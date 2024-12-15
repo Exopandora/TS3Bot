@@ -91,6 +91,7 @@ public class TS3BotAdapter extends AbstractBot
 		this.query.connect();
 		this.api = this.query.getApi();
 		this.botClient = new TS3BotClientAdapter(this.api, this.api.whoAmI().getId());
+		this.api.selectVirtualServerById(config.getVirtualServerId(), config.getLoginName());
 		this.api.registerEvent(TS3EventType.TEXT_CHANNEL);
 		this.api.registerEvent(TS3EventType.TEXT_PRIVATE);
 		this.api.registerEvent(TS3EventType.TEXT_SERVER);
