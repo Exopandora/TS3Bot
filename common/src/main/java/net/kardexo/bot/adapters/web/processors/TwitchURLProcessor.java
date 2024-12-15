@@ -1,11 +1,11 @@
 package net.kardexo.bot.adapters.web.processors;
 
+import net.kardexo.bot.adapters.twitch.Twitch;
+import net.kardexo.bot.services.api.IAPIKeyService;
+
 import java.net.URI;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import net.kardexo.bot.adapters.twitch.Twitch;
-import net.kardexo.bot.services.api.IAPIKeyService;
 
 public class TwitchURLProcessor implements IURLProcessor
 {

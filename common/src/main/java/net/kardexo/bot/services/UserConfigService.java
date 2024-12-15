@@ -2,9 +2,9 @@ package net.kardexo.bot.services;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import net.kardexo.bot.services.api.IUserConfigService;
-import net.kardexo.bot.domain.config.UserConfig;
 import net.kardexo.bot.domain.Util;
+import net.kardexo.bot.domain.config.UserConfig;
+import net.kardexo.bot.services.api.IUserConfigService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

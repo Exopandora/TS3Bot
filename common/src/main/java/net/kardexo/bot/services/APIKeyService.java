@@ -1,17 +1,17 @@
 package net.kardexo.bot.services;
 
+import net.kardexo.bot.domain.config.APIKeyConfig;
+import net.kardexo.bot.domain.config.APIKeyConfig.Limit;
+import net.kardexo.bot.services.api.IAPIKeyService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
-import net.kardexo.bot.domain.config.APIKeyConfig;
-import net.kardexo.bot.domain.config.APIKeyConfig.Limit;
-import net.kardexo.bot.services.api.IAPIKeyService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class APIKeyService implements IAPIKeyService
 {

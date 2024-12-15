@@ -2,8 +2,8 @@ package net.kardexo.bot.services;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import net.kardexo.bot.services.api.IBonusService;
 import net.kardexo.bot.domain.Util;
+import net.kardexo.bot.services.api.IBonusService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

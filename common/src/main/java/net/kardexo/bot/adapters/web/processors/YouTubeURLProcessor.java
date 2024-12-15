@@ -2,8 +2,8 @@ package net.kardexo.bot.adapters.web.processors;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import net.kardexo.bot.adapters.youtube.YouTube;
-import net.kardexo.bot.services.api.IAPIKeyService;
 import net.kardexo.bot.domain.Util;
+import net.kardexo.bot.services.api.IAPIKeyService;
 import org.apache.http.client.config.CookieSpecs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
