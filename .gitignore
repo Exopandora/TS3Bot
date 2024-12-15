@@ -85,7 +85,7 @@ gradle-app.setting
 **/build/
 
 run/
-src/integrationTest/
+**/src/integrationTest/
 
 claims.json
 coins.json

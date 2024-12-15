@@ -1,10 +1,12 @@
-# TS3Bot
+# KardExo Bot
 
 ## Build
-`gradlew build`
+### TeamSpeak
+The teamspeak distribution can be built using the following command:
+```shell
+gradlew :ts3:shadowJar
+```
+The resulting binary will be located in `ts3/build/libs`.
 
-## Setup IDE
-`gradlew eclipse` or `gradlew idea`
-
-## Config
+## Configuration
 Modify config.json
