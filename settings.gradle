@@ -2,5 +2,6 @@ rootProject.name = 'TS3Bot'
 
 include(
 	"common",
-	"ts3"
+	"ts3",
+	"discord"
 )
