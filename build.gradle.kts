@@ -9,7 +9,14 @@ subprojects {
 	
 	repositories {
 		mavenCentral()
-		maven("https://libraries.minecraft.net")
+		exclusiveContent {
+			forRepository {
+				maven("https://libraries.minecraft.net")
+			}
+			filter {
+				includeGroup("com.mojang")
+			}
+		}
 	}
 	
 	idea {
