@@ -1,14 +1,13 @@
 package net.kardexo.bot;
 
 import net.kardexo.bot.adapters.ts3.TS3BotAdapter;
-
-import java.io.File;
+import net.kardexo.bot.adapters.ts3.TS3ConfigAdapter;
 
 public class Start
 {
 	public static void main(String[] args) throws Exception
 	{
 		System.setProperty("slf4j.internal.verbosity", "WARN");
-		new TS3BotAdapter(new File("config.json")).start();
+		new TS3BotAdapter(TS3ConfigAdapter.of("config.json")).start();
 	}
 }

@@ -30,14 +30,14 @@ public class BalanceCommand
 	private static int set(CommandContext<CommandSource> context, IEconomyService economyService, int value)
 	{
 		IClient client = context.getSource().getClient();
-		economyService.set(client.getUniqueId(), value);
+		economyService.set(client.getId(), value);
 		context.getSource().sendFeedback("Set balance of " + client.getName() + " to " + value + economyService.getCurrency());
 		return value;
 	}
 	
 	private static int set(CommandContext<CommandSource> context, IEconomyService economyService, int value, IClient target)
 	{
-		String uuid = target.getUniqueId();
+		String uuid = target.getId();
 		economyService.set(uuid, value);
 		context.getSource().sendFeedback("Set balance of " + target.getName() + " to " + value + economyService.getCurrency());
 		return value;
@@ -46,14 +46,14 @@ public class BalanceCommand
 	private static int balance(CommandContext<CommandSource> context, IEconomyService economyService)
 	{
 		IClient client = context.getSource().getClient();
-		long coins = economyService.get(client.getUniqueId());
+		long coins = economyService.get(client.getId());
 		context.getSource().sendFeedback(client.getName() + " has " + coins + economyService.getCurrency());
 		return (int) coins;
 	}
 	
 	private static int balance(CommandContext<CommandSource> context, IEconomyService economyService, IClient client)
 	{
-		long coins = economyService.get(client.getUniqueId());
+		long coins = economyService.get(client.getId());
 		context.getSource().sendFeedback(client.getName() + " has " + coins + economyService.getCurrency());
 		return (int) coins;
 	}

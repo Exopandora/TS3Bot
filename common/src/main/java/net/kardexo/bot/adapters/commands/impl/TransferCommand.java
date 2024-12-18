@@ -27,7 +27,7 @@ public class TransferCommand
 	
 	private static int transfer(CommandContext<CommandSource> context, IEconomyService economyService, int amount, IClient beneficiary) throws CommandSyntaxException
 	{
-		if(!economyService.transfer(context.getSource().getClient().getUniqueId(), beneficiary.getUniqueId(), amount))
+		if(!economyService.transfer(context.getSource().getClient().getId(), beneficiary.getId(), amount))
 		{
 			throw NOT_ENOUGH_COINS.create(economyService.getCurrency());
 		}

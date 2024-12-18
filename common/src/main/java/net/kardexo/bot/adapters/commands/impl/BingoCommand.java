@@ -32,7 +32,7 @@ public class BingoCommand
 		calendar.set(Calendar.SECOND, 0);
 		calendar.set(Calendar.MILLISECOND, 0);
 		
-		long seed = Math.abs(calendar.getTimeInMillis() ^ context.getSource().getClient().getUniqueId().hashCode());
+		long seed = Math.abs(calendar.getTimeInMillis() ^ context.getSource().getClient().getId().hashCode());
 		Random random = new Random(seed);
 		ArrayList<JsonNode> items = new ArrayList<JsonNode>(bingoItems);
 		StringBuilder builder = new StringBuilder("\nTicket-ID " + seed);

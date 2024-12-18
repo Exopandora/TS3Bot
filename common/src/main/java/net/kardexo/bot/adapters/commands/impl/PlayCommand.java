@@ -20,7 +20,7 @@ public class PlayCommand
 	
 	private static int play(CommandContext<CommandSource> context)
 	{
-		List<String> usernames = getClientNamesInChannel(context.getSource().getClient().getChannel());
+		List<String> usernames = getClientNamesInChannel(context.getSource().getChannel());
 		Collections.shuffle(usernames, context.getSource().getRandomSource());
 		StringBuilder builder = new StringBuilder("The results are in:");
 		

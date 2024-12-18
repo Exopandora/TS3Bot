@@ -54,7 +54,7 @@ public class CalculateCommand
 	
 	private static int calculate(CommandContext<CommandSource> context, MathContext mathContext, String expression) throws CommandSyntaxException
 	{
-		String uuid = context.getSource().getClient().getUniqueId();
+		String uuid = context.getSource().getClient().getId();
 		
 		if(expression.contains("ans") && !HISTORY.containsKey(uuid))
 		{

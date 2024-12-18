@@ -1,5 +1,7 @@
 package net.kardexo.bot.domain.api;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.List;
 
 public interface IChannel
@@ -9,4 +11,6 @@ public interface IChannel
 	String getId();
 	
 	List<IClient> getClients();
+	
+	@Nullable IServer getServer();
 }

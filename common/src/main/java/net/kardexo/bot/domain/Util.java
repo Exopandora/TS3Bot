@@ -2,7 +2,6 @@ package net.kardexo.bot.domain;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import net.kardexo.bot.domain.api.IBotClient;
 import net.kardexo.bot.domain.api.IChannel;
 import net.kardexo.bot.domain.api.IClient;
 import org.apache.http.client.config.CookieSpecs;
@@ -143,7 +142,6 @@ public class Util
 	public static List<String> getClientNamesInChannel(IChannel channel)
 	{
 		return channel.getClients().stream()
-			.filter(client -> !(client instanceof IBotClient))
 			.map(IClient::getName)
 			.toList();
 	}

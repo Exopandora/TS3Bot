@@ -1,8 +1,11 @@
 package net.kardexo.bot.adapters.ts3;
 
 import com.github.theholywaffle.teamspeak3.TS3Api;
+import net.kardexo.bot.adapters.ts3.channel.TS3MessageChannelAdapter;
+import net.kardexo.bot.adapters.ts3.channel.TS3PrivateChannelAdapter;
 import net.kardexo.bot.domain.api.IChannel;
 import net.kardexo.bot.domain.api.IClient;
+import net.kardexo.bot.domain.api.IPrivateChannel;
 
 import java.util.Objects;
 
@@ -21,12 +24,6 @@ public class TS3ClientAdapter implements IClient
 	@Override
 	public String getId()
 	{
-		return String.valueOf(this.clientId);
-	}
-	
-	@Override
-	public String getUniqueId()
-	{
 		if(this.uniqueId == null)
 		{
 			this.uniqueId = this.api.getClientInfo(this.clientId).getUniqueIdentifier();
@@ -42,9 +39,19 @@ public class TS3ClientAdapter implements IClient
 	}
 	
 	@Override
+	public IPrivateChannel getPrivateChannel()
+	{
+		return new TS3PrivateChannelAdapter(this.api, this.clientId);
+	}
+	
+	public int getClientId()
+	{
+		return this.clientId;
+	}
+	
 	public IChannel getChannel()
 	{
-		return new TS3ChannelAdapter(this.api, this.api.getClientInfo(this.clientId).getChannelId());
+		return new TS3MessageChannelAdapter(this.api, this.api.getClientInfo(this.clientId).getChannelId());
 	}
 	
 	@Override

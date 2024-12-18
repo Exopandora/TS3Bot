@@ -1,8 +1,9 @@
 package net.kardexo.bot.domain;
 
 import net.kardexo.bot.domain.api.IBotClient;
+import net.kardexo.bot.domain.api.IChannel;
 import net.kardexo.bot.domain.api.IClient;
-import net.kardexo.bot.domain.api.MessageTarget;
+import net.kardexo.bot.domain.api.IConsoleChannel;
 import net.kardexo.bot.domain.config.Config;
 import net.kardexo.bot.services.APIKeyService;
 import net.kardexo.bot.services.BonusService;
@@ -26,9 +27,9 @@ import java.util.concurrent.TimeUnit;
 
 import static net.kardexo.bot.domain.Util.OBJECT_MAPPER;
 
-public abstract class AbstractBot
+public abstract class AbstractBot<T extends Config>
 {
-	private final Config config;
+	private final T config;
 	private final Random random;
 	private final ChatHistory chatHistory;
 	private final IEconomyService economyService;
@@ -40,7 +41,7 @@ public abstract class AbstractBot
 	private IMessageService messageService;
 	private Timer timer;
 	
-	public AbstractBot(Config config, Random random) throws IOException
+	public AbstractBot(T config, Random random) throws IOException
 	{
 		this.config = config;
 		this.random = random;
@@ -61,9 +62,9 @@ public abstract class AbstractBot
 	protected void onConnect()
 	{
 		this.messageService = new MessageService(this.getBotClient(), this.config, this.apiKeyService, this.permissionService, this.economyService, this.userConfigService, this.random);
-		this.loginBonusService.claim(this.getAllClientUids());
+		this.loginBonusService.claim(this.getAllClientUidsForLoginBonus());
 		this.timer = new Timer();
-		this.timer.schedule(this.loginBonusService.createTimerTask(this::getAllClientUids), Util.tomorrow(), TimeUnit.DAYS.toMillis(1));
+		this.timer.schedule(this.loginBonusService.createTimerTask(this::getAllClientUidsForLoginBonus), Util.tomorrow(), TimeUnit.DAYS.toMillis(1));
 		this.consoleListener = new Thread(this::listen);
 		this.consoleListener.setDaemon(true);
 		this.consoleListener.start();
@@ -71,12 +72,12 @@ public abstract class AbstractBot
 	
 	protected void onClientJoin(IClient client)
 	{
-		this.loginBonusService.claim(client.getUniqueId());
+		this.loginBonusService.claim(client.getId());
 	}
 	
-	protected void onMessage(IClient client, String message, MessageTarget target)
+	protected void onMessage(IChannel channel, IClient client, String message)
 	{
-		this.messageService.onMessage(client, message, target, this.chatHistory);
+		this.messageService.onMessage(channel, client, message, this.chatHistory);
 	}
 	
 	protected void onDisconnect()
@@ -94,7 +95,7 @@ public abstract class AbstractBot
 			while(scanner.hasNextLine())
 			{
 				String message = scanner.nextLine().replaceFirst("^!*", "!");
-				this.onMessage(this.getBotClient(), message, MessageTarget.CONSOLE);
+				this.onMessage(this.getConsoleChannel(), this.getBotClient(), message);
 			}
 		}
 	}
@@ -104,14 +105,13 @@ public abstract class AbstractBot
 		this.economyService.add(user, this.config.getLoginBonus());
 	}
 	
-	private List<String> getAllClientUids()
-	{
-		return this.getBotClient().getClients().stream().map(IClient::getUniqueId).toList();
-	}
+	protected abstract List<String> getAllClientUidsForLoginBonus();
 	
 	protected abstract IBotClient getBotClient();
 	
-	public Config getConfig()
+	protected abstract IConsoleChannel getConsoleChannel();
+	
+	public T getConfig()
 	{
 		return this.config;
 	}

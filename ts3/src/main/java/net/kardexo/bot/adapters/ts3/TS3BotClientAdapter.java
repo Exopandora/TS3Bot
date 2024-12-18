@@ -2,147 +2,73 @@ package net.kardexo.bot.adapters.ts3;
 
 import com.github.theholywaffle.teamspeak3.TS3Api;
 import com.github.theholywaffle.teamspeak3.api.TextMessageTargetMode;
-import com.github.theholywaffle.teamspeak3.api.exception.TS3CommandFailedException;
+import net.kardexo.bot.adapters.ts3.channel.TS3PrivateChannelAdapter;
 import net.kardexo.bot.domain.api.IBotClient;
 import net.kardexo.bot.domain.api.IChannel;
 import net.kardexo.bot.domain.api.IClient;
+import net.kardexo.bot.domain.api.IConsoleChannel;
+import net.kardexo.bot.domain.api.IMessageChannel;
+import net.kardexo.bot.domain.api.IPrivateChannel;
+import net.kardexo.bot.domain.api.IServer;
+import net.kardexo.bot.domain.api.IServerChannel;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
 import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class TS3BotClientAdapter extends TS3ClientAdapter implements IBotClient
 {
 	private boolean isSilent;
+	private int channelId;
 	
 	public TS3BotClientAdapter(TS3Api api, int clientId)
 	{
 		super(api, clientId);
+		this.channelId = api.getClientInfo(clientId).getChannelId();
 	}
 	
 	@Override
-	public void sendPrivateMessage(IClient client, String message)
+	public void sendPrivateMessage(IPrivateChannel channel, String message)
 	{
-		if(client instanceof IBotClient)
-		{
-			this.sendConsoleMessage(message);
-		}
-		else
-		{
-			this.api.sendPrivateMessage(Integer.parseInt(client.getId()), message);
-		}
+		this.api.sendPrivateMessage(((TS3PrivateChannelAdapter) channel).getClientId(), message);
 	}
 	
 	@Override
-	public void sendChannelMessage(String message)
-	{
-		this.api.sendTextMessage(TextMessageTargetMode.CHANNEL, -1, message);
-	}
-	
-	@Override
-	public void sendServerMessage(String message)
+	public void sendServerMessage(IServerChannel channel, String message)
 	{
 		this.api.sendServerMessage(message);
 	}
 	
 	@Override
-	public void sendConsoleMessage(String message)
+	public void sendChannelMessage(IMessageChannel channel, String message)
+	{
+		this.api.sendTextMessage(TextMessageTargetMode.CHANNEL, -1, message);
+	}
+	
+	@Override
+	public void sendConsoleMessage(IConsoleChannel channel, String message)
 	{
 		System.out.println(message);
 	}
 	
 	@Override
-	public Optional<IChannel> findChannelByName(String name)
-	{
-		try
-		{
-			int channelId = this.api.getChannelByNameExact(name, true).getId();
-			return Optional.of(new TS3ChannelAdapter(this.api, channelId));
-		}
-		catch(TS3CommandFailedException e)
-		{
-			return Optional.empty();
-		}
-	}
-	
-	@Override
-	public Optional<IChannel> findChannelById(String id)
-	{
-		try
-		{
-			int channelId = this.api.getChannelInfo(Integer.parseInt(id)).getId();
-			return Optional.of(new TS3ChannelAdapter(this.api, channelId));
-		}
-		catch(TS3CommandFailedException e)
-		{
-			return Optional.empty();
-		}
-	}
-	
-	@Override
-	public Optional<IClient> findClientByName(String name)
-	{
-		try
-		{
-			int clientId = this.api.getClientByNameExact(name, true).getId();
-			return Optional.of(new TS3ClientAdapter(this.api, clientId));
-		}
-		catch(TS3CommandFailedException e)
-		{
-			return Optional.empty();
-		}
-	}
-	
-	@Override
-	public Optional<IClient> findClientById(String id)
-	{
-		try
-		{
-			return Optional.of(new TS3ClientAdapter(this.api, Integer.parseInt(id)));
-		}
-		catch(TS3CommandFailedException e)
-		{
-			return Optional.empty();
-		}
-	}
-	
-	@Override
-	public List<IClient> getClients()
-	{
-		return this.api.getClients().stream()
-			.map(client -> new TS3ClientAdapter(this.api, client.getId()))
-			.collect(Collectors.toList());
-	}
-	
-	@Override
-	public List<IChannel> getChannels()
-	{
-		return this.api.getChannels().stream()
-			.map(channel -> new TS3ChannelAdapter(this.api, channel.getId()))
-			.collect(Collectors.toList());
-	}
-	
-	@Override
-	public void ban(@Nullable String reason, Duration duration, IClient client)
+	public void ban(IServer server, @Nullable String reason, Duration duration, IClient client)
 	{
 		if(reason == null)
 		{
-			this.api.banClient(Integer.parseInt(client.getId()), duration.toSeconds());
+			this.api.banClient(((TS3ClientAdapter) client).getClientId(), duration.toSeconds());
 		}
 		else
 		{
-			this.api.banClient(Integer.parseInt(client.getId()), duration.toSeconds(), reason);
+			this.api.banClient(((TS3ClientAdapter) client).getClientId(), duration.toSeconds(), reason);
 		}
 	}
 	
 	@Override
-	public void kick(@Nullable String reason, IClient... clients)
+	public void kick(IServer server, @Nullable String reason, IClient... clients)
 	{
 		int[] clientIds = Arrays.stream(clients)
-			.mapToInt(client -> Integer.parseInt(client.getId()))
+			.mapToInt(client -> ((TS3ClientAdapter) client).getClientId())
 			.toArray();
 		
 		if(reason == null)
@@ -158,9 +84,14 @@ public class TS3BotClientAdapter extends TS3ClientAdapter implements IBotClient
 	@Override
 	public void move(IClient client, IChannel channel)
 	{
-		if(!client.getChannel().equals(channel))
+		if(!channel.equals(((TS3ClientAdapter) client).getChannel()))
 		{
-			this.api.moveClient(Integer.parseInt(client.getId()), Integer.parseInt(channel.getId()));
+			this.api.moveClient(((TS3ClientAdapter) client).getClientId(), Integer.parseInt(channel.getId()));
+		}
+		
+		if(client.equals(this))
+		{
+			this.channelId = Integer.parseInt(channel.getId());
 		}
 	}
 	
@@ -180,5 +111,27 @@ public class TS3BotClientAdapter extends TS3ClientAdapter implements IBotClient
 	public void setSilent(boolean silent)
 	{
 		this.isSilent = silent;
+	}
+	
+	@Override
+	public IPrivateChannel getPrivateChannel()
+	{
+		return new TS3PrivateChannelAdapter(this.api, this.clientId);
+	}
+	
+	@Override
+	public boolean canMove()
+	{
+		return true;
+	}
+	
+	public IServer getServer()
+	{
+		return new TS3ServerAdapter(this.api, this.api.getServerInfo().getId());
+	}
+	
+	public int getChannelId()
+	{
+		return this.channelId;
 	}
 }

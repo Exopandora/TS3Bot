@@ -32,8 +32,9 @@ import net.kardexo.bot.adapters.commands.impl.YouTubeCommand;
 import net.kardexo.bot.adapters.web.URLMessageProcessor;
 import net.kardexo.bot.domain.ChatHistory;
 import net.kardexo.bot.domain.api.IBotClient;
+import net.kardexo.bot.domain.api.IChannel;
 import net.kardexo.bot.domain.api.IClient;
-import net.kardexo.bot.domain.api.MessageTarget;
+import net.kardexo.bot.domain.api.IConsoleChannel;
 import net.kardexo.bot.domain.config.Config;
 import net.kardexo.bot.services.api.IAPIKeyService;
 import net.kardexo.bot.services.api.IEconomyService;
@@ -92,11 +93,11 @@ public class CommandMessageProcessor implements IMessageProcessor
 	}
 	
 	@Override
-	public void process(IBotClient bot, String message, IClient client, MessageTarget target, ChatHistory chatHistory)
+	public void process(IBotClient bot, IChannel channel, IClient client, String message, ChatHistory chatHistory)
 	{
-		CommandSource source = new CommandSource(bot, client, target, chatHistory, this.random);
+		CommandSource source = new CommandSource(bot, channel, client, chatHistory, this.random);
 		
-		if(bot.isSilent() && (!this.permissionService.hasPermission(client, "admin") || target != MessageTarget.CONSOLE))
+		if(bot.isSilent() && (!this.permissionService.hasPermission(client, "admin") || !(channel instanceof IConsoleChannel)))
 		{
 			return;
 		}
@@ -147,7 +148,7 @@ public class CommandMessageProcessor implements IMessageProcessor
 	}
 	
 	@Override
-	public boolean isApplicable(IBotClient bot, String message, IClient client, MessageTarget target, ChatHistory chatHistory)
+	public boolean isApplicable(IBotClient bot, IChannel channel, IClient client, String message, ChatHistory chatHistory)
 	{
 		return message.startsWith("!") && !message.matches("!+");
 	}

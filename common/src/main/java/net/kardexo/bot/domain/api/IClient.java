@@ -4,9 +4,7 @@ public interface IClient
 {
 	String getId();
 	
-	String getUniqueId();
-	
 	String getName();
 	
-	IChannel getChannel();
+	IPrivateChannel getPrivateChannel();
 }

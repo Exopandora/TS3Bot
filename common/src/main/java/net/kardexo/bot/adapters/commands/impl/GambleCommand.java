@@ -33,7 +33,7 @@ public class GambleCommand
 			throw CommandSyntaxException.BUILT_IN_EXCEPTIONS.doubleTooHigh().create(winpct, 1.0D);
 		}
 		
-		String uuid = context.getSource().getClient().getUniqueId();
+		String uuid = context.getSource().getClient().getId();
 		String currency = economyService.getCurrency();
 		
 		if(!economyService.hasCoins(uuid, amount))

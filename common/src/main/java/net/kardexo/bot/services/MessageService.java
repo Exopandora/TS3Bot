@@ -4,8 +4,9 @@ import net.kardexo.bot.adapters.commands.CommandMessageProcessor;
 import net.kardexo.bot.adapters.web.URLMessageProcessor;
 import net.kardexo.bot.domain.ChatHistory;
 import net.kardexo.bot.domain.api.IBotClient;
+import net.kardexo.bot.domain.api.IChannel;
 import net.kardexo.bot.domain.api.IClient;
-import net.kardexo.bot.domain.api.MessageTarget;
+import net.kardexo.bot.domain.api.IConsoleChannel;
 import net.kardexo.bot.domain.config.Config;
 import net.kardexo.bot.services.api.IAPIKeyService;
 import net.kardexo.bot.services.api.IEconomyService;
@@ -41,9 +42,9 @@ public class MessageService implements IMessageService
 	}
 	
 	@Override
-	public void onMessage(IClient client, String message, MessageTarget target, ChatHistory chatHistory)
+	public void onMessage(IChannel channel, IClient client, String message, ChatHistory chatHistory)
 	{
-		if(this.bot.equals(client) && target != MessageTarget.CONSOLE)
+		if(this.bot.equals(client) && !(channel instanceof IConsoleChannel))
 		{
 			return;
 		}
@@ -57,9 +58,9 @@ public class MessageService implements IMessageService
 		
 		for(IMessageProcessor processor : this.messageProcessors)
 		{
-			if(processor.isApplicable(this.bot, msg, client, target, chatHistory))
+			if(processor.isApplicable(this.bot, channel, client, msg, chatHistory))
 			{
-				processor.process(this.bot, msg, client, target, chatHistory);
+				processor.process(this.bot, channel, client, msg, chatHistory);
 			}
 		}
 	}

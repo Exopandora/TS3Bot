@@ -11,21 +11,23 @@ import com.github.theholywaffle.teamspeak3.api.event.TextMessageEvent;
 import com.github.theholywaffle.teamspeak3.api.reconnect.ConnectionHandler;
 import com.github.theholywaffle.teamspeak3.api.reconnect.ReconnectStrategy;
 import com.github.theholywaffle.teamspeak3.api.wrapper.Channel;
+import net.kardexo.bot.adapters.ts3.channel.TS3ConsoleChannelAdapter;
+import net.kardexo.bot.adapters.ts3.channel.TS3MessageChannelAdapter;
+import net.kardexo.bot.adapters.ts3.channel.TS3PrivateChannelAdapter;
+import net.kardexo.bot.adapters.ts3.channel.TS3ServerChannelAdapter;
 import net.kardexo.bot.domain.AbstractBot;
 import net.kardexo.bot.domain.api.IBotClient;
+import net.kardexo.bot.domain.api.IChannel;
 import net.kardexo.bot.domain.api.IClient;
-import net.kardexo.bot.domain.api.MessageTarget;
-import net.kardexo.bot.domain.config.Config;
+import net.kardexo.bot.domain.api.IConsoleChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.Random;
 
-import static net.kardexo.bot.domain.Util.OBJECT_MAPPER;
-
-public class TS3BotAdapter extends AbstractBot
+public class TS3BotAdapter extends AbstractBot<TS3ConfigAdapter>
 {
 	private static final Logger logger = LoggerFactory.getLogger(TS3BotAdapter.class);
 	
@@ -33,15 +35,15 @@ public class TS3BotAdapter extends AbstractBot
 	private TS3Query query;
 	private TS3BotClientAdapter botClient;
 	
-	public TS3BotAdapter(File config) throws IOException
+	public TS3BotAdapter(TS3ConfigAdapter config) throws IOException
 	{
-		super(OBJECT_MAPPER.readValue(config, Config.class), new Random());
+		super(config, new Random());
 	}
 	
 	@Override
 	protected void connect()
 	{
-		Config config = this.getConfig();
+		TS3ConfigAdapter config = this.getConfig();
 		TS3Config ts3config = new TS3Config();
 		TS3Listener ts3Listener = new TS3EventAdapter()
 		{
@@ -50,13 +52,13 @@ public class TS3BotAdapter extends AbstractBot
 			{
 				IClient client = new TS3ClientAdapter(TS3BotAdapter.this.api, event.getInvokerId());
 				String message = event.getMessage();
-				MessageTarget target = switch(event.getTargetMode())
+				IChannel channel = switch(event.getTargetMode())
 				{
-					case CLIENT -> MessageTarget.CLIENT;
-					case CHANNEL -> MessageTarget.CHANNEL;
-					case SERVER -> MessageTarget.SERVER;
+					case CLIENT -> new TS3PrivateChannelAdapter(TS3BotAdapter.this.api, event.getInvokerId());
+					case CHANNEL -> new TS3MessageChannelAdapter(TS3BotAdapter.this.api, TS3BotAdapter.this.botClient.getChannelId());
+					case SERVER -> new TS3ServerChannelAdapter(TS3BotAdapter.this.api);
 				};
-				TS3BotAdapter.this.onMessage(client, message, target);
+				TS3BotAdapter.this.onMessage(channel, client, message);
 			}
 			
 			@Override
@@ -102,7 +104,7 @@ public class TS3BotAdapter extends AbstractBot
 	@Override
 	protected void onConnect()
 	{
-		Config config = this.getConfig();
+		TS3ConfigAdapter config = this.getConfig();
 		logger.info("Connected to {}", config.getHostAddress());
 		this.api.selectVirtualServerById(config.getVirtualServerId(), config.getLoginName());
 		int id = this.api.whoAmI().getId();
@@ -111,10 +113,7 @@ public class TS3BotAdapter extends AbstractBot
 		
 		if(channel != null)
 		{
-			if(this.api.getClientInfo(id).getChannelId() != channel.getId())
-			{
-				this.api.moveClient(id, channel.getId());
-			}
+			this.botClient.move(this.botClient, new TS3MessageChannelAdapter(this.api, channel.getId()));
 		}
 		else
 		{
@@ -133,12 +132,15 @@ public class TS3BotAdapter extends AbstractBot
 	
 	public void exit()
 	{
+		logger.info("Logging out...");
+		
 		if(this.api != null)
 		{
 			this.api.logout();
 		}
 		
 		logger.info("Logged out");
+		logger.info("Shutting down TS3 query...");
 		
 		if(this.query != null)
 		{
@@ -149,8 +151,20 @@ public class TS3BotAdapter extends AbstractBot
 	}
 	
 	@Override
+	protected List<String> getAllClientUidsForLoginBonus()
+	{
+		return this.botClient.getServer().getClients().stream().map(IClient::getId).toList();
+	}
+	
+	@Override
 	protected IBotClient getBotClient()
 	{
 		return this.botClient;
+	}
+	
+	@Override
+	protected IConsoleChannel getConsoleChannel()
+	{
+		return new TS3ConsoleChannelAdapter(this.api, this.botClient.clientId);
 	}
 }

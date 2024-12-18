@@ -22,7 +22,7 @@ public class PermissionService implements IPermissionService
 		
 		if(group != null)
 		{
-			return group.contains(client.getUniqueId());
+			return group.contains(client.getId());
 		}
 		
 		return false;

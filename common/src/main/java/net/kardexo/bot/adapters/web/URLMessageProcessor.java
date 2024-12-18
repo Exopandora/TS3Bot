@@ -10,8 +10,9 @@ import net.kardexo.bot.adapters.web.processors.YouTubeURLProcessor;
 import net.kardexo.bot.domain.ChatHistory;
 import net.kardexo.bot.domain.Util;
 import net.kardexo.bot.domain.api.IBotClient;
+import net.kardexo.bot.domain.api.IChannel;
 import net.kardexo.bot.domain.api.IClient;
-import net.kardexo.bot.domain.api.MessageTarget;
+import net.kardexo.bot.domain.api.IConsoleChannel;
 import net.kardexo.bot.services.api.IAPIKeyService;
 import net.kardexo.bot.services.api.IMessageProcessor;
 import org.jetbrains.annotations.NotNull;
@@ -38,20 +39,20 @@ public class URLMessageProcessor implements IMessageProcessor
 	}
 	
 	@Override
-	public void process(IBotClient bot, String message, IClient client, MessageTarget target, ChatHistory chatHistory)
+	public void process(IBotClient bot, IChannel channel, IClient client, String message, ChatHistory chatHistory)
 	{
 		String response = this.processMessage(message, chatHistory);
 		
 		if(response != null)
 		{
-			bot.sendMessage(target, client, response);
+			bot.sendMessage(channel, response);
 		}
 	}
 	
 	@Override
-	public boolean isApplicable(IBotClient bot, String message, IClient client, MessageTarget target, ChatHistory chatHistory)
+	public boolean isApplicable(IBotClient bot, IChannel channel, IClient client, String message, ChatHistory chatHistory)
 	{
-		return target == MessageTarget.CHANNEL && !(client instanceof IBotClient);
+		return !(channel instanceof IConsoleChannel) && !(client instanceof IBotClient);
 	}
 	
 	public String processMessage(String message, @NotNull ChatHistory chatHistory)

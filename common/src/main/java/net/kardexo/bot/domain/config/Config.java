@@ -8,17 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class Config
+public abstract class Config
 {
-	@JsonProperty("host_address")
-	private String hostAddress;
-	@JsonProperty("login_name")
-	private String loginName;
-	@JsonProperty("login_password")
-	private String loginPassword;
-	@JsonProperty("channel_name")
-	private String channelName;
-	
 	@JsonProperty("virtual_server_id")
 	private int virtualServerId;
 	@JsonProperty("chat_history_size")
@@ -61,29 +52,9 @@ public class Config
 	@JsonProperty("max_video_duration_youtube")
 	private int maxVideoDurationYouTube;
 	
-	public Config()
+	protected Config()
 	{
 		super();
-	}
-	
-	public String getHostAddress()
-	{
-		return this.hostAddress;
-	}
-	
-	public String getLoginName()
-	{
-		return this.loginName;
-	}
-	
-	public String getLoginPassword()
-	{
-		return this.loginPassword;
-	}
-	
-	public String getChannelName()
-	{
-		return this.channelName;
 	}
 	
 	public int getVirtualServerId()

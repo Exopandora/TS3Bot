@@ -3,45 +3,32 @@ package net.kardexo.bot.domain.api;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
-import java.util.List;
-import java.util.Optional;
 
 public interface IBotClient extends IClient
 {
-	void sendPrivateMessage(IClient client, String message);
+	void sendPrivateMessage(IPrivateChannel channel, String message);
 	
-	void sendChannelMessage(String message);
+	void sendServerMessage(IServerChannel channel, String message);
 	
-	void sendServerMessage(String message);
+	void sendChannelMessage(IMessageChannel channel, String message);
 	
-	void sendConsoleMessage(String message);
+	void sendConsoleMessage(IConsoleChannel channel, String message);
 	
-	default void sendMessage(MessageTarget target, IClient client, String message)
+	default void sendMessage(IChannel channel, String message)
 	{
-		switch(target)
+		switch(channel)
 		{
-			case CLIENT -> this.sendPrivateMessage(client, message);
-			case CHANNEL -> this.sendChannelMessage(message);
-			case SERVER -> this.sendServerMessage(message);
-			case CONSOLE -> this.sendConsoleMessage(message);
+			case IPrivateChannel pc -> this.sendPrivateMessage(pc, message);
+			case IConsoleChannel cc -> this.sendConsoleMessage(cc, message);
+			case IServerChannel sc -> this.sendServerMessage(sc, message);
+			case IMessageChannel mc -> this.sendChannelMessage(mc, message);
+			default -> {}
 		}
 	}
 	
-	Optional<IChannel> findChannelByName(String name);
+	void ban(IServer server, @Nullable String reason, Duration duration, IClient client);
 	
-	Optional<IChannel> findChannelById(String id);
-	
-	Optional<IClient> findClientByName(String name);
-	
-	Optional<IClient> findClientById(String id);
-	
-	List<IClient> getClients();
-	
-	List<IChannel> getChannels();
-	
-	void ban(@Nullable String reason, Duration duration, IClient client);
-	
-	void kick(@Nullable String reason, IClient... client);
+	void kick(IServer server, @Nullable String reason, IClient... client);
 	
 	void move(IClient client, IChannel channel);
 	
@@ -50,4 +37,6 @@ public interface IBotClient extends IClient
 	boolean isSilent();
 	
 	void setSilent(boolean silent);
+	
+	boolean canMove();
 }

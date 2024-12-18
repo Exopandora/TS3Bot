@@ -7,6 +7,7 @@ import net.kardexo.bot.adapters.commands.CommandSource;
 import net.kardexo.bot.adapters.commands.Commands;
 import net.kardexo.bot.domain.api.IBotClient;
 import net.kardexo.bot.domain.api.IClient;
+import net.kardexo.bot.domain.api.IServer;
 import net.kardexo.bot.services.api.IPermissionService;
 import org.jetbrains.annotations.Nullable;
 
@@ -15,7 +16,7 @@ public class KickAllCommand
 	public static void register(CommandDispatcher<CommandSource> dispatcher, IPermissionService permissionService)
 	{
 		dispatcher.register(Commands.literal("kickall")
-			.requires(source -> permissionService.hasPermission(source.getClient(), "admin"))
+			.requires(source -> source.getChannel().getServer() != null && permissionService.hasPermission(source.getClient(), "admin"))
 			.executes(context -> kick(context, null))
 			.then(Commands.argument("reason", StringArgumentType.greedyString())
 				.executes(context -> kick(context, StringArgumentType.getString(context, "reason")))));
@@ -24,10 +25,12 @@ public class KickAllCommand
 	private static int kick(CommandContext<CommandSource> context, @Nullable String reason)
 	{
 		IBotClient bot = context.getSource().getBot();
-		IClient[] clients = bot.getClients().stream()
+		IServer server = context.getSource().getChannel().getServer();
+		assert server != null;
+		IClient[] clients = server.getClients().stream()
 			.filter(client -> !client.equals(bot))
 			.toArray(IClient[]::new);
-		bot.kick(reason, clients);
+		bot.kick(server, reason, clients);
 		return clients.length;
 	}
 }

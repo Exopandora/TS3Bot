@@ -2,41 +2,46 @@ package net.kardexo.bot.adapters.commands;
 
 import net.kardexo.bot.domain.ChatHistory;
 import net.kardexo.bot.domain.api.IBotClient;
+import net.kardexo.bot.domain.api.IChannel;
 import net.kardexo.bot.domain.api.IClient;
-import net.kardexo.bot.domain.api.MessageTarget;
 
 import java.util.Random;
 
 public class CommandSource
 {
 	private final IBotClient bot;
+	private final IChannel channel;
 	private final IClient client;
-	private final MessageTarget target;
 	private final Random random;
 	private final ChatHistory chatHistory;
 	
-	public CommandSource(IBotClient bot, IClient client, MessageTarget target, ChatHistory chatHistory, Random random)
+	public CommandSource(IBotClient bot, IChannel channel, IClient client, ChatHistory chatHistory, Random random)
 	{
 		this.bot = bot;
+		this.channel = channel;
 		this.client = client;
-		this.target = target;
 		this.chatHistory = chatHistory;
 		this.random = random;
 	}
 	
 	public void sendFeedback(String message)
 	{
-		this.bot.sendMessage(this.target, this.client, message);
+		this.bot.sendMessage(this.channel, message);
 	}
 	
 	public void sendPrivateMessage(String message)
 	{
-		this.bot.sendPrivateMessage(this.client, message);
+		this.bot.sendPrivateMessage(this.client.getPrivateChannel(), message);
 	}
 	
 	public IBotClient getBot()
 	{
 		return this.bot;
+	}
+	
+	public IChannel getChannel()
+	{
+		return this.channel;
 	}
 	
 	public IClient getClient()

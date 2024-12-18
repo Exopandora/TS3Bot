@@ -31,7 +31,7 @@ public class TeamsCommand
 	
 	private static int teams(CommandContext<CommandSource> context, int teamCount) throws CommandSyntaxException
 	{
-		return teams(context, teamCount, getClientNamesInChannel(context.getSource().getClient().getChannel()));
+		return teams(context, teamCount, getClientNamesInChannel(context.getSource().getChannel()));
 	}
 	
 	private static int teams(CommandContext<CommandSource> context, int teamCount, String[] words) throws CommandSyntaxException

@@ -9,6 +9,7 @@ import net.kardexo.bot.adapters.commands.arguments.ClientArgumentType;
 import net.kardexo.bot.adapters.commands.arguments.DurationArgumentType;
 import net.kardexo.bot.domain.api.IBotClient;
 import net.kardexo.bot.domain.api.IClient;
+import net.kardexo.bot.domain.api.IServer;
 import net.kardexo.bot.services.api.IPermissionService;
 import org.jetbrains.annotations.Nullable;
 
@@ -19,7 +20,7 @@ public class BanCommand
 	public static void register(CommandDispatcher<CommandSource> dispatcher, IBotClient bot, IPermissionService permissionService)
 	{
 		dispatcher.register(Commands.literal("ban")
-			.requires(source -> permissionService.hasPermission(source.getClient(), "admin") && !source.getClient().equals(source.getBot()))
+			.requires(source -> source.getChannel().getServer() != null && permissionService.hasPermission(source.getClient(), "admin") && !source.getClient().equals(source.getBot()))
 			.then(Commands.argument("username", ClientArgumentType.client(bot))
 				.then(Commands.argument("duration", DurationArgumentType.duration())
 					.executes(context -> ban(context, ClientArgumentType.getClient(context, "username"), DurationArgumentType.getDuration(context, "duration"), null))
@@ -33,7 +34,9 @@ public class BanCommand
 	
 	private static int ban(CommandContext<CommandSource> context, IClient client, Duration duration, @Nullable String reason)
 	{
-		context.getSource().getBot().ban(reason, duration, client);
+		IServer server = context.getSource().getChannel().getServer();
+		assert server != null;
+		context.getSource().getBot().ban(server, reason, duration, client);
 		return (int) duration.toSeconds();
 	}
 }

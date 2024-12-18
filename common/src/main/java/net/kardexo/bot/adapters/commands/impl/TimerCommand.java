@@ -38,7 +38,7 @@ public class TimerCommand
 	
 	private static int timer(CommandContext<CommandSource> context) throws CommandSyntaxException
 	{
-		Optional<Timer> optional = TIMER.getTimer(context.getSource().getClient().getUniqueId());
+		Optional<Timer> optional = TIMER.getTimer(context.getSource().getClient().getId());
 		
 		if(optional.isEmpty())
 		{
@@ -52,7 +52,7 @@ public class TimerCommand
 	
 	private static int timer(CommandContext<CommandSource> context, Duration duration)
 	{
-		String uid = context.getSource().getClient().getUniqueId();
+		String uid = context.getSource().getClient().getId();
 		TIMER.setTimer(uid, Instant.now().plus(duration), () -> context.getSource().sendPrivateMessage("Timer has ended!"));
 		context.getSource().sendFeedback("Timer has been set to " + Util.formatDuration(duration.toSeconds()));
 		return (int) duration.toSeconds();
@@ -60,7 +60,7 @@ public class TimerCommand
 	
 	private static int reset(CommandContext<CommandSource> context) throws CommandSyntaxException
 	{
-		Optional<Timer> optional = TIMER.resetTimer(context.getSource().getClient().getUniqueId());
+		Optional<Timer> optional = TIMER.resetTimer(context.getSource().getClient().getId());
 		
 		if(optional.isEmpty())
 		{

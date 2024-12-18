@@ -1,19 +1,22 @@
-package net.kardexo.bot.adapters.ts3;
+package net.kardexo.bot.adapters.ts3.channel;
 
 import com.github.theholywaffle.teamspeak3.TS3Api;
-import net.kardexo.bot.domain.api.IChannel;
+import net.kardexo.bot.adapters.ts3.TS3ClientAdapter;
+import net.kardexo.bot.adapters.ts3.TS3ServerAdapter;
 import net.kardexo.bot.domain.api.IClient;
+import net.kardexo.bot.domain.api.IMessageChannel;
+import net.kardexo.bot.domain.api.IServer;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-public class TS3ChannelAdapter implements IChannel
+public class TS3MessageChannelAdapter implements IMessageChannel
 {
 	private final TS3Api api;
 	private final int channelId;
 	
-	public TS3ChannelAdapter(TS3Api api, int channelId)
+	public TS3MessageChannelAdapter(TS3Api api, int channelId)
 	{
 		this.api = api;
 		this.channelId = channelId;
@@ -35,21 +38,26 @@ public class TS3ChannelAdapter implements IChannel
 	public List<IClient> getClients()
 	{
 		return this.api.getClients().stream()
-			.filter(client -> client.getChannelId() == this.channelId)
+			.filter(client -> client.getChannelId() == this.channelId && client.isRegularClient())
 			.map(client -> new TS3ClientAdapter(this.api, client.getId()))
 			.collect(Collectors.toList());
 	}
 	
 	@Override
+	public IServer getServer()
+	{
+		return new TS3ServerAdapter(this.api, this.api.getServerInfo().getId());
+	}
+	
+	@Override
 	public boolean equals(Object object)
 	{
-		if(object == null || getClass() != object.getClass())
+		if(!(object instanceof TS3MessageChannelAdapter other))
 		{
 			return false;
 		}
 		
-		TS3ChannelAdapter other = (TS3ChannelAdapter) object;
-		return this.channelId == other.channelId && Objects.equals(this.api, other.api);
+		return this.channelId == other.channelId;
 	}
 	
 	@Override

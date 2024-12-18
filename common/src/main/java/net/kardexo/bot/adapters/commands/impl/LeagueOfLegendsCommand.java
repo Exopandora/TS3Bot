@@ -560,9 +560,9 @@ public class LeagueOfLegendsCommand
 	private static int alias(CommandContext<CommandSource> context, IUserConfigService userConfigService, String alias)
 	{
 		IClient client = context.getSource().getClient();
-		UserConfig config = userConfigService.getUserConfig(client.getUniqueId());
+		UserConfig config = userConfigService.getUserConfig(client.getId());
 		config.setLeagueOfLegendsAlias(alias);
-		userConfigService.saveUserConfig(client.getUniqueId(), config);
+		userConfigService.saveUserConfig(client.getId(), config);
 		return 1;
 	}
 	
@@ -679,7 +679,7 @@ public class LeagueOfLegendsCommand
 	private static RiotId riotIdForUser(CommandContext<CommandSource> context, Platform platform, IUserConfigService userConfigService)
 	{
 		IClient client = context.getSource().getClient();
-		UserConfig config = userConfigService.getUserConfig(client.getUniqueId());
+		UserConfig config = userConfigService.getUserConfig(client.getId());
 		
 		if(config.getLeagueOfLegendsAlias() != null)
 		{
