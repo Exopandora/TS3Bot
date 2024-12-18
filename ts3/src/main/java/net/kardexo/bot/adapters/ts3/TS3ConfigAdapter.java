@@ -46,6 +46,12 @@ public class TS3ConfigAdapter extends Config
 		return this.channelName;
 	}
 	
+	@Override
+	public boolean isEmbedsEnabled()
+	{
+		return true;
+	}
+	
 	public static TS3ConfigAdapter of(String file) throws IOException
 	{
 		return OBJECT_MAPPER.readValue(new File(file), TS3ConfigAdapter.class);

@@ -37,8 +37,23 @@ public class MessageService implements IMessageService
 	{
 		this.bot = bot;
 		URLMessageProcessor urlMessageProcessor = new URLMessageProcessor(apiKeyService);
-		this.messageProcessors.add(new CommandMessageProcessor(bot, config, apiKeyService, permissionService, economyService, userConfigService, urlMessageProcessor, random));
-		this.messageProcessors.add(urlMessageProcessor);
+		CommandMessageProcessor commandMessageProcessor = new CommandMessageProcessor
+		(
+			bot,
+			config,
+			apiKeyService,
+			permissionService,
+			economyService,
+			userConfigService,
+			urlMessageProcessor,
+			random
+		);
+		this.messageProcessors.add(commandMessageProcessor);
+		
+		if(config.isEmbedsEnabled())
+		{
+			this.messageProcessors.add(urlMessageProcessor);
+		}
 	}
 	
 	@Override

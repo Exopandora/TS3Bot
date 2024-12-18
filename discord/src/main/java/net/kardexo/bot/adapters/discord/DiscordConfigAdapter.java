@@ -25,6 +25,12 @@ public class DiscordConfigAdapter extends Config
 		return this.token;
 	}
 	
+	@Override
+	public boolean isEmbedsEnabled()
+	{
+		return false;
+	}
+	
 	public static DiscordConfigAdapter of(String file) throws IOException
 	{
 		return OBJECT_MAPPER.readValue(new File(file), DiscordConfigAdapter.class);
