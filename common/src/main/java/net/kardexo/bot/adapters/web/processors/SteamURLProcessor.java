@@ -6,7 +6,7 @@ import java.util.regex.Pattern;
 
 public class SteamURLProcessor extends DefaultURLProcessor
 {
-	private static final Pattern STEAM_URL = Pattern.compile("https?:\\/\\/([^\\.]+\\.)?(steamcommunity|steampowered)\\.[^ ]+");
+	private static final Pattern STEAM_URL = Pattern.compile("https?://([^.]+\\.)?(steamcommunity|steampowered)\\.[^ ]+");
 	
 	public SteamURLProcessor(IAPIKeyService apiKeyService)
 	{

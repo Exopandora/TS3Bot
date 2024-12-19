@@ -5,8 +5,8 @@ import java.util.regex.Pattern;
 
 public class Watch2GetherURLProcessor implements IURLProcessor
 {
-	private static final Pattern WATCH2GETHER_URL = Pattern.compile("https:\\/\\/(?:www\\.)?watch2gether\\.com\\/rooms\\/([^?/]+)(?:.*)");
-	private static final Pattern WATCH2GETHER_URL_2 = Pattern.compile("https:\\/\\/(?:www\\.)?w2g\\.tv\\/rooms\\/([^?/]+)(?:.*)");
+	private static final Pattern WATCH2GETHER_URL = Pattern.compile("https://(?:www\\.)?watch2gether\\.com/rooms/([^?/]+)(?:.*)");
+	private static final Pattern WATCH2GETHER_URL_2 = Pattern.compile("https://(?:www\\.)?w2g\\.tv/rooms/([^?/]+)(?:.*)");
 	
 	@Override
 	public String process(String url)
