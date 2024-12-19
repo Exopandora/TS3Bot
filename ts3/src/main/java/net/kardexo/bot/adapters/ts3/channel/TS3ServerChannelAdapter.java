@@ -41,4 +41,10 @@ public class TS3ServerChannelAdapter implements IServerChannel
 	{
 		return new TS3ServerAdapter(this.api, this.api.getServerInfo().getId());
 	}
+	
+	@Override
+	public boolean isJoinable()
+	{
+		return false;
+	}
 }

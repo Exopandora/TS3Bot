@@ -1,5 +1,6 @@
 package net.kardexo.bot.services;
 
+import net.kardexo.bot.domain.api.IBotClient;
 import net.kardexo.bot.domain.api.IClient;
 import net.kardexo.bot.services.api.IPermissionService;
 
@@ -18,6 +19,11 @@ public class PermissionService implements IPermissionService
 	@Override
 	public boolean hasPermission(IClient client, String permission)
 	{
+		if(client instanceof IBotClient)
+		{
+			return true;
+		}
+		
 		Set<String> group = this.permissions.get(permission);
 		
 		if(group != null)

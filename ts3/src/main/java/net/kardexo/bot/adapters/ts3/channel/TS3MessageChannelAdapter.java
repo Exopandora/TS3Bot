@@ -50,6 +50,12 @@ public class TS3MessageChannelAdapter implements IMessageChannel
 	}
 	
 	@Override
+	public boolean isJoinable()
+	{
+		return true;
+	}
+	
+	@Override
 	public boolean equals(Object object)
 	{
 		if(!(object instanceof TS3MessageChannelAdapter other))

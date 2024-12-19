@@ -89,6 +89,12 @@ public abstract class AbstractDiscordChannelAdapter implements IChannel
 	}
 	
 	@Override
+	public boolean isJoinable()
+	{
+		return false;
+	}
+	
+	@Override
 	public boolean equals(Object object)
 	{
 		if(!(object instanceof AbstractDiscordChannelAdapter other))

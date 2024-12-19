@@ -58,6 +58,12 @@ public class DiscordChannelArgumentType implements ArgumentType<IChannel>
 			return null;
 		}
 		
+		@Override
+		public boolean isJoinable()
+		{
+			return false;
+		}
+		
 		public IChannel resolve(CommandSource context) throws CommandSyntaxException
 		{
 			IServer server = context.getChannel().getServer();

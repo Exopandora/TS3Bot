@@ -36,6 +36,12 @@ public class DiscordConsoleChannelAdapter implements IConsoleChannel
 	}
 	
 	@Override
+	public boolean isJoinable()
+	{
+		return false;
+	}
+	
+	@Override
 	public boolean equals(Object object)
 	{
 		if(!(object instanceof DiscordConsoleChannelAdapter that))

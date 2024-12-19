@@ -37,6 +37,4 @@ public interface IBotClient extends IClient
 	boolean isSilent();
 	
 	void setSilent(boolean silent);
-	
-	boolean canMove();
 }

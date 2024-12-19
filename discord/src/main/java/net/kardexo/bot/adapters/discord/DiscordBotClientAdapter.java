@@ -118,12 +118,6 @@ public class DiscordBotClientAdapter extends DiscordClientAdapter implements IBo
 		return new DiscordPrivateChannelAdapter(this.gatewayDiscordClient.getSelf().blockOptional().orElseThrow().getPrivateChannel().block());
 	}
 	
-	@Override
-	public boolean canMove()
-	{
-		return false;
-	}
-	
 	public GatewayDiscordClient getGatewayDiscordClient()
 	{
 		return this.gatewayDiscordClient;

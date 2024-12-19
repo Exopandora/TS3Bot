@@ -52,6 +52,12 @@ public class TS3PrivateChannelAdapter implements IPrivateChannel
 	}
 	
 	@Override
+	public boolean isJoinable()
+	{
+		return false;
+	}
+	
+	@Override
 	public boolean equals(Object object)
 	{
 		if(!(object instanceof TS3PrivateChannelAdapter that))

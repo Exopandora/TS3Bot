@@ -13,4 +13,6 @@ public interface IChannel
 	List<IClient> getClients();
 	
 	@Nullable IServer getServer();
+	
+	boolean isJoinable();
 }

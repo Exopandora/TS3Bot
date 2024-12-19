@@ -119,12 +119,6 @@ public class TS3BotClientAdapter extends TS3ClientAdapter implements IBotClient
 		return new TS3PrivateChannelAdapter(this.api, this.clientId);
 	}
 	
-	@Override
-	public boolean canMove()
-	{
-		return true;
-	}
-	
 	public IServer getServer()
 	{
 		return new TS3ServerAdapter(this.api, this.api.getServerInfo().getId());
