@@ -124,7 +124,7 @@ public class TwitterURLProcessor implements IURLProcessor
 					
 					if(!status.isEmpty())
 					{
-						return user + ": \"" + status.replaceAll("(https://t\\.co/.{10})", "[URL]$1[/URL]") + "\"";
+						return user + ": \"" + status + "\"";
 					}
 				}
 			}

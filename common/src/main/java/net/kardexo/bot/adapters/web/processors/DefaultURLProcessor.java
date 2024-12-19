@@ -1,7 +1,9 @@
 package net.kardexo.bot.adapters.web.processors;
 
 import net.kardexo.bot.adapters.imagga.Imagga;
+import net.kardexo.bot.domain.FormattedStringBuilder;
 import net.kardexo.bot.domain.Util;
+import net.kardexo.bot.domain.api.IStyle;
 import net.kardexo.bot.services.api.IAPIKeyService;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -143,7 +145,7 @@ public class DefaultURLProcessor implements IURLProcessor
 		graphics.drawImage(image, 0, 0, null);
 		graphics.dispose();
 		
-		StringBuilder builder = new StringBuilder();
+		FormattedStringBuilder builder = new FormattedStringBuilder();
 		int[] pixels = new int[scaled.getWidth() * scaled.getHeight() * 3];
 		scaled.getData().getPixels(0, 0, scaled.getWidth(), scaled.getHeight(), pixels);
 		
@@ -154,11 +156,8 @@ public class DefaultURLProcessor implements IURLProcessor
 			for(int x = 0; x < scaled.getWidth(); x++)
 			{
 				int offset = 3 * (y * scaled.getWidth() + x);
-				builder.append("[color=#");
-				builder.append(String.format("%02X%02X%02X", pixels[offset], pixels[offset + 1], pixels[offset + 2]));
-				builder.append("]");
-				builder.append(PIXEL);
-				builder.append("[/color]");
+				int color = rgbToInt(pixels[offset], pixels[offset + 1], pixels[offset + 2]);
+				builder.append(PIXEL, IStyle.color(color));
 			}
 		}
 		
@@ -190,5 +189,10 @@ public class DefaultURLProcessor implements IURLProcessor
 		}
 		
 		return null;
+	}
+	
+	private static int rgbToInt(int r, int g, int b)
+	{
+		return ((r & 0xFF) << 16) + ((g & 0xFF) << 8) + (b & 0xFF);
 	}
 }

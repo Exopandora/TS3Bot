@@ -17,8 +17,10 @@ import net.kardexo.bot.adapters.lol.Platform;
 import net.kardexo.bot.adapters.lol.Rank;
 import net.kardexo.bot.adapters.lol.RiotId;
 import net.kardexo.bot.adapters.lol.Tier;
+import net.kardexo.bot.domain.FormattedStringBuilder;
 import net.kardexo.bot.domain.Util;
 import net.kardexo.bot.domain.api.IClient;
+import net.kardexo.bot.domain.api.IStyle;
 import net.kardexo.bot.domain.config.Config;
 import net.kardexo.bot.domain.config.UserConfig;
 import net.kardexo.bot.services.api.IAPIKeyService;
@@ -56,8 +58,10 @@ public class LeagueOfLegendsCommand
 	});
 	private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd.MM");
 	private static final int MAX_RATING = Arrays.stream(Tier.VALUES).mapToInt(tier -> tier.isApexTier() ? 1 : Rank.VALUES.length).sum();
-	private static final String RED_COLOR = "#E62142";
-	private static final String BLUE_COLOR = "#4788B6";
+	private static final IStyle RED_COLOR = IStyle.color("E62142");
+	private static final IStyle BLUE_COLOR = IStyle.color("4788B6");
+	private static final IStyle WIN_COLOR = IStyle.color("008000");
+	private static final IStyle LOSS_COLOR = IStyle.color("FF2345");
 	
 	public static void register(CommandDispatcher<CommandSource> dispatcher, Config config, IAPIKeyService apiKeyService, IUserConfigService userConfigService)
 	{
@@ -234,7 +238,7 @@ public class LeagueOfLegendsCommand
 			}
 			
 			var participants = activeMatch.path("participants");
-			var builder = new StringBuilder();
+			var builder = new FormattedStringBuilder();
 			var teams = LeagueOfLegendsCommand.groupAndLoad(apiKeyService, participants, championsFuture, platform).entrySet().stream()
 				.sorted(Comparator.comparingInt(Entry::getKey))
 				.map(Entry::getValue)
@@ -250,7 +254,7 @@ public class LeagueOfLegendsCommand
 				{
 					builder.append("\n");
 					builder.append("\t".repeat(7));
-					builder.append("[b]VS[/b]");
+					builder.append("VS", IStyle.bold());
 				}
 				
 				if(!teamMembers.isEmpty())
@@ -260,18 +264,12 @@ public class LeagueOfLegendsCommand
 					for(CompletableFuture<SummonerOverview> participant : teamMembers)
 					{
 						var overview = participant.join();
-						
-						builder.append("\n[color=");
-						builder.append(color);
-						builder.append("]");
-						builder.append(overview.champion());
-						builder.append("[/color]");
+						builder.append(overview.champion(), color);
 						
 						if(puuid.equals(overview.puuid()))
 						{
-							builder.append(" [u]");
-							builder.append(overview.riotId());
-							builder.append("[/u]");
+							builder.append(" ");
+							builder.append(overview.riotId(), IStyle.underlined());
 						}
 						else
 						{
@@ -290,7 +288,7 @@ public class LeagueOfLegendsCommand
 						builder.append(" | ");
 						builder.append(league.map(League::toString).orElse("Unranked"));
 						builder.append(" | ");
-						builder.append(overview.masteryString());
+						builder.append(formatMastery(overview.mastery()));
 					}
 					
 					teamRatings[x] = Math.round((float) teamRatings[x] / (float) rankedTeamMembers);
@@ -355,16 +353,6 @@ public class LeagueOfLegendsCommand
 	
 	private record SummonerOverview(RiotId riotId, String puuid, String champion, JsonNode league, JsonNode mastery)
 	{
-		public String masteryString()
-		{
-			if(this.mastery != null)
-			{
-				return this.mastery.path("championPoints").asInt() + " (" + this.mastery.path("championLevel").asInt() + ")";
-			}
-			
-			return "0 (1)";
-		}
-		
 		public Optional<League> highestRank()
 		{
 			if(this.league != null)
@@ -413,10 +401,14 @@ public class LeagueOfLegendsCommand
 			calendar.set(Calendar.MILLISECOND, 0);
 			
 			var today = calendar.getTime();
-			var builder = new StringBuilder("\nMatch history for " + riotId + ":");
+			var builder = new FormattedStringBuilder();
 			var champions = championsFuture.join();
 			var queues = queuesFuture.join();
 			var stats = new HistoryStats();
+			
+			builder.append("\nMatch history for ");
+			builder.append(riotId);
+			builder.append(":");
 			
 			for(int x = 0; x < matches.size(); x++)
 			{
@@ -432,8 +424,8 @@ public class LeagueOfLegendsCommand
 				var assists = participant.path("assists").asInt();
 				var winner = participant.path("win").asBoolean();
 				var formattedDate = DATE_FORMAT.format(date);
-				var fomattedPlayTime = Util.formatDuration(playTime);
-				var color = winner ? "green" : "#FF2345";
+				var formattedPlayTime = Util.formatDuration(playTime);
+				var color = winner ? WIN_COLOR : LOSS_COLOR;
 				
 				if(winner)
 				{
@@ -450,13 +442,10 @@ public class LeagueOfLegendsCommand
 				stats.addDeaths(deaths);
 				stats.addAssists(assists);
 				
-				builder.append("\n[[color=");
-				builder.append(color);
-				builder.append("]");
-				builder.append(x + 1);
-				builder.append("[/color]]");
-				builder.append(" ");
-				builder.append(fomattedPlayTime);
+				builder.append("\n[");
+				builder.append(x + 1, color);
+				builder.append("] ");
+				builder.append(formattedPlayTime);
 				builder.append(" | ");
 				builder.append(formattedDate);
 				builder.append(" | ");
@@ -660,6 +649,16 @@ public class LeagueOfLegendsCommand
 		}
 		
 		return "Unknown Queue";
+	}
+	
+	private static String formatMastery(JsonNode mastery)
+	{
+		if(mastery != null)
+		{
+			return mastery.path("championPoints").asInt() + " (" + mastery.path("championLevel").asInt() + ")";
+		}
+		
+		return "0 (1)";
 	}
 	
 	private static Map<Integer, List<CompletableFuture<SummonerOverview>>> groupAndLoad(IAPIKeyService apiKeyService, JsonNode participants, CompletableFuture<JsonNode> champions, Platform platform)
