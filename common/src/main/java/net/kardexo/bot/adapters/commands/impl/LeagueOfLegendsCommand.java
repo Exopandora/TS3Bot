@@ -264,6 +264,7 @@ public class LeagueOfLegendsCommand
 					for(CompletableFuture<SummonerOverview> participant : teamMembers)
 					{
 						var overview = participant.join();
+						builder.append("\n");
 						builder.append(overview.champion(), color);
 						
 						if(puuid.equals(overview.puuid()))
