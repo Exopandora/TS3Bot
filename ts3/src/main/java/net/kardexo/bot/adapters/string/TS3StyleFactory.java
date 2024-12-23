@@ -33,4 +33,10 @@ public class TS3StyleFactory implements StyleFactory
 	{
 		return TS3Style.STRIKETHROUGH;
 	}
+	
+	@Override
+	public int colorOverhead()
+	{
+		return 27;
+	}
 }

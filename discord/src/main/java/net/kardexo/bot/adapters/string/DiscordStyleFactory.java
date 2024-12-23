@@ -33,4 +33,10 @@ public class DiscordStyleFactory implements StyleFactory
 	{
 		return DiscordStyle.STRIKETHROUGH;
 	}
+	
+	@Override
+	public int colorOverhead()
+	{
+		return 1;
+	}
 }

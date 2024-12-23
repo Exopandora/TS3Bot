@@ -44,4 +44,9 @@ public interface IStyle
 	{
 		return INSTANCE.strikethrough();
 	}
+	
+	static int colorOverhead()
+	{
+		return INSTANCE.colorOverhead();
+	}
 }

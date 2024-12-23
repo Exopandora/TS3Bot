@@ -13,4 +13,6 @@ public interface StyleFactory
 	IStyle italic();
 	
 	IStyle strikethrough();
+	
+	int colorOverhead();
 }

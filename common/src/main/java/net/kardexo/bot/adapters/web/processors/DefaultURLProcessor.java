@@ -37,7 +37,7 @@ public class DefaultURLProcessor implements IURLProcessor
 	private static final Logger logger = LoggerFactory.getLogger(DefaultURLProcessor.class);
 	private static final String MIME_TYPE_TEXT_HTML = "text/html";
 	private static final String MIME_TYPE_IMAGE = "image/.+";
-	private static final double SQRT_CHARS_PER_PIXEL = Math.sqrt(27D);
+	private static final double SQRT_CHARS_PER_PIXEL = Math.sqrt(IStyle.colorOverhead());
 	private static final double MAX_CHARS = 8192D;
 	private static final double WIDTH_CORRECTION = 1.7D;
 	private static final String PIXEL = "█";
