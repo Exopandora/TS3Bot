@@ -15,6 +15,7 @@ public class TS3MessageChannelAdapter implements IMessageChannel
 {
 	private final TS3Api api;
 	private final int channelId;
+	private IServer server;
 	
 	public TS3MessageChannelAdapter(TS3Api api, int channelId)
 	{
@@ -46,7 +47,12 @@ public class TS3MessageChannelAdapter implements IMessageChannel
 	@Override
 	public IServer getServer()
 	{
-		return new TS3ServerAdapter(this.api, this.api.getServerInfo().getId());
+		if(this.server == null)
+		{
+			this.server = new TS3ServerAdapter(this.api, this.api.getServerInfo().getId());
+		}
+		
+		return this.server;
 	}
 	
 	@Override
