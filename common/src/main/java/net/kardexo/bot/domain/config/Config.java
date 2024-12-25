@@ -1,6 +1,5 @@
 package net.kardexo.bot.domain.config;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import net.kardexo.bot.adapters.lol.Platform;
@@ -142,7 +141,4 @@ public abstract class Config
 	{
 		return this.maxVideoDurationYouTube;
 	}
-	
-	@JsonIgnore
-	public abstract boolean isEmbedsEnabled();
 }

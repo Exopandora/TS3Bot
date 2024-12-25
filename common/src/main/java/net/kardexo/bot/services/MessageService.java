@@ -11,6 +11,7 @@ import net.kardexo.bot.domain.config.Config;
 import net.kardexo.bot.services.api.IAPIKeyService;
 import net.kardexo.bot.services.api.IEconomyService;
 import net.kardexo.bot.services.api.IMessageProcessor;
+import net.kardexo.bot.services.api.IMessageProcessorRegistrar;
 import net.kardexo.bot.services.api.IMessageService;
 import net.kardexo.bot.services.api.IPermissionService;
 import net.kardexo.bot.services.api.IUserConfigService;
@@ -49,11 +50,10 @@ public class MessageService implements IMessageService
 			random
 		);
 		this.messageProcessors.add(commandMessageProcessor);
-		
-		if(config.isEmbedsEnabled())
+		IMessageProcessorRegistrar.INSTANCE.forEach(registrar ->
 		{
-			this.messageProcessors.add(urlMessageProcessor);
-		}
+			registrar.register(this.messageProcessors, bot, config, apiKeyService, permissionService, economyService, userConfigService, urlMessageProcessor, random);
+		});
 	}
 	
 	@Override
