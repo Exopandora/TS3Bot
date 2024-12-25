@@ -4,6 +4,7 @@
 	"login_password": "PASSWORD",
 	"channel_name": "CHANNEL",
 	"virtual_server_id": 1,
+	"token": "DISCORD_OAUTH_TOKEN",
 	"chat_history_size": 100,
 	"api_keys": {
 		"watch_2_gether": {
