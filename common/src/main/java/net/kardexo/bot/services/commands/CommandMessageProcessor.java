@@ -23,12 +23,14 @@ import net.kardexo.bot.services.api.IUserConfigService;
 
 import java.util.List;
 import java.util.Random;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class CommandMessageProcessor implements IMessageProcessor
 {
 	private final CommandDispatcher<CommandSource> dispatcher = new CommandDispatcher<CommandSource>();
 	private final IPermissionService permissionService;
+	private final Config config;
 	private final Random random;
 	
 	public CommandMessageProcessor
@@ -44,6 +46,7 @@ public class CommandMessageProcessor implements IMessageProcessor
 	)
 	{
 		this.permissionService = permissionService;
+		this.config = config;
 		this.random = random;
 		ICommandRegistrar.INSTANCE.forEach(registrar ->
 		{
@@ -61,7 +64,7 @@ public class CommandMessageProcessor implements IMessageProcessor
 			return;
 		}
 		
-		ParseResults<CommandSource> parse = this.dispatcher.parse(message.substring(1), source);
+		ParseResults<CommandSource> parse = this.dispatcher.parse(message.substring(this.config.getCommandPrefix().length()), source);
 		
 		try
 		{
@@ -96,7 +99,7 @@ public class CommandMessageProcessor implements IMessageProcessor
 					StringBuilder builder = new StringBuilder();
 					String command = nodes.stream().map(CommandNode::getName).collect(Collectors.joining(" "));
 					HelpCommand.appendAllUsage(builder, this.dispatcher, nodes, source);
-					source.sendFeedback("Usage: !" + command + builder);
+					source.sendFeedback("Usage: " + this.config.getCommandPrefix() + command + builder);
 				}
 			}
 			else
@@ -109,6 +112,7 @@ public class CommandMessageProcessor implements IMessageProcessor
 	@Override
 	public boolean isApplicable(IBotClient bot, IChannel channel, IClient client, String message, ChatHistory chatHistory)
 	{
-		return message.startsWith("!") && !message.matches("!+");
+		return message.startsWith(this.config.getCommandPrefix()) &&
+			(this.config.getCommandPrefix().length() > 1 || !message.matches("^(?:" + Pattern.quote(this.config.getCommandPrefix()) + ")+$"));
 	}
 }

@@ -10,6 +10,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.mojang.brigadier.tree.CommandNode;
 import net.kardexo.bot.domain.CommandSource;
+import net.kardexo.bot.domain.config.Config;
 import net.kardexo.bot.services.commands.Commands;
 
 import java.util.ArrayList;
@@ -21,15 +22,15 @@ public class HelpCommand
 {
 	private static final DynamicCommandExceptionType UNKNOWN_COMMAND = new DynamicCommandExceptionType(command -> new LiteralMessage("Unknown command " + command));
 	
-	public static void register(CommandDispatcher<CommandSource> dispatcher)
+	public static void register(CommandDispatcher<CommandSource> dispatcher, Config config)
 	{
 		dispatcher.register(Commands.literal("help")
-			.executes(context -> help(context, dispatcher))
+			.executes(context -> help(context, dispatcher, config))
 			.then(Commands.argument("command", StringArgumentType.greedyString())
-				.executes(context -> help(context, dispatcher, StringArgumentType.getString(context, "command")))));
+				.executes(context -> help(context, dispatcher, config, StringArgumentType.getString(context, "command")))));
 	}
 	
-	private static int help(CommandContext<CommandSource> context, CommandDispatcher<CommandSource> dispatcher)
+	private static int help(CommandContext<CommandSource> context, CommandDispatcher<CommandSource> dispatcher, Config config)
 	{
 		Map<CommandNode<CommandSource>, String> usage = dispatcher.getSmartUsage(dispatcher.getRoot(), context.getSource());
 		StringBuilder builder = new StringBuilder();
@@ -38,7 +39,8 @@ public class HelpCommand
 		{
 			if(command.getKey().canUse(context.getSource()))
 			{
-				builder.append("\n!");
+				builder.append("\n");
+				builder.append(config.getCommandPrefix());
 				builder.append(command.getValue());
 			}
 		}
@@ -47,7 +49,7 @@ public class HelpCommand
 		return 0;
 	}
 	
-	private static int help(CommandContext<CommandSource> context, CommandDispatcher<CommandSource> dispatcher, String command) throws CommandSyntaxException
+	private static int help(CommandContext<CommandSource> context, CommandDispatcher<CommandSource> dispatcher, Config config, String command) throws CommandSyntaxException
 	{
 		ParseResults<CommandSource> parse = dispatcher.parse(command, context.getSource());
 		
@@ -66,7 +68,7 @@ public class HelpCommand
 		List<CommandNode<CommandSource>> nodes = parse.getContext().getLastChild().getNodes().stream()
 			.map(ParsedCommandNode::getNode)
 			.toList();
-		StringBuilder builder = new StringBuilder("Usage: !" + command);
+		StringBuilder builder = new StringBuilder("Usage: " + config.getCommandPrefix() + command);
 		
 		if(!nodes.isEmpty())
 		{
@@ -81,7 +83,7 @@ public class HelpCommand
 	{
 		List<String> usages = new ArrayList<String>();
 		
-		for(String usage : dispatcher.getAllUsage(nodes.get(nodes.size() - 1), source, true))
+		for(String usage : dispatcher.getAllUsage(nodes.getLast(), source, true))
 		{
 			if(!usage.isEmpty())
 			{

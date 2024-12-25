@@ -55,7 +55,7 @@ public class Commands implements ICommandRegistrar
 	{
 		ExitCommand.register(dispatcher, permissionService);
 		BotCommand.register(dispatcher);
-		HelpCommand.register(dispatcher);
+		HelpCommand.register(dispatcher, config);
 		TwitchCommand.register(dispatcher, config, apiKeyService);
 		TeamsCommand.register(dispatcher);
 		Watch2GetherCommand.register(dispatcher, config, apiKeyService, urlMessageProcessor);

@@ -24,6 +24,7 @@ import java.util.Random;
 import java.util.Scanner;
 import java.util.Timer;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 
 import static net.kardexo.bot.domain.Util.OBJECT_MAPPER;
 
@@ -94,7 +95,7 @@ public abstract class AbstractBot<T extends Config>
 		{
 			while(scanner.hasNextLine())
 			{
-				String message = scanner.nextLine().replaceFirst("^!*", "!");
+				String message = scanner.nextLine().replaceFirst("^(?:" + Pattern.quote(this.config.getCommandPrefix()) + ")?", this.config.getCommandPrefix());
 				this.onMessage(this.getConsoleChannel(), this.getBotClient(), message);
 			}
 		}

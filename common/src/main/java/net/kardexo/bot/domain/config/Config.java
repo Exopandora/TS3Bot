@@ -52,6 +52,9 @@ public abstract class Config
 	@JsonProperty("max_video_duration_youtube")
 	private int maxVideoDurationYouTube;
 	
+	@JsonProperty("command_prefix")
+	private String commandPrefix;
+	
 	protected Config()
 	{
 		super();
@@ -140,5 +143,10 @@ public abstract class Config
 	public int getMaxVideoDurationYouTube()
 	{
 		return this.maxVideoDurationYouTube;
+	}
+	
+	public String getCommandPrefix()
+	{
+		return this.commandPrefix;
 	}
 }
