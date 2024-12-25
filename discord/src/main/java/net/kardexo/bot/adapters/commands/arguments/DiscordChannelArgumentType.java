@@ -5,7 +5,7 @@ import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
-import net.kardexo.bot.adapters.commands.CommandSource;
+import net.kardexo.bot.domain.CommandSource;
 import net.kardexo.bot.domain.api.IChannel;
 import net.kardexo.bot.domain.api.IClient;
 import net.kardexo.bot.domain.api.IServer;

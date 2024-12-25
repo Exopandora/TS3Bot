@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.mojang.brigadier.LiteralMessage;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
-import net.kardexo.bot.adapters.web.impl.TwitchURLProcessor;
+import net.kardexo.bot.adapters.url.TwitchURLProcessor;
 import net.kardexo.bot.domain.Util;
 import net.kardexo.bot.services.api.IAPIKeyService;
 import org.apache.http.client.methods.CloseableHttpResponse;

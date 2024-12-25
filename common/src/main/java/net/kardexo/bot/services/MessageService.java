@@ -1,7 +1,7 @@
 package net.kardexo.bot.services;
 
-import net.kardexo.bot.adapters.commands.CommandMessageProcessor;
-import net.kardexo.bot.adapters.web.URLMessageProcessor;
+import net.kardexo.bot.services.commands.CommandMessageProcessor;
+import net.kardexo.bot.services.url.URLMessageProcessor;
 import net.kardexo.bot.domain.ChatHistory;
 import net.kardexo.bot.domain.api.IBotClient;
 import net.kardexo.bot.domain.api.IChannel;

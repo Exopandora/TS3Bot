@@ -1,6 +1,6 @@
 package net.kardexo.bot.commands;
 
-import net.kardexo.bot.adapters.commands.impl.LeagueOfLegendsCommand;
+import net.kardexo.bot.services.commands.impl.LeagueOfLegendsCommand;
 import net.kardexo.bot.adapters.lol.League;
 import net.kardexo.bot.adapters.lol.Platform;
 import net.kardexo.bot.adapters.lol.Rank;
