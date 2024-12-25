@@ -1,6 +1,7 @@
-package net.kardexo.bot.adapters.web.processors;
+package net.kardexo.bot.adapters.web.impl;
 
 import net.kardexo.bot.adapters.twitch.Twitch;
+import net.kardexo.bot.adapters.web.IURLProcessor;
 import net.kardexo.bot.services.api.IAPIKeyService;
 
 import java.net.URI;

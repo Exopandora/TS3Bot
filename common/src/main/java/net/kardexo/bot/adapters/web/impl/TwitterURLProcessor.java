@@ -1,7 +1,8 @@
-package net.kardexo.bot.adapters.web.processors;
+package net.kardexo.bot.adapters.web.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import net.kardexo.bot.adapters.twitter.Twitter;
+import net.kardexo.bot.adapters.web.IURLProcessor;
 import net.kardexo.bot.services.api.IAPIKeyService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

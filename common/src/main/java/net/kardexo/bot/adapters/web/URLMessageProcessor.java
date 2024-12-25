@@ -1,12 +1,11 @@
 package net.kardexo.bot.adapters.web;
 
-import net.kardexo.bot.adapters.web.processors.DefaultURLProcessor;
-import net.kardexo.bot.adapters.web.processors.IURLProcessor;
-import net.kardexo.bot.adapters.web.processors.SteamURLProcessor;
-import net.kardexo.bot.adapters.web.processors.TwitchURLProcessor;
-import net.kardexo.bot.adapters.web.processors.TwitterURLProcessor;
-import net.kardexo.bot.adapters.web.processors.Watch2GetherURLProcessor;
-import net.kardexo.bot.adapters.web.processors.YouTubeURLProcessor;
+import net.kardexo.bot.adapters.web.impl.DefaultURLProcessor;
+import net.kardexo.bot.adapters.web.impl.SteamURLProcessor;
+import net.kardexo.bot.adapters.web.impl.TwitchURLProcessor;
+import net.kardexo.bot.adapters.web.impl.TwitterURLProcessor;
+import net.kardexo.bot.adapters.web.impl.Watch2GetherURLProcessor;
+import net.kardexo.bot.adapters.web.impl.YouTubeURLProcessor;
 import net.kardexo.bot.domain.ChatHistory;
 import net.kardexo.bot.domain.Util;
 import net.kardexo.bot.domain.api.IBotClient;

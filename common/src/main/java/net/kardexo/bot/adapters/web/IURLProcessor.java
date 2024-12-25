@@ -1,4 +1,4 @@
-package net.kardexo.bot.adapters.web.processors;
+package net.kardexo.bot.adapters.web;
 
 public interface IURLProcessor
 {

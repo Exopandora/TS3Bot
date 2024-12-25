@@ -1,4 +1,4 @@
-package net.kardexo.bot.adapters.web.processors;
+package net.kardexo.bot.adapters.web.impl;
 
 import net.kardexo.bot.services.api.IAPIKeyService;
 

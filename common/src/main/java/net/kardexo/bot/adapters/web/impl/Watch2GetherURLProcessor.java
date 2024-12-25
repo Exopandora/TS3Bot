@@ -1,4 +1,6 @@
-package net.kardexo.bot.adapters.web.processors;
+package net.kardexo.bot.adapters.web.impl;
+
+import net.kardexo.bot.adapters.web.IURLProcessor;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

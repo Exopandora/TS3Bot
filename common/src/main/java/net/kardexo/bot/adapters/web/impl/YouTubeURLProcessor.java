@@ -1,4 +1,4 @@
-package net.kardexo.bot.adapters.web.processors;
+package net.kardexo.bot.adapters.web.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import net.kardexo.bot.adapters.youtube.YouTube;

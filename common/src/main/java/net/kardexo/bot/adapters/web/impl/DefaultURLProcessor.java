@@ -1,6 +1,7 @@
-package net.kardexo.bot.adapters.web.processors;
+package net.kardexo.bot.adapters.web.impl;
 
 import net.kardexo.bot.adapters.imagga.Imagga;
+import net.kardexo.bot.adapters.web.IURLProcessor;
 import net.kardexo.bot.domain.FormattedStringBuilder;
 import net.kardexo.bot.domain.Util;
 import net.kardexo.bot.domain.api.IStyle;
