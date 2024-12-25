@@ -22,6 +22,7 @@ public class Twitch
 {
 	private static final Logger logger = LoggerFactory.getLogger(Twitch.class);
 	private static final SimpleCommandExceptionType TWITCH_SERVICE_UNAVAILABLE = new SimpleCommandExceptionType(new LiteralMessage("Twitch service is currently unavailable"));
+	private static final String BASE_URL = "https://twitch.tv/";
 	
 	public static String details(IAPIKeyService apiKeyService, String user, boolean appendLink) throws CommandSyntaxException
 	{
@@ -47,7 +48,7 @@ public class Twitch
 					
 					if(appendLink)
 					{
-						result += " " + TwitchURLProcessor.BASE_URL + user;
+						result += " " + BASE_URL + user;
 					}
 					
 					return result;
