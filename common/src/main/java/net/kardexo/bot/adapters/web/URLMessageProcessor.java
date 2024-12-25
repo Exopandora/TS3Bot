@@ -14,13 +14,13 @@ import net.kardexo.bot.domain.api.IChannel;
 import net.kardexo.bot.domain.api.IClient;
 import net.kardexo.bot.domain.api.IConsoleChannel;
 import net.kardexo.bot.services.api.IAPIKeyService;
-import net.kardexo.bot.services.api.IMessageProcessor;
+import net.kardexo.bot.services.api.IURLMessageProcessor;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class URLMessageProcessor implements IMessageProcessor
+public class URLMessageProcessor implements IURLMessageProcessor
 {
 	public static final int MESSAGE_LIFETIME_MILLIS = 10000;
 	
@@ -55,6 +55,7 @@ public class URLMessageProcessor implements IMessageProcessor
 		return !(channel instanceof IConsoleChannel) && !(client instanceof IBotClient);
 	}
 	
+	@Override
 	public String processMessage(String message, @NotNull ChatHistory chatHistory)
 	{
 		if(chatHistory.appendAndCheckIfNew(message, MESSAGE_LIFETIME_MILLIS))
@@ -65,6 +66,7 @@ public class URLMessageProcessor implements IMessageProcessor
 		return null;
 	}
 	
+	@Override
 	public String processMessage(String message)
 	{
 		String url = Util.extractURL(message);

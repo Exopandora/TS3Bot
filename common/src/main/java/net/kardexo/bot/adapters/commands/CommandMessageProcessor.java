@@ -5,31 +5,7 @@ import com.mojang.brigadier.ParseResults;
 import com.mojang.brigadier.context.ParsedCommandNode;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.CommandNode;
-import net.kardexo.bot.adapters.commands.impl.BalanceCommand;
-import net.kardexo.bot.adapters.commands.impl.BanCommand;
-import net.kardexo.bot.adapters.commands.impl.BingoCommand;
-import net.kardexo.bot.adapters.commands.impl.BotCommand;
-import net.kardexo.bot.adapters.commands.impl.CalculateCommand;
-import net.kardexo.bot.adapters.commands.impl.ExitCommand;
-import net.kardexo.bot.adapters.commands.impl.GambleCommand;
 import net.kardexo.bot.adapters.commands.impl.HelpCommand;
-import net.kardexo.bot.adapters.commands.impl.KickAllCommand;
-import net.kardexo.bot.adapters.commands.impl.KickCommand;
-import net.kardexo.bot.adapters.commands.impl.LeagueOfLegendsCommand;
-import net.kardexo.bot.adapters.commands.impl.MoveCommand;
-import net.kardexo.bot.adapters.commands.impl.PlayCommand;
-import net.kardexo.bot.adapters.commands.impl.RandomCommand;
-import net.kardexo.bot.adapters.commands.impl.RulesCommand;
-import net.kardexo.bot.adapters.commands.impl.SayCommand;
-import net.kardexo.bot.adapters.commands.impl.SilentCommand;
-import net.kardexo.bot.adapters.commands.impl.TeamsCommand;
-import net.kardexo.bot.adapters.commands.impl.TextCommand;
-import net.kardexo.bot.adapters.commands.impl.TimerCommand;
-import net.kardexo.bot.adapters.commands.impl.TransferCommand;
-import net.kardexo.bot.adapters.commands.impl.TwitchCommand;
-import net.kardexo.bot.adapters.commands.impl.Watch2GetherCommand;
-import net.kardexo.bot.adapters.commands.impl.YouTubeCommand;
-import net.kardexo.bot.adapters.web.URLMessageProcessor;
 import net.kardexo.bot.domain.ChatHistory;
 import net.kardexo.bot.domain.api.IBotClient;
 import net.kardexo.bot.domain.api.IChannel;
@@ -40,6 +16,7 @@ import net.kardexo.bot.services.api.IAPIKeyService;
 import net.kardexo.bot.services.api.IEconomyService;
 import net.kardexo.bot.services.api.IMessageProcessor;
 import net.kardexo.bot.services.api.IPermissionService;
+import net.kardexo.bot.services.api.IURLMessageProcessor;
 import net.kardexo.bot.services.api.IUserConfigService;
 
 import java.util.List;
@@ -60,36 +37,16 @@ public class CommandMessageProcessor implements IMessageProcessor
 		IPermissionService permissionService,
 		IEconomyService economyService,
 		IUserConfigService userConfigService,
-		URLMessageProcessor urlMessageProcessor,
+		IURLMessageProcessor urlMessageProcessor,
 		Random random
 	)
 	{
 		this.permissionService = permissionService;
 		this.random = random;
-		ExitCommand.register(this.dispatcher, permissionService);
-		BotCommand.register(this.dispatcher);
-		HelpCommand.register(this.dispatcher);
-		TwitchCommand.register(this.dispatcher, config, apiKeyService);
-		TeamsCommand.register(this.dispatcher);
-		Watch2GetherCommand.register(this.dispatcher, config, apiKeyService, urlMessageProcessor);
-		RandomCommand.register(this.dispatcher);
-		MoveCommand.register(this.dispatcher, bot, permissionService);
-		SilentCommand.register(this.dispatcher, permissionService);
-		LeagueOfLegendsCommand.register(this.dispatcher, config, apiKeyService, userConfigService);
-		TextCommand.register(this.dispatcher, config);
-		KickCommand.register(this.dispatcher, bot, permissionService);
-		KickAllCommand.register(this.dispatcher, permissionService);
-		YouTubeCommand.register(this.dispatcher, config, apiKeyService);
-		RulesCommand.register(this.dispatcher, config);
-		SayCommand.register(this.dispatcher);
-		TimerCommand.register(this.dispatcher);
-		BingoCommand.register(this.dispatcher, config);
-		CalculateCommand.register(this.dispatcher);
-		BalanceCommand.register(this.dispatcher, bot, permissionService, economyService);
-		TransferCommand.register(this.dispatcher, bot, economyService);
-		PlayCommand.register(this.dispatcher);
-		BanCommand.register(this.dispatcher, bot, permissionService);
-		GambleCommand.register(this.dispatcher, economyService);
+		ICommandRegistrar.INSTANCE.forEach(registrar ->
+		{
+			registrar.register(this.dispatcher, bot, config, apiKeyService, permissionService, economyService, userConfigService, urlMessageProcessor);
+		});
 	}
 	
 	@Override

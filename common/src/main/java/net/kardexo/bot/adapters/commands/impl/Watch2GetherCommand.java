@@ -11,11 +11,11 @@ import com.mojang.brigadier.tree.LiteralCommandNode;
 import net.kardexo.bot.adapters.commands.CommandSource;
 import net.kardexo.bot.adapters.commands.Commands;
 import net.kardexo.bot.adapters.w2g.Watch2Gether;
-import net.kardexo.bot.adapters.web.URLMessageProcessor;
 import net.kardexo.bot.adapters.youtube.YouTube;
 import net.kardexo.bot.domain.Util;
 import net.kardexo.bot.domain.config.Config;
 import net.kardexo.bot.services.api.IAPIKeyService;
+import net.kardexo.bot.services.api.IURLMessageProcessor;
 
 import java.util.Map.Entry;
 
@@ -23,7 +23,7 @@ public class Watch2GetherCommand
 {
 	private static final String YOUTUBE_URL = "https://youtu.be/";
 	
-	public static void register(CommandDispatcher<CommandSource> dispatcher, Config config, IAPIKeyService apiKeyService, URLMessageProcessor urlMessageProcessor)
+	public static void register(CommandDispatcher<CommandSource> dispatcher, Config config, IAPIKeyService apiKeyService, IURLMessageProcessor urlMessageProcessor)
 	{
 		LiteralArgumentBuilder<CommandSource> command = Commands.literal("watch2gether")
 			.executes(context -> watch2gether(context, apiKeyService, urlMessageProcessor, config.getDefaultW2GShare(), config.getDefaultW2GBGColor(), config.getDefaultW2GBGOpacity()))
@@ -47,7 +47,7 @@ public class Watch2GetherCommand
 			.redirect(watch2gether));
 	}
 	
-	public static int watch2gether(CommandContext<CommandSource> context, IAPIKeyService apiKeyService, URLMessageProcessor urlMessageProcessor, String share, String bgColor, int bgOpacity) throws CommandSyntaxException
+	public static int watch2gether(CommandContext<CommandSource> context, IAPIKeyService apiKeyService, IURLMessageProcessor urlMessageProcessor, String share, String bgColor, int bgOpacity) throws CommandSyntaxException
 	{
 		JsonNode node = Watch2Gether.createRoom(apiKeyService, share, bgColor, bgOpacity);
 		StringBuilder builder = new StringBuilder(); 
