@@ -1,6 +1,7 @@
 package net.kardexo.bot.adapters.string;
 
 import net.kardexo.bot.domain.api.IStyle;
+import net.kardexo.bot.services.api.StyleFactory;
 
 public class TS3StyleFactory implements StyleFactory
 {

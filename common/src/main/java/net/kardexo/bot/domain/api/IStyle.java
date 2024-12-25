@@ -1,6 +1,6 @@
 package net.kardexo.bot.domain.api;
 
-import net.kardexo.bot.adapters.string.StyleFactory;
+import net.kardexo.bot.services.api.StyleFactory;
 
 import java.util.ServiceLoader;
 

@@ -1,4 +1,4 @@
-package net.kardexo.bot.adapters.string;
+package net.kardexo.bot.services.api;
 
 import net.kardexo.bot.domain.api.IStyle;
 
