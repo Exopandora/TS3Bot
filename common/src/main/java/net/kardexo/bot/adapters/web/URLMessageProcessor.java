@@ -24,17 +24,12 @@ public class URLMessageProcessor implements IURLMessageProcessor
 	public static final int MESSAGE_LIFETIME_MILLIS = 10000;
 	
 	private final DefaultURLProcessor defaultURLProcessor;
-	private final List<IURLProcessor> urlProcessors;
+	private final List<IURLProcessor> urlProcessors = new ArrayList<IURLProcessor>();
 	
 	public URLMessageProcessor(IAPIKeyService apiKeyService)
 	{
 		this.defaultURLProcessor = new DefaultURLProcessor(apiKeyService);
-		this.urlProcessors = new ArrayList<IURLProcessor>();
-		this.urlProcessors.add(new SteamURLProcessor(apiKeyService));
-		this.urlProcessors.add(new TwitchURLProcessor(apiKeyService));
-		this.urlProcessors.add(new YouTubeURLProcessor(apiKeyService));
-		this.urlProcessors.add(new TwitterURLProcessor(apiKeyService));
-		this.urlProcessors.add(new Watch2GetherURLProcessor());
+		IURLProcessorRegistrar.INSTANCE.forEach(registrar -> registrar.register(this.urlProcessors, apiKeyService));
 	}
 	
 	@Override
