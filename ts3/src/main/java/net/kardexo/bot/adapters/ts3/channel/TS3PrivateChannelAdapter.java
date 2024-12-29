@@ -2,24 +2,20 @@ package net.kardexo.bot.adapters.ts3.channel;
 
 import com.github.theholywaffle.teamspeak3.TS3Api;
 import net.kardexo.bot.adapters.ts3.TS3ClientAdapter;
-import net.kardexo.bot.adapters.ts3.TS3ServerAdapter;
 import net.kardexo.bot.domain.api.IClient;
 import net.kardexo.bot.domain.api.IPrivateChannel;
-import net.kardexo.bot.domain.api.IServer;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-public class TS3PrivateChannelAdapter implements IPrivateChannel
+public class TS3PrivateChannelAdapter extends AbstractTS3ChannelAdapter implements IPrivateChannel
 {
-	private final TS3Api api;
 	private final int clientId;
-	private IServer server;
 	
 	public TS3PrivateChannelAdapter(TS3Api api, int clientId)
 	{
-		this.api = api;
+		super(api);
 		this.clientId = clientId;
 	}
 	
@@ -41,26 +37,9 @@ public class TS3PrivateChannelAdapter implements IPrivateChannel
 		return Collections.singletonList(new TS3ClientAdapter(this.api, this.clientId));
 	}
 	
-	@Override
-	public IServer getServer()
-	{
-		if(this.server == null)
-		{
-			this.server = new TS3ServerAdapter(this.api, this.api.getServerInfo().getId());
-		}
-		
-		return this.server;
-	}
-	
 	public int getClientId()
 	{
 		return this.clientId;
-	}
-	
-	@Override
-	public boolean isJoinable()
-	{
-		return false;
 	}
 	
 	@Override

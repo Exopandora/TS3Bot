@@ -1,24 +1,20 @@
 package net.kardexo.bot.adapters.ts3.channel;
 
 import com.github.theholywaffle.teamspeak3.TS3Api;
-import net.kardexo.bot.adapters.ts3.TS3ServerAdapter;
 import net.kardexo.bot.domain.api.IChannel;
 import net.kardexo.bot.domain.api.IClient;
 import net.kardexo.bot.domain.api.IConsoleChannel;
-import net.kardexo.bot.domain.api.IServer;
 
 import java.util.Collections;
 import java.util.List;
 
-public class TS3ConsoleChannelAdapter implements IConsoleChannel
+public class TS3ConsoleChannelAdapter extends AbstractTS3ChannelAdapter implements IConsoleChannel
 {
-	private final TS3Api api;
 	private final int clientId;
-	private IServer server;
 	
 	public TS3ConsoleChannelAdapter(TS3Api api, int clientId)
 	{
-		this.api = api;
+		super(api);
 		this.clientId = clientId;
 	}
 	
@@ -35,26 +31,9 @@ public class TS3ConsoleChannelAdapter implements IConsoleChannel
 	}
 	
 	@Override
-	public IServer getServer()
-	{
-		if(this.server == null)
-		{
-			this.server = new TS3ServerAdapter(this.api, this.api.getServerInfo().getId());
-		}
-		
-		return this.server;
-	}
-	
-	@Override
 	public List<IChannel> getBroadcastChannels()
 	{
 		return Collections.singletonList(new TS3MessageChannelAdapter(this.api, this.api.getClientInfo(this.clientId).getChannelId()));
-	}
-	
-	@Override
-	public boolean isJoinable()
-	{
-		return false;
 	}
 	
 	@Override
