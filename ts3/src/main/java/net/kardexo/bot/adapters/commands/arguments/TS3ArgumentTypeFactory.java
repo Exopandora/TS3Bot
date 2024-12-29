@@ -6,7 +6,7 @@ import net.kardexo.bot.domain.CommandSource;
 import net.kardexo.bot.domain.api.IBotClient;
 import net.kardexo.bot.domain.api.IChannel;
 import net.kardexo.bot.domain.api.IClient;
-import net.kardexo.bot.services.commands.arguments.ArgumentTypeFactory;
+import net.kardexo.bot.services.api.commands.arguments.ArgumentTypeFactory;
 
 public class TS3ArgumentTypeFactory implements ArgumentTypeFactory
 {

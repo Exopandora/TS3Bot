@@ -1,4 +1,4 @@
-package net.kardexo.bot.services.commands.arguments;
+package net.kardexo.bot.services.api.commands.arguments;
 
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.context.CommandContext;

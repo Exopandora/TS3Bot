@@ -7,7 +7,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import net.kardexo.bot.domain.CommandSource;
 import net.kardexo.bot.services.commands.Commands;
-import net.kardexo.bot.services.commands.arguments.ChannelArgumentType;
+import net.kardexo.bot.services.api.commands.arguments.ChannelArgumentType;
 import net.kardexo.bot.domain.api.IBotClient;
 import net.kardexo.bot.domain.api.IChannel;
 import net.kardexo.bot.services.api.IPermissionService;

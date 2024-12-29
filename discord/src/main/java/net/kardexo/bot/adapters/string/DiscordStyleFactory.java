@@ -1,9 +1,9 @@
 package net.kardexo.bot.adapters.string;
 
 import net.kardexo.bot.domain.api.IStyle;
-import net.kardexo.bot.services.api.StyleFactory;
+import net.kardexo.bot.services.api.IStyleFactory;
 
-public class DiscordStyleFactory implements StyleFactory
+public class DiscordStyleFactory implements IStyleFactory
 {
 	@Override
 	public IStyle color(int color)

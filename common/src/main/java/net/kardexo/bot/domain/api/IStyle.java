@@ -1,12 +1,12 @@
 package net.kardexo.bot.domain.api;
 
-import net.kardexo.bot.services.api.StyleFactory;
+import net.kardexo.bot.services.api.IStyleFactory;
 
 import java.util.ServiceLoader;
 
 public interface IStyle
 {
-	StyleFactory INSTANCE = ServiceLoader.load(StyleFactory.class).findFirst().orElseThrow();
+	IStyleFactory INSTANCE = ServiceLoader.load(IStyleFactory.class).findFirst().orElseThrow();
 	
 	default String apply(String string)
 	{

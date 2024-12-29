@@ -1,9 +1,14 @@
-package net.kardexo.bot.services.api;
+package net.kardexo.bot.services.api.commands;
 
 import com.mojang.brigadier.CommandDispatcher;
 import net.kardexo.bot.domain.CommandSource;
 import net.kardexo.bot.domain.api.IBotClient;
 import net.kardexo.bot.domain.config.Config;
+import net.kardexo.bot.services.api.IAPIKeyService;
+import net.kardexo.bot.services.api.IEconomyService;
+import net.kardexo.bot.services.api.IPermissionService;
+import net.kardexo.bot.services.api.IURLMessageProcessor;
+import net.kardexo.bot.services.api.IUserConfigService;
 
 import java.util.ServiceLoader;
 

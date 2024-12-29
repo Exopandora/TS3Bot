@@ -6,7 +6,7 @@ import com.mojang.brigadier.context.ParsedCommandNode;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.CommandNode;
 import net.kardexo.bot.domain.CommandSource;
-import net.kardexo.bot.services.api.ICommandRegistrar;
+import net.kardexo.bot.services.api.commands.ICommandRegistrar;
 import net.kardexo.bot.services.commands.impl.HelpCommand;
 import net.kardexo.bot.domain.ChatHistory;
 import net.kardexo.bot.domain.api.IBotClient;

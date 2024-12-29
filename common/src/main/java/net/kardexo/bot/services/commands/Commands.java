@@ -5,7 +5,7 @@ import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import net.kardexo.bot.domain.CommandSource;
-import net.kardexo.bot.services.api.ICommandRegistrar;
+import net.kardexo.bot.services.api.commands.ICommandRegistrar;
 import net.kardexo.bot.services.commands.impl.BalanceCommand;
 import net.kardexo.bot.services.commands.impl.BanCommand;
 import net.kardexo.bot.services.commands.impl.BingoCommand;

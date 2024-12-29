@@ -2,7 +2,7 @@ package net.kardexo.bot.services.api;
 
 import net.kardexo.bot.domain.api.IStyle;
 
-public interface StyleFactory
+public interface IStyleFactory
 {
 	IStyle color(int color);
 	

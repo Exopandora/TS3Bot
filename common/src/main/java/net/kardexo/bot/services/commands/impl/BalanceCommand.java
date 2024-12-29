@@ -5,7 +5,7 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import net.kardexo.bot.domain.CommandSource;
 import net.kardexo.bot.services.commands.Commands;
-import net.kardexo.bot.services.commands.arguments.ClientArgumentType;
+import net.kardexo.bot.services.api.commands.arguments.ClientArgumentType;
 import net.kardexo.bot.domain.api.IBotClient;
 import net.kardexo.bot.domain.api.IClient;
 import net.kardexo.bot.services.api.IEconomyService;

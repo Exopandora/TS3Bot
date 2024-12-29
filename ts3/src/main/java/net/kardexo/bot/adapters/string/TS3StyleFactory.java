@@ -1,9 +1,9 @@
 package net.kardexo.bot.adapters.string;
 
 import net.kardexo.bot.domain.api.IStyle;
-import net.kardexo.bot.services.api.StyleFactory;
+import net.kardexo.bot.services.api.IStyleFactory;
 
-public class TS3StyleFactory implements StyleFactory
+public class TS3StyleFactory implements IStyleFactory
 {
 	@Override
 	public IStyle color(int color)
