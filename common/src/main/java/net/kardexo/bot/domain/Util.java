@@ -55,7 +55,7 @@ public class Util
 	{
 		Map<String, String> result = new HashMap<String, String>();
 		
-		for(String parameter : query.split("&"))
+		for(String parameter : query.split("[?&]"))
 		{
 			String[] matcher = parameter.split("=");
 			result.put(matcher[0], URLDecoder.decode(matcher[1], StandardCharsets.UTF_8));
