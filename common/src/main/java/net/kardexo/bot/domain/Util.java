@@ -92,6 +92,8 @@ public class Util
 	{
 		RequestConfig config = RequestConfig.custom()
 			.setConnectionRequestTimeout(5000)
+			.setConnectTimeout(5000)
+			.setSocketTimeout(5000)
 			.setCookieSpec(cookieSpec)
 			.build();
 		return HttpClientBuilder.create()
