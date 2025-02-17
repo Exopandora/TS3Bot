@@ -8,15 +8,13 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
-import net.kardexo.bot.domain.CommandSource;
-import net.kardexo.bot.services.commands.Commands;
-import net.kardexo.bot.services.commands.arguments.RiotIdArgumentType;
 import net.kardexo.bot.adapters.lol.League;
 import net.kardexo.bot.adapters.lol.LeagueOfLegends;
 import net.kardexo.bot.adapters.lol.Platform;
 import net.kardexo.bot.adapters.lol.Rank;
 import net.kardexo.bot.adapters.lol.RiotId;
 import net.kardexo.bot.adapters.lol.Tier;
+import net.kardexo.bot.domain.CommandSource;
 import net.kardexo.bot.domain.FormattedStringBuilder;
 import net.kardexo.bot.domain.Util;
 import net.kardexo.bot.domain.api.IClient;
@@ -25,6 +23,8 @@ import net.kardexo.bot.domain.config.Config;
 import net.kardexo.bot.domain.config.UserConfig;
 import net.kardexo.bot.services.api.IAPIKeyService;
 import net.kardexo.bot.services.api.IUserConfigService;
+import net.kardexo.bot.services.commands.Commands;
+import net.kardexo.bot.services.commands.arguments.RiotIdArgumentType;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -645,7 +645,9 @@ public class LeagueOfLegendsCommand
 			
 			if(queue.path("queueId").asInt() == queueId)
 			{
-				return queue.path("description").asText("Custom").replaceFirst("^[0-9]v[0-9] ", "").replaceFirst(" games$", "");
+				return queue.path("description").asText("Custom")
+					.replaceFirst("^[0-9]v[0-9] ", "")
+					.replaceFirst(" games$", "");
 			}
 		}
 		
