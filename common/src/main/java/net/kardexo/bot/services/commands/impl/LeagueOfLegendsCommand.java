@@ -705,12 +705,14 @@ public class LeagueOfLegendsCommand
 			}
 		}
 		
-		String name = participant.path("summonerName").asText();
+		String name = extractParticipantName(participant);
 		
 		if(itemIds.isEmpty())
 		{
 			return name + " bought no items";
 		}
+		
+		String playerName = extractParticipantName(player);
 		
 		StringBuilder response = new StringBuilder("Build for ");
 		response.append(participant.path("championName").asText());
@@ -723,7 +725,7 @@ public class LeagueOfLegendsCommand
 		response.append("/");
 		response.append(participant.path("assists").asInt());
 		response.append(" where ");
-		response.append(player.path("summonerName").asText());
+		response.append(playerName);
 		response.append(" played as ");
 		response.append(player.path("championName").asText());
 		response.append(":");
@@ -739,6 +741,18 @@ public class LeagueOfLegendsCommand
 		}
 		
 		return response.toString();
+	}
+	
+	private static String extractParticipantName(JsonNode participant)
+	{
+		String summonerName = participant.path("summonerName").asText();
+		
+		if(summonerName.isEmpty())
+		{
+			return participant.path("riotIdGameName").asText() + "#" + participant.path("riotIdTagline").asText();
+		}
+		
+		return summonerName;
 	}
 	
 	private static class HistoryStats
