@@ -15,8 +15,8 @@ import java.util.regex.Pattern;
 public class YouTubeURLProcessor extends DefaultURLProcessor
 {
 	private static final Logger logger = LoggerFactory.getLogger(YouTubeURLProcessor.class);
-	private static final Pattern YOUTUBE_URL = Pattern.compile("https://(?:www\\.)?(?:youtube\\.com|youtu\\.be).*");
-	private static final Pattern YOUTUBE_WATCH_URL = Pattern.compile("https://(?:www\\.)?youtube\\.com/watch\\?(.*)");
+	private static final Pattern YOUTUBE_URL = Pattern.compile("https://(?:www\\.|music\\.)?(?:youtube\\.com|youtu\\.be).*");
+	private static final Pattern YOUTUBE_WATCH_URL = Pattern.compile("https://(?:www\\.|music\\.)?youtube\\.com/watch\\?(.*)");
 	private static final Pattern YOUTUBE_WATCH_URL_2 = Pattern.compile("https://(?:www\\.)?youtu\\.be/(.*)");
 	
 	public YouTubeURLProcessor(IAPIKeyService apiKeyService)
