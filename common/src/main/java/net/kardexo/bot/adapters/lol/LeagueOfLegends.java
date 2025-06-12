@@ -105,10 +105,10 @@ public class LeagueOfLegends
 		return fetch(apiKeyService, uri);
 	}
 	
-	public static JsonNode fetchLeague(IAPIKeyService apiKeyService, String summonerId, Platform platform) throws IOException
+	public static JsonNode fetchLeague(IAPIKeyService apiKeyService, String puuid, Platform platform) throws IOException
 	{
 		URI uri = platform.getApiUrl()
-			.resolve("lol/league/v4/entries/by-summoner/" + summonerId);
+			.resolve("lol/league/v4/entries/by-puuid/" + puuid);
 		return fetch(apiKeyService, uri);
 	}
 	
