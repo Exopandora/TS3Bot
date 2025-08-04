@@ -3,6 +3,7 @@
 	"login_name": "TS3Bot",
 	"login_password": "PASSWORD",
 	"channel_name": "CHANNEL",
+	"protocol": "SSH OR RAW",
 	"virtual_server_id": 1,
 	"token": "DISCORD_OAUTH_TOKEN",
 	"command_prefix": "!",

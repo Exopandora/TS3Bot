@@ -85,6 +85,7 @@ public class TS3BotAdapter extends AbstractBot<TS3ConfigAdapter>
 			}
 		};
 		ts3config.setHost(config.getHostAddress());
+		ts3config.setProtocol(config.getProtocol());
 		ts3config.setReconnectStrategy(ReconnectStrategy.constantBackoff());
 		ts3config.setConnectionHandler(connectionHandler);
 		ts3config.setLoginCredentials(config.getLoginName(), config.getLoginPassword());
