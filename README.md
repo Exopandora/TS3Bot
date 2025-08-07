@@ -28,6 +28,7 @@ Config options specific for TeamSpeak:
 - login_name
 - login_password
 - channel_name
+- protocol
 - virtual_server_id
 
 ### Discord
