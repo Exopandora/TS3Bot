@@ -15,7 +15,7 @@ public interface IMessageProcessorRegistrar
 	(
 		List<IMessageProcessor> registrar,
 		IBotClient bot,
-		Config config,
+		IConfigService<? extends Config> configService,
 		IAPIKeyService apiKeyService,
 		IPermissionService permissionService,
 		IEconomyService economyService,

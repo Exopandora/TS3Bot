@@ -3,21 +3,25 @@ package net.kardexo.bot.domain;
 import net.kardexo.bot.domain.api.IBotClient;
 import net.kardexo.bot.domain.api.IChannel;
 import net.kardexo.bot.domain.api.IClient;
+import net.kardexo.bot.domain.api.IConfigFactory;
 import net.kardexo.bot.domain.api.IConsoleChannel;
 import net.kardexo.bot.domain.config.Config;
 import net.kardexo.bot.services.APIKeyService;
 import net.kardexo.bot.services.BonusService;
+import net.kardexo.bot.services.ConfigService;
 import net.kardexo.bot.services.EconomyService;
 import net.kardexo.bot.services.MessageService;
 import net.kardexo.bot.services.PermissionService;
 import net.kardexo.bot.services.UserConfigService;
 import net.kardexo.bot.services.api.IAPIKeyService;
 import net.kardexo.bot.services.api.IBonusService;
+import net.kardexo.bot.services.api.IConfigService;
 import net.kardexo.bot.services.api.IEconomyService;
 import net.kardexo.bot.services.api.IMessageService;
 import net.kardexo.bot.services.api.IPermissionService;
 import net.kardexo.bot.services.api.IUserConfigService;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Random;
@@ -30,7 +34,7 @@ import static net.kardexo.bot.domain.Util.OBJECT_MAPPER;
 
 public abstract class AbstractBot<T extends Config>
 {
-	private final T config;
+	private final IConfigService<T> configService;
 	private final Random random;
 	private final ChatHistory chatHistory;
 	private final IEconomyService economyService;
@@ -42,14 +46,14 @@ public abstract class AbstractBot<T extends Config>
 	private IMessageService messageService;
 	private Timer timer;
 	
-	public AbstractBot(T config, Random random) throws IOException
+	public AbstractBot(String configFile, IConfigFactory<T> configFactory, Random random) throws IOException
 	{
-		this.config = config;
+		this.configService = new ConfigService<T>(configFile, configFactory);
 		this.random = random;
-		this.chatHistory = new ChatHistory(this.config.getChatHistorySize());
-		this.economyService = new EconomyService(Util.createFile("coins.json"), this.config.getCurrency(), OBJECT_MAPPER);
-		this.apiKeyService = new APIKeyService(this.config.getApiKeys());
-		this.permissionService = new PermissionService(this.config.getPermissions());
+		this.chatHistory = new ChatHistory(this.getConfig().getChatHistorySize());
+		this.economyService = new EconomyService(Util.createFile("coins.json"), this.getConfig().getCurrency(), OBJECT_MAPPER);
+		this.apiKeyService = new APIKeyService(this.getConfig().getApiKeys());
+		this.permissionService = new PermissionService(this.getConfig().getPermissions());
 		Runtime.getRuntime().addShutdownHook(new Thread(this::exit));
 	}
 	
@@ -62,7 +66,7 @@ public abstract class AbstractBot<T extends Config>
 	
 	protected void onConnect()
 	{
-		this.messageService = new MessageService(this.getBotClient(), this.config, this.apiKeyService, this.permissionService, this.economyService, this.userConfigService, this.random);
+		this.messageService = new MessageService(this.getBotClient(), this.configService, this.apiKeyService, this.permissionService, this.economyService, this.userConfigService, this.random);
 		this.loginBonusService.claim(this.getAllClientUidsForLoginBonus());
 		this.timer = new Timer();
 		this.timer.schedule(this.loginBonusService.createTimerTask(this::getAllClientUidsForLoginBonus), Util.tomorrow(), TimeUnit.DAYS.toMillis(1));
@@ -95,7 +99,7 @@ public abstract class AbstractBot<T extends Config>
 		{
 			while(scanner.hasNextLine())
 			{
-				String message = scanner.nextLine().replaceFirst("^(?:" + Pattern.quote(this.config.getCommandPrefix()) + ")?", this.config.getCommandPrefix());
+				String message = scanner.nextLine().replaceFirst("^(?:" + Pattern.quote(this.getConfig().getCommandPrefix()) + ")?", this.getConfig().getCommandPrefix());
 				this.onMessage(this.getConsoleChannel(), this.getBotClient(), message);
 			}
 		}
@@ -103,7 +107,7 @@ public abstract class AbstractBot<T extends Config>
 	
 	private void awardLoginBonus(String user)
 	{
-		this.economyService.add(user, this.config.getLoginBonus());
+		this.economyService.add(user, this.getConfig().getLoginBonus());
 	}
 	
 	protected abstract List<String> getAllClientUidsForLoginBonus();
@@ -114,7 +118,7 @@ public abstract class AbstractBot<T extends Config>
 	
 	public T getConfig()
 	{
-		return this.config;
+		return this.configService.getConfig();
 	}
 	
 	public ChatHistory getChatHistory()

@@ -35,9 +35,9 @@ public class TS3BotAdapter extends AbstractBot<TS3ConfigAdapter>
 	private TS3Query query;
 	private TS3BotClientAdapter botClient;
 	
-	public TS3BotAdapter(TS3ConfigAdapter config) throws IOException
+	public TS3BotAdapter(String configFile) throws IOException
 	{
-		super(config, new Random());
+		super(configFile, TS3ConfigAdapter::of, new Random());
 	}
 	
 	@Override

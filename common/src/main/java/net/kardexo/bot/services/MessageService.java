@@ -1,7 +1,5 @@
 package net.kardexo.bot.services;
 
-import net.kardexo.bot.services.commands.CommandMessageProcessor;
-import net.kardexo.bot.services.url.URLMessageProcessor;
 import net.kardexo.bot.domain.ChatHistory;
 import net.kardexo.bot.domain.api.IBotClient;
 import net.kardexo.bot.domain.api.IChannel;
@@ -9,12 +7,15 @@ import net.kardexo.bot.domain.api.IClient;
 import net.kardexo.bot.domain.api.IConsoleChannel;
 import net.kardexo.bot.domain.config.Config;
 import net.kardexo.bot.services.api.IAPIKeyService;
+import net.kardexo.bot.services.api.IConfigService;
 import net.kardexo.bot.services.api.IEconomyService;
 import net.kardexo.bot.services.api.IMessageProcessor;
 import net.kardexo.bot.services.api.IMessageProcessorRegistrar;
 import net.kardexo.bot.services.api.IMessageService;
 import net.kardexo.bot.services.api.IPermissionService;
 import net.kardexo.bot.services.api.IUserConfigService;
+import net.kardexo.bot.services.commands.CommandMessageProcessor;
+import net.kardexo.bot.services.url.URLMessageProcessor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +29,7 @@ public class MessageService implements IMessageService
 	public MessageService
 	(
 		IBotClient bot,
-		Config config,
+		IConfigService<? extends Config> configService,
 		IAPIKeyService apiKeyService,
 		IPermissionService permissionService,
 		IEconomyService economyService,
@@ -41,7 +42,7 @@ public class MessageService implements IMessageService
 		CommandMessageProcessor commandMessageProcessor = new CommandMessageProcessor
 		(
 			bot,
-			config,
+			configService,
 			apiKeyService,
 			permissionService,
 			economyService,
@@ -52,7 +53,7 @@ public class MessageService implements IMessageService
 		this.messageProcessors.add(commandMessageProcessor);
 		IMessageProcessorRegistrar.INSTANCE.forEach(registrar ->
 		{
-			registrar.register(this.messageProcessors, bot, config, apiKeyService, permissionService, economyService, userConfigService, urlMessageProcessor, random);
+			registrar.register(this.messageProcessors, bot, configService, apiKeyService, permissionService, economyService, userConfigService, urlMessageProcessor, random);
 		});
 	}
 	

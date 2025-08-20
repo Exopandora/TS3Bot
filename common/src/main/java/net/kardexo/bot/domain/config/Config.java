@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import net.kardexo.bot.adapters.lol.Platform;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -149,4 +151,6 @@ public abstract class Config
 	{
 		return this.commandPrefix;
 	}
+	
+	public abstract void reload(File configFile) throws IOException;
 }

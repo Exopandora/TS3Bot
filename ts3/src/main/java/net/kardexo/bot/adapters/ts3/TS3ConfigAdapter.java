@@ -60,8 +60,14 @@ public class TS3ConfigAdapter extends Config
 		return this.protocol;
 	}
 	
-	public static TS3ConfigAdapter of(String file) throws IOException
+	@Override
+	public void reload(File configFile) throws IOException
 	{
-		return OBJECT_MAPPER.readValue(new File(file), TS3ConfigAdapter.class);
+		OBJECT_MAPPER.readerForUpdating(this).readValue(configFile);
+	}
+	
+	public static TS3ConfigAdapter of(File configFile) throws IOException
+	{
+		return OBJECT_MAPPER.readValue(configFile, TS3ConfigAdapter.class);
 	}
 }

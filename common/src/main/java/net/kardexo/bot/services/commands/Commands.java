@@ -5,6 +5,7 @@ import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import net.kardexo.bot.domain.CommandSource;
+import net.kardexo.bot.services.api.IConfigService;
 import net.kardexo.bot.services.api.commands.ICommandRegistrar;
 import net.kardexo.bot.services.commands.impl.BalanceCommand;
 import net.kardexo.bot.services.commands.impl.BanCommand;
@@ -20,6 +21,7 @@ import net.kardexo.bot.services.commands.impl.LeagueOfLegendsCommand;
 import net.kardexo.bot.services.commands.impl.MoveCommand;
 import net.kardexo.bot.services.commands.impl.PlayCommand;
 import net.kardexo.bot.services.commands.impl.RandomCommand;
+import net.kardexo.bot.services.commands.impl.ReloadCommand;
 import net.kardexo.bot.services.commands.impl.RulesCommand;
 import net.kardexo.bot.services.commands.impl.SayCommand;
 import net.kardexo.bot.services.commands.impl.SilentCommand;
@@ -45,7 +47,7 @@ public class Commands implements ICommandRegistrar
 	(
 		CommandDispatcher<CommandSource> dispatcher,
 		IBotClient bot,
-		Config config,
+		IConfigService<? extends Config> configService,
 		IAPIKeyService apiKeyService,
 		IPermissionService permissionService,
 		IEconomyService economyService,
@@ -55,28 +57,29 @@ public class Commands implements ICommandRegistrar
 	{
 		ExitCommand.register(dispatcher, permissionService);
 		BotCommand.register(dispatcher);
-		HelpCommand.register(dispatcher, config);
-		TwitchCommand.register(dispatcher, config, apiKeyService);
+		HelpCommand.register(dispatcher, configService.getConfig());
+		TwitchCommand.register(dispatcher, configService.getConfig(), apiKeyService);
 		TeamsCommand.register(dispatcher);
-		Watch2GetherCommand.register(dispatcher, config, apiKeyService, urlMessageProcessor);
+		Watch2GetherCommand.register(dispatcher, configService.getConfig(), apiKeyService, urlMessageProcessor);
 		RandomCommand.register(dispatcher);
 		MoveCommand.register(dispatcher, bot, permissionService);
 		SilentCommand.register(dispatcher, permissionService);
-		LeagueOfLegendsCommand.register(dispatcher, config, apiKeyService, userConfigService);
-		TextCommand.register(dispatcher, config);
+		LeagueOfLegendsCommand.register(dispatcher, configService.getConfig(), apiKeyService, userConfigService);
+		TextCommand.register(dispatcher, configService.getConfig());
 		KickCommand.register(dispatcher, bot, permissionService);
 		KickAllCommand.register(dispatcher, permissionService);
-		YouTubeCommand.register(dispatcher, config, apiKeyService);
-		RulesCommand.register(dispatcher, config);
+		YouTubeCommand.register(dispatcher, configService.getConfig(), apiKeyService);
+		RulesCommand.register(dispatcher, configService.getConfig());
 		SayCommand.register(dispatcher);
 		TimerCommand.register(dispatcher);
-		BingoCommand.register(dispatcher, config);
+		BingoCommand.register(dispatcher, configService.getConfig());
 		CalculateCommand.register(dispatcher);
 		BalanceCommand.register(dispatcher, bot, permissionService, economyService);
 		TransferCommand.register(dispatcher, bot, economyService);
 		PlayCommand.register(dispatcher);
 		BanCommand.register(dispatcher, bot, permissionService);
 		GambleCommand.register(dispatcher, economyService);
+		ReloadCommand.register(dispatcher, configService, permissionService);
 	}
 	
 	public static LiteralArgumentBuilder<CommandSource> literal(String name)

@@ -25,8 +25,14 @@ public class DiscordConfigAdapter extends Config
 		return this.token;
 	}
 	
-	public static DiscordConfigAdapter of(String file) throws IOException
+	@Override
+	public void reload(File configFile) throws IOException
 	{
-		return OBJECT_MAPPER.readValue(new File(file), DiscordConfigAdapter.class);
+		OBJECT_MAPPER.readerForUpdating(this).readValue(configFile);
+	}
+	
+	public static DiscordConfigAdapter of(File configFile) throws IOException
+	{
+		return OBJECT_MAPPER.readValue(configFile, DiscordConfigAdapter.class);
 	}
 }

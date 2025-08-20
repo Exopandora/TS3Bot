@@ -6,6 +6,8 @@ import com.mojang.brigadier.context.ParsedCommandNode;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.CommandNode;
 import net.kardexo.bot.domain.CommandSource;
+import net.kardexo.bot.domain.api.IConfigFactory;
+import net.kardexo.bot.services.api.IConfigService;
 import net.kardexo.bot.services.api.commands.ICommandRegistrar;
 import net.kardexo.bot.services.commands.impl.HelpCommand;
 import net.kardexo.bot.domain.ChatHistory;
@@ -36,7 +38,7 @@ public class CommandMessageProcessor implements IMessageProcessor
 	public CommandMessageProcessor
 	(
 		IBotClient bot,
-		Config config,
+		IConfigService<? extends Config> configService,
 		IAPIKeyService apiKeyService,
 		IPermissionService permissionService,
 		IEconomyService economyService,
@@ -46,11 +48,11 @@ public class CommandMessageProcessor implements IMessageProcessor
 	)
 	{
 		this.permissionService = permissionService;
-		this.config = config;
+		this.config = configService.getConfig();
 		this.random = random;
 		ICommandRegistrar.INSTANCE.forEach(registrar ->
 		{
-			registrar.register(this.dispatcher, bot, config, apiKeyService, permissionService, economyService, userConfigService, urlMessageProcessor);
+			registrar.register(this.dispatcher, bot, configService, apiKeyService, permissionService, economyService, userConfigService, urlMessageProcessor);
 		});
 	}
 	

@@ -5,6 +5,7 @@ import net.kardexo.bot.domain.CommandSource;
 import net.kardexo.bot.domain.api.IBotClient;
 import net.kardexo.bot.domain.config.Config;
 import net.kardexo.bot.services.api.IAPIKeyService;
+import net.kardexo.bot.services.api.IConfigService;
 import net.kardexo.bot.services.api.IEconomyService;
 import net.kardexo.bot.services.api.IPermissionService;
 import net.kardexo.bot.services.api.IURLMessageProcessor;
@@ -20,7 +21,7 @@ public interface ICommandRegistrar
 	(
 		CommandDispatcher<CommandSource> dispatcher,
 		IBotClient bot,
-		Config config,
+		IConfigService<? extends Config> configService,
 		IAPIKeyService apiKeyService,
 		IPermissionService permissionService,
 		IEconomyService economyService,

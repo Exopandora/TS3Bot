@@ -29,9 +29,9 @@ public class DiscordBotAdapter extends AbstractBot<DiscordConfigAdapter>
 	private GatewayDiscordClient gatewayDiscordClient;
 	private DiscordBotClientAdapter botClient;
 	
-	public DiscordBotAdapter(DiscordConfigAdapter config) throws IOException
+	public DiscordBotAdapter(String configFile) throws IOException
 	{
-		super(config, new Random());
+		super(configFile, DiscordConfigAdapter::of, new Random());
 	}
 	
 	@Override
