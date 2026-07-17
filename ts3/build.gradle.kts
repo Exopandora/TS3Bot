@@ -18,15 +18,12 @@ configurations {
 
 dependencies {
     implementation(project(":common"))
-    implementation("com.github.theholywaffle:teamspeak3-api:1.3.1") {
-        // manually upgrade vulnerable transitive dependencies
-        exclude(group = "org.bouncycastle", module = "bcprov-jdk15on")
-        exclude(group = "org.bouncycastle", module = "bcpkix-jdk15on")
-        exclude(group = "org.bouncycastle", module = "bcutil-jdk15on")
-    }
-    implementation("org.bouncycastle:bcprov-jdk18on:1.79")
-    implementation("org.bouncycastle:bcpkix-jdk18on:1.79")
-    implementation("org.bouncycastle:bcutil-jdk18on:1.79")
+    implementation("com.github.theholywaffle:teamspeak3-api:1.3.1")
+    // manually upgrade vulnerable transitive dependencies
+    implementation("com.hierynomus:sshj:0.40.0")
+    implementation("org.bouncycastle:bcpkix-jdk18on:1.84")
+    implementation("org.bouncycastle:bcprov-jdk18on:1.84")
+    implementation("org.bouncycastle:bcutil-jdk18on:1.84")
 }
 
 application {
