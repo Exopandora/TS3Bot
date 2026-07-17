@@ -1,6 +1,7 @@
 plugins {
 	id("java-library")
 	id("idea")
+	id("java-test-fixtures")
 }
 
 dependencies {
@@ -15,4 +16,5 @@ dependencies {
 	
 	testImplementation("org.junit.jupiter:junit-jupiter:5.11.3")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+	testRuntimeOnly(testFixtures(project(":common")))
 }
