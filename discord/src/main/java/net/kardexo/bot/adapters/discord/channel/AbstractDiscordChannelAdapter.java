@@ -3,12 +3,14 @@ package net.kardexo.bot.adapters.discord.channel;
 import discord4j.core.object.entity.User;
 import discord4j.core.object.entity.channel.Category;
 import discord4j.core.object.entity.channel.Channel;
+import discord4j.core.object.entity.channel.ForumChannel;
 import discord4j.core.object.entity.channel.GuildChannel;
 import discord4j.core.object.entity.channel.GuildMessageChannel;
 import discord4j.core.object.entity.channel.NewsChannel;
 import discord4j.core.object.entity.channel.PrivateChannel;
 import discord4j.core.object.entity.channel.StoreChannel;
 import discord4j.core.object.entity.channel.TextChannel;
+import discord4j.core.object.entity.channel.ThreadChannel;
 import discord4j.core.object.entity.channel.VoiceChannel;
 import discord4j.discordjson.json.ChannelData;
 import discord4j.discordjson.possible.Possible;
@@ -47,8 +49,10 @@ public abstract class AbstractDiscordChannelAdapter implements IChannel
 				.map(Possible::toOptional)
 				.flatMap(optional -> optional)
 				.orElseGet(() -> ((PrivateChannel) this.channel).getRecipients().stream().map(User::getUsername).collect(Collectors.joining(", ")));
+			case GUILD_NEWS_THREAD, GUILD_PUBLIC_THREAD, GUILD_PRIVATE_THREAD -> ((ThreadChannel) this.channel).getName();
 			case GUILD_VOICE, GUILD_STAGE_VOICE -> ((VoiceChannel) this.channel).getName();
 			case GUILD_NEWS -> ((NewsChannel) this.channel).getName();
+			case GUILD_FORUM -> ((ForumChannel) this.channel).getName();
 		};
 	}
 	
@@ -63,18 +67,16 @@ public abstract class AbstractDiscordChannelAdapter implements IChannel
 	{
 		return switch(this.channel.getType())
 		{
-			case UNKNOWN, GUILD_TEXT, GUILD_STORE, GUILD_CATEGORY -> Collections.emptyList();
-			case DM, GROUP_DM -> ((PrivateChannel) this.channel).getRecipients().stream()
-				.<IClient>map(DiscordClientAdapter::new)
-				.toList();
-			case GUILD_VOICE, GUILD_STAGE_VOICE -> ((VoiceChannel) this.channel).getMembers()
-				.<IClient>map(DiscordClientAdapter::new)
-				.collectList()
-				.block();
-			case GUILD_NEWS -> ((NewsChannel) this.channel).getMembers()
-				.<IClient>map(DiscordClientAdapter::new)
-				.collectList()
-				.block();
+			case UNKNOWN, GUILD_FORUM, GUILD_TEXT, GUILD_STORE, GUILD_CATEGORY -> Collections.emptyList();
+			case DM, GROUP_DM ->
+				((PrivateChannel) this.channel).getRecipients().stream()
+					.<IClient>map(DiscordClientAdapter::new)
+					.toList();
+			case GUILD_NEWS, GUILD_NEWS_THREAD, GUILD_PUBLIC_THREAD, GUILD_PRIVATE_THREAD, GUILD_STAGE_VOICE, GUILD_VOICE ->
+				((GuildMessageChannel) this.channel).getMembers()
+					.<IClient>map(DiscordClientAdapter::new)
+					.collectList()
+					.block();
 		};
 	}
 	
