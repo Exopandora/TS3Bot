@@ -7,10 +7,14 @@ plugins {
     id("com.gradleup.shadow") version "8.3.5"
 }
 
-val shadowImplementation: Configuration by configurations.creating
-
-configurations["shadowImplementation"].extendsFrom(configurations["implementation"])
-configurations["compileClasspath"].extendsFrom(shadowImplementation)
+configurations {
+    create("shadowImplementation") {
+        extendsFrom(configurations["implementation"])
+    }
+    named("compileClasspath") {
+        extendsFrom(configurations["shadowImplementation"])
+    }
+}
 
 dependencies {
     implementation(project(":common"))
@@ -35,7 +39,7 @@ tasks.named<JavaExec>("run") {
 }
 
 tasks.withType<ShadowJar> {
-    configurations = listOf(shadowImplementation)
+    configurations = listOf(project.configurations["shadowImplementation"])
 }
 
 tasks.withType<Jar> {
