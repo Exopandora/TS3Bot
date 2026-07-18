@@ -10,25 +10,25 @@ import net.kardexo.bot.domain.channel.IServerChannel;
 import net.kardexo.bot.domain.client.IBotClient;
 import net.kardexo.bot.domain.client.IClient;
 import net.kardexo.bot.domain.server.IServer;
-import net.kardexo.bot.teamspeak.domain.channel.TeamSpeakPrivateChannelAdapter;
-import net.kardexo.bot.teamspeak.domain.server.TeamSpeakServerAdapter;
+import net.kardexo.bot.teamspeak.domain.channel.TeamSpeakPrivateChannel;
+import net.kardexo.bot.teamspeak.domain.server.TeamSpeakServer;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
 import java.util.Arrays;
 
-public class TeamSpeakBotClientAdapter extends TeamSpeakClientAdapter implements IBotClient {
+public class TeamSpeakBotClient extends TeamSpeakClient implements IBotClient {
 	private boolean isSilent;
 	private int channelId;
 	
-	public TeamSpeakBotClientAdapter(TS3Api api, int clientId) {
+	public TeamSpeakBotClient(TS3Api api, int clientId) {
 		super(api, clientId);
 		this.channelId = api.getClientInfo(clientId).getChannelId();
 	}
 	
 	@Override
 	public void sendPrivateMessage(IPrivateChannel channel, String message) {
-		this.api.sendPrivateMessage(((TeamSpeakPrivateChannelAdapter) channel).getClientId(), message);
+		this.api.sendPrivateMessage(((TeamSpeakPrivateChannel) channel).getClientId(), message);
 	}
 	
 	@Override
@@ -49,16 +49,16 @@ public class TeamSpeakBotClientAdapter extends TeamSpeakClientAdapter implements
 	@Override
 	public void ban(IServer server, @Nullable String reason, Duration duration, IClient client) {
 		if (reason == null) {
-			this.api.banClient(((TeamSpeakClientAdapter) client).getClientId(), duration.toSeconds());
+			this.api.banClient(((TeamSpeakClient) client).getClientId(), duration.toSeconds());
 		} else {
-			this.api.banClient(((TeamSpeakClientAdapter) client).getClientId(), duration.toSeconds(), reason);
+			this.api.banClient(((TeamSpeakClient) client).getClientId(), duration.toSeconds(), reason);
 		}
 	}
 	
 	@Override
 	public void kick(IServer server, @Nullable String reason, IClient... clients) {
 		int[] clientIds = Arrays.stream(clients)
-			.mapToInt(client -> ((TeamSpeakClientAdapter) client).getClientId())
+			.mapToInt(client -> ((TeamSpeakClient) client).getClientId())
 			.toArray();
 		if (reason == null) {
 			this.api.kickClientFromServer(clientIds);
@@ -69,8 +69,8 @@ public class TeamSpeakBotClientAdapter extends TeamSpeakClientAdapter implements
 	
 	@Override
 	public void move(IClient client, IChannel channel) {
-		if (!channel.equals(((TeamSpeakClientAdapter) client).getChannel())) {
-			this.api.moveClient(((TeamSpeakClientAdapter) client).getClientId(), Integer.parseInt(channel.getId()));
+		if (!channel.equals(((TeamSpeakClient) client).getChannel())) {
+			this.api.moveClient(((TeamSpeakClient) client).getClientId(), Integer.parseInt(channel.getId()));
 		}
 		if (client.equals(this)) {
 			this.channelId = Integer.parseInt(channel.getId());
@@ -94,11 +94,11 @@ public class TeamSpeakBotClientAdapter extends TeamSpeakClientAdapter implements
 	
 	@Override
 	public IPrivateChannel getPrivateChannel() {
-		return new TeamSpeakPrivateChannelAdapter(this.api, this.clientId);
+		return new TeamSpeakPrivateChannel(this.api, this.clientId);
 	}
 	
 	public IServer getServer() {
-		return new TeamSpeakServerAdapter(this.api, this.api.getServerInfo().getId());
+		return new TeamSpeakServer(this.api, this.api.getServerInfo().getId());
 	}
 	
 	public int getChannelId() {

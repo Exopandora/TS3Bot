@@ -3,16 +3,16 @@ package net.kardexo.bot.teamspeak.domain.channel;
 import com.github.theholywaffle.teamspeak3.TS3Api;
 import net.kardexo.bot.domain.channel.IPrivateChannel;
 import net.kardexo.bot.domain.client.IClient;
-import net.kardexo.bot.teamspeak.domain.client.TeamSpeakClientAdapter;
+import net.kardexo.bot.teamspeak.domain.client.TeamSpeakClient;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-public class TeamSpeakPrivateChannelAdapter extends AbstractTeamSpeakChannelAdapter implements IPrivateChannel {
+public class TeamSpeakPrivateChannel extends AbstractTeamSpeakChannel implements IPrivateChannel {
 	private final int clientId;
 	
-	public TeamSpeakPrivateChannelAdapter(TS3Api api, int clientId) {
+	public TeamSpeakPrivateChannel(TS3Api api, int clientId) {
 		super(api);
 		this.clientId = clientId;
 	}
@@ -29,7 +29,7 @@ public class TeamSpeakPrivateChannelAdapter extends AbstractTeamSpeakChannelAdap
 	
 	@Override
 	public List<IClient> getClients() {
-		return Collections.singletonList(new TeamSpeakClientAdapter(this.api, this.clientId));
+		return Collections.singletonList(new TeamSpeakClient(this.api, this.clientId));
 	}
 	
 	public int getClientId() {
@@ -38,7 +38,7 @@ public class TeamSpeakPrivateChannelAdapter extends AbstractTeamSpeakChannelAdap
 	
 	@Override
 	public boolean equals(Object object) {
-		if (!(object instanceof TeamSpeakPrivateChannelAdapter that)) {
+		if (!(object instanceof TeamSpeakPrivateChannel that)) {
 			return false;
 		}
 		return this.clientId == that.clientId;

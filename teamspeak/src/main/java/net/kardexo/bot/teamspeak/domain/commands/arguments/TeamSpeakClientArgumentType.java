@@ -7,7 +7,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import net.kardexo.bot.domain.client.IBotClient;
 import net.kardexo.bot.domain.client.IClient;
-import net.kardexo.bot.teamspeak.domain.client.TeamSpeakBotClientAdapter;
+import net.kardexo.bot.teamspeak.domain.client.TeamSpeakBotClient;
 
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Comparator;
@@ -25,7 +25,7 @@ public class TeamSpeakClientArgumentType implements ArgumentType<IClient> {
 	@Override
 	public IClient parse(StringReader reader) throws CommandSyntaxException {
 		String username = normalize(reader.getRemaining());
-		SimpleEntry<IClient, String> result = ((TeamSpeakBotClientAdapter) this.bot).getServer().getClients().stream()
+		SimpleEntry<IClient, String> result = ((TeamSpeakBotClient) this.bot).getServer().getClients().stream()
 			.map(client -> new SimpleEntry<IClient, String>(client, normalize(client.getName())))
 			.filter(pair -> username.startsWith(pair.getValue()))
 			.max(Comparator.comparingInt(pair -> pair.getValue().length()))

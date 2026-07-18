@@ -6,19 +6,19 @@ import net.kardexo.bot.domain.channel.IChannel;
 import net.kardexo.bot.domain.channel.IServerChannel;
 import net.kardexo.bot.domain.client.IClient;
 import net.kardexo.bot.domain.server.IServer;
-import net.kardexo.bot.teamspeak.domain.channel.TeamSpeakMessageChannelAdapter;
-import net.kardexo.bot.teamspeak.domain.channel.TeamSpeakServerChannelAdapter;
-import net.kardexo.bot.teamspeak.domain.client.TeamSpeakClientAdapter;
+import net.kardexo.bot.teamspeak.domain.channel.TeamSpeakMessageChannel;
+import net.kardexo.bot.teamspeak.domain.channel.TeamSpeakServerChannel;
+import net.kardexo.bot.teamspeak.domain.client.TeamSpeakClient;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class TeamSpeakServerAdapter implements IServer {
+public class TeamSpeakServer implements IServer {
 	private final TS3Api api;
 	private final int serverId;
 	
-	public TeamSpeakServerAdapter(TS3Api api, int serverId) {
+	public TeamSpeakServer(TS3Api api, int serverId) {
 		this.api = api;
 		this.serverId = serverId;
 	}
@@ -37,7 +37,7 @@ public class TeamSpeakServerAdapter implements IServer {
 	public Optional<IChannel> findChannelByName(String name) {
 		try {
 			int channelId = this.api.getChannelByNameExact(name, true).getId();
-			return Optional.of(new TeamSpeakMessageChannelAdapter(this.api, channelId));
+			return Optional.of(new TeamSpeakMessageChannel(this.api, channelId));
 		} catch (TS3CommandFailedException e) {
 			return Optional.empty();
 		}
@@ -47,7 +47,7 @@ public class TeamSpeakServerAdapter implements IServer {
 	public Optional<IChannel> findChannelById(String id) {
 		try {
 			int channelId = this.api.getChannelInfo(Integer.parseInt(id)).getId();
-			return Optional.of(new TeamSpeakMessageChannelAdapter(this.api, channelId));
+			return Optional.of(new TeamSpeakMessageChannel(this.api, channelId));
 		} catch (TS3CommandFailedException e) {
 			return Optional.empty();
 		}
@@ -56,20 +56,20 @@ public class TeamSpeakServerAdapter implements IServer {
 	@Override
 	public List<IClient> getClients() {
 		return this.api.getClients().stream()
-			.map(client -> new TeamSpeakClientAdapter(this.api, client.getId()))
+			.map(client -> new TeamSpeakClient(this.api, client.getId()))
 			.collect(Collectors.toList());
 	}
 	
 	@Override
 	public List<IChannel> getChannels() {
 		return this.api.getChannels().stream()
-			.map(channel -> new TeamSpeakMessageChannelAdapter(this.api, channel.getId()))
+			.map(channel -> new TeamSpeakMessageChannel(this.api, channel.getId()))
 			.collect(Collectors.toList());
 	}
 	
 	@Override
 	public IServerChannel getServerChannel() {
-		return new TeamSpeakServerChannelAdapter(this.api);
+		return new TeamSpeakServerChannel(this.api);
 	}
 	
 	public int getServerId() {

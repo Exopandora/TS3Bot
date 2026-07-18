@@ -7,8 +7,8 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import discord4j.common.util.Snowflake;
 import discord4j.core.object.entity.User;
-import net.kardexo.bot.discord.domain.client.DiscordBotClientAdapter;
-import net.kardexo.bot.discord.domain.client.DiscordClientAdapter;
+import net.kardexo.bot.discord.domain.client.DiscordBotClient;
+import net.kardexo.bot.discord.domain.client.DiscordClient;
 import net.kardexo.bot.domain.client.IBotClient;
 import net.kardexo.bot.domain.client.IClient;
 
@@ -28,10 +28,10 @@ public class DiscordClientArgumentType implements ArgumentType<IClient> {
 		reader.expect('@');
 		long id = reader.readLong();
 		reader.expect('>');
-		User user = ((DiscordBotClientAdapter) this.bot).getGatewayDiscordClient().getUserById(Snowflake.of(id))
+		User user = ((DiscordBotClient) this.bot).getGatewayDiscordClient().getUserById(Snowflake.of(id))
 			.blockOptional()
 			.orElseThrow(() -> USER_NOT_FOUND.create(id));
-		return new DiscordClientAdapter(user);
+		return new DiscordClient(user);
 	}
 	
 	public static DiscordClientArgumentType client(IBotClient bot) {

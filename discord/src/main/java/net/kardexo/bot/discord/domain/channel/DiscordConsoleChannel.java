@@ -9,7 +9,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Collections;
 import java.util.List;
 
-public class DiscordConsoleChannelAdapter implements IConsoleChannel {
+public class DiscordConsoleChannel implements IConsoleChannel {
 	@Override
 	public String getId() {
 		return "-1";
@@ -37,7 +37,7 @@ public class DiscordConsoleChannelAdapter implements IConsoleChannel {
 	
 	@Override
 	public boolean equals(Object object) {
-		if (!(object instanceof DiscordConsoleChannelAdapter that)) {
+		if (!(object instanceof DiscordConsoleChannel that)) {
 			return false;
 		}
 		return this.getId().equals(that.getId());

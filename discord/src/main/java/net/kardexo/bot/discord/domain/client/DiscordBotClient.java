@@ -2,10 +2,10 @@ package net.kardexo.bot.discord.domain.client;
 
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.object.entity.Guild;
-import net.kardexo.bot.discord.domain.channel.DiscordMessageChannelAdapter;
-import net.kardexo.bot.discord.domain.channel.DiscordPrivateChannelAdapter;
-import net.kardexo.bot.discord.domain.channel.DiscordServerChannelAdapter;
-import net.kardexo.bot.discord.domain.server.DiscordServerAdapter;
+import net.kardexo.bot.discord.domain.channel.DiscordMessageChannel;
+import net.kardexo.bot.discord.domain.channel.DiscordPrivateChannel;
+import net.kardexo.bot.discord.domain.channel.DiscordServerChannel;
+import net.kardexo.bot.discord.domain.server.DiscordServer;
 import net.kardexo.bot.domain.channel.IChannel;
 import net.kardexo.bot.domain.channel.IConsoleChannel;
 import net.kardexo.bot.domain.channel.IMessageChannel;
@@ -18,28 +18,28 @@ import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
 
-public class DiscordBotClientAdapter extends DiscordClientAdapter implements IBotClient {
+public class DiscordBotClient extends DiscordClient implements IBotClient {
 	private final GatewayDiscordClient gatewayDiscordClient;
 	private boolean isSilent;
 	
-	public DiscordBotClientAdapter(GatewayDiscordClient gatewayDiscordClient) {
+	public DiscordBotClient(GatewayDiscordClient gatewayDiscordClient) {
 		super(gatewayDiscordClient.getSelf().block());
 		this.gatewayDiscordClient = gatewayDiscordClient;
 	}
 	
 	@Override
 	public void sendPrivateMessage(IPrivateChannel channel, String message) {
-		((DiscordPrivateChannelAdapter) channel).getChannel().createMessage(message).block();
+		((DiscordPrivateChannel) channel).getChannel().createMessage(message).block();
 	}
 	
 	@Override
 	public void sendServerMessage(IServerChannel channel, String message) {
-		((DiscordServerChannelAdapter) channel).getChannel().createMessage(message).block();
+		((DiscordServerChannel) channel).getChannel().createMessage(message).block();
 	}
 	
 	@Override
 	public void sendChannelMessage(IMessageChannel channel, String message) {
-		((DiscordMessageChannelAdapter) channel).getChannel().createMessage(message).block();
+		((DiscordMessageChannel) channel).getChannel().createMessage(message).block();
 	}
 	
 	@Override
@@ -49,24 +49,24 @@ public class DiscordBotClientAdapter extends DiscordClientAdapter implements IBo
 	
 	@Override
 	public void ban(IServer server, @Nullable String reason, Duration duration, IClient client) {
-		Guild guild = ((DiscordServerAdapter) server).getGuild();
+		Guild guild = ((DiscordServer) server).getGuild();
 		if (reason == null) {
-			guild.ban(((DiscordClientAdapter) client).getClientId()).block();
+			guild.ban(((DiscordClient) client).getClientId()).block();
 		} else {
-			guild.ban(((DiscordClientAdapter) client).getClientId()).withReason(reason).block();
+			guild.ban(((DiscordClient) client).getClientId()).withReason(reason).block();
 		}
 	}
 	
 	@Override
 	public void kick(IServer server, @Nullable String reason, IClient... clients) {
-		Guild guild = ((DiscordServerAdapter) server).getGuild();
+		Guild guild = ((DiscordServer) server).getGuild();
 		if (reason == null) {
 			for (IClient client : clients) {
-				guild.kick(((DiscordClientAdapter) client).getClientId());
+				guild.kick(((DiscordClient) client).getClientId());
 			}
 		} else {
 			for (IClient client : clients) {
-				guild.kick(((DiscordClientAdapter) client).getClientId(), reason);
+				guild.kick(((DiscordClient) client).getClientId(), reason);
 			}
 		}
 	}
@@ -93,7 +93,7 @@ public class DiscordBotClientAdapter extends DiscordClientAdapter implements IBo
 	
 	@Override
 	public IPrivateChannel getPrivateChannel() {
-		return new DiscordPrivateChannelAdapter(
+		return new DiscordPrivateChannel(
 			this.gatewayDiscordClient.getSelf().blockOptional().orElseThrow().getPrivateChannel().block()
 		);
 	}

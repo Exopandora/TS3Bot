@@ -7,8 +7,8 @@ import net.kardexo.bot.domain.client.IClient;
 import java.util.Collections;
 import java.util.List;
 
-public class DiscordServerChannelAdapter extends AbstractDiscordChannelAdapter implements IServerChannel {
-	public DiscordServerChannelAdapter(MessageChannel channel) {
+public class DiscordServerChannel extends AbstractDiscordChannel implements IServerChannel {
+	public DiscordServerChannel(MessageChannel channel) {
 		super(channel);
 	}
 	
@@ -23,7 +23,7 @@ public class DiscordServerChannelAdapter extends AbstractDiscordChannelAdapter i
 	
 	@Override
 	public boolean equals(Object object) {
-		if (!(object instanceof DiscordServerChannelAdapter)) {
+		if (!(object instanceof DiscordServerChannel)) {
 			return false;
 		}
 		return super.equals(object);

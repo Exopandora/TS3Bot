@@ -14,8 +14,8 @@ import discord4j.core.object.entity.channel.ThreadChannel;
 import discord4j.core.object.entity.channel.VoiceChannel;
 import discord4j.discordjson.json.ChannelData;
 import discord4j.discordjson.possible.Possible;
-import net.kardexo.bot.discord.domain.client.DiscordClientAdapter;
-import net.kardexo.bot.discord.domain.server.DiscordServerAdapter;
+import net.kardexo.bot.discord.domain.client.DiscordClient;
+import net.kardexo.bot.discord.domain.server.DiscordServer;
 import net.kardexo.bot.domain.channel.IChannel;
 import net.kardexo.bot.domain.client.IClient;
 import net.kardexo.bot.domain.server.IServer;
@@ -26,10 +26,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public abstract class AbstractDiscordChannelAdapter implements IChannel {
+public abstract class AbstractDiscordChannel implements IChannel {
 	protected final Channel channel;
 	
-	protected AbstractDiscordChannelAdapter(Channel channel) {
+	protected AbstractDiscordChannel(Channel channel) {
 		this.channel = channel;
 	}
 	
@@ -66,11 +66,11 @@ public abstract class AbstractDiscordChannelAdapter implements IChannel {
 		return switch (this.channel.getType()) {
 			case UNKNOWN, GUILD_FORUM, GUILD_TEXT, GUILD_STORE, GUILD_CATEGORY -> Collections.emptyList();
 			case DM, GROUP_DM -> ((PrivateChannel) this.channel).getRecipients().stream()
-				.<IClient>map(DiscordClientAdapter::new)
+				.<IClient>map(DiscordClient::new)
 				.toList();
 			case GUILD_NEWS, GUILD_NEWS_THREAD, GUILD_PUBLIC_THREAD, GUILD_PRIVATE_THREAD, GUILD_STAGE_VOICE, GUILD_VOICE ->
 				((GuildMessageChannel) this.channel).getMembers()
-					.<IClient>map(DiscordClientAdapter::new)
+					.<IClient>map(DiscordClient::new)
 					.collectList()
 					.block();
 		};
@@ -80,7 +80,7 @@ public abstract class AbstractDiscordChannelAdapter implements IChannel {
 	public @Nullable IServer getServer() {
 		return switch (this.channel.getType()) {
 			case UNKNOWN, DM, GROUP_DM -> null;
-			default -> new DiscordServerAdapter(((GuildChannel) this.channel).getGuild().block());
+			default -> new DiscordServer(((GuildChannel) this.channel).getGuild().block());
 		};
 	}
 	
@@ -91,7 +91,7 @@ public abstract class AbstractDiscordChannelAdapter implements IChannel {
 	
 	@Override
 	public boolean equals(Object object) {
-		if (!(object instanceof AbstractDiscordChannelAdapter other)) {
+		if (!(object instanceof AbstractDiscordChannel other)) {
 			return false;
 		}
 		return this.getId().equals(other.getId());
@@ -104,8 +104,8 @@ public abstract class AbstractDiscordChannelAdapter implements IChannel {
 	
 	public static Optional<IChannel> of(Channel channel) {
 		return switch (channel) {
-			case PrivateChannel pc -> Optional.of(new DiscordPrivateChannelAdapter(pc));
-			case GuildMessageChannel gc -> Optional.of(new DiscordMessageChannelAdapter(gc));
+			case PrivateChannel pc -> Optional.of(new DiscordPrivateChannel(pc));
+			case GuildMessageChannel gc -> Optional.of(new DiscordMessageChannel(gc));
 			default -> Optional.empty();
 		};
 	}

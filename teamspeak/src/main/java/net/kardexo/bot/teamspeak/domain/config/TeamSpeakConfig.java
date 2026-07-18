@@ -12,7 +12,7 @@ import java.io.IOException;
 import static net.kardexo.bot.domain.Util.OBJECT_MAPPER;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class TeamSpeakConfigAdapter extends Config {
+public class TeamSpeakConfig extends Config {
 	@JsonProperty("host_address")
 	private String hostAddress;
 	@JsonProperty("login_name")
@@ -24,7 +24,7 @@ public class TeamSpeakConfigAdapter extends Config {
 	@JsonProperty("protocol")
 	private TS3Query.Protocol protocol;
 	
-	public TeamSpeakConfigAdapter() {
+	public TeamSpeakConfig() {
 		super();
 	}
 	
@@ -56,7 +56,7 @@ public class TeamSpeakConfigAdapter extends Config {
 		OBJECT_MAPPER.readerForUpdating(this).readValue(configFile);
 	}
 	
-	public static TeamSpeakConfigAdapter of(File configFile) throws IOException {
-		return OBJECT_MAPPER.readValue(configFile, TeamSpeakConfigAdapter.class);
+	public static TeamSpeakConfig of(File configFile) throws IOException {
+		return OBJECT_MAPPER.readValue(configFile, TeamSpeakConfig.class);
 	}
 }

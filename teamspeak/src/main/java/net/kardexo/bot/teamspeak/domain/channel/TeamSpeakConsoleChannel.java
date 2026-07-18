@@ -8,10 +8,10 @@ import net.kardexo.bot.domain.client.IClient;
 import java.util.Collections;
 import java.util.List;
 
-public class TeamSpeakConsoleChannelAdapter extends AbstractTeamSpeakChannelAdapter implements IConsoleChannel {
+public class TeamSpeakConsoleChannel extends AbstractTeamSpeakChannel implements IConsoleChannel {
 	private final int clientId;
 	
-	public TeamSpeakConsoleChannelAdapter(TS3Api api, int clientId) {
+	public TeamSpeakConsoleChannel(TS3Api api, int clientId) {
 		super(api);
 		this.clientId = clientId;
 	}
@@ -29,13 +29,13 @@ public class TeamSpeakConsoleChannelAdapter extends AbstractTeamSpeakChannelAdap
 	@Override
 	public List<IChannel> getBroadcastChannels() {
 		return Collections.singletonList(
-			new TeamSpeakMessageChannelAdapter(this.api, this.api.getClientInfo(this.clientId).getChannelId())
+			new TeamSpeakMessageChannel(this.api, this.api.getClientInfo(this.clientId).getChannelId())
 		);
 	}
 	
 	@Override
 	public boolean equals(Object object) {
-		if (!(object instanceof TeamSpeakConsoleChannelAdapter that)) {
+		if (!(object instanceof TeamSpeakConsoleChannel that)) {
 			return false;
 		}
 		return this.getId().equals(that.getId());

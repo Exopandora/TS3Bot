@@ -1,16 +1,15 @@
 package net.kardexo.bot.discord.input;
 
-import discord4j.core.DiscordClient;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.lifecycle.ConnectEvent;
 import discord4j.core.event.domain.lifecycle.DisconnectEvent;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.object.entity.channel.MessageChannel;
-import net.kardexo.bot.discord.domain.channel.AbstractDiscordChannelAdapter;
-import net.kardexo.bot.discord.domain.channel.DiscordConsoleChannelAdapter;
-import net.kardexo.bot.discord.domain.client.DiscordBotClientAdapter;
-import net.kardexo.bot.discord.domain.client.DiscordClientAdapter;
-import net.kardexo.bot.discord.domain.config.DiscordConfigAdapter;
+import net.kardexo.bot.discord.domain.channel.AbstractDiscordChannel;
+import net.kardexo.bot.discord.domain.channel.DiscordConsoleChannel;
+import net.kardexo.bot.discord.domain.client.DiscordBotClient;
+import net.kardexo.bot.discord.domain.client.DiscordClient;
+import net.kardexo.bot.discord.domain.config.DiscordConfig;
 import net.kardexo.bot.domain.channel.IChannel;
 import net.kardexo.bot.domain.channel.IConsoleChannel;
 import net.kardexo.bot.domain.client.IBotClient;
@@ -25,40 +24,40 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 
-public class DiscordBotAdapter extends AbstractBot<DiscordConfigAdapter> {
-	private static final Logger logger = LoggerFactory.getLogger(DiscordBotAdapter.class);
+public class DiscordBot extends AbstractBot<DiscordConfig> {
+	private static final Logger logger = LoggerFactory.getLogger(DiscordBot.class);
 	
 	private GatewayDiscordClient gatewayDiscordClient;
-	private DiscordBotClientAdapter botClient;
+	private DiscordBotClient botClient;
 	
-	public DiscordBotAdapter(String configFile) throws IOException {
-		super(configFile, DiscordConfigAdapter::of, new Random());
+	public DiscordBot(String configFile) throws IOException {
+		super(configFile, DiscordConfig::of, new Random());
 	}
 	
 	@Override
 	protected void connect() {
-		DiscordConfigAdapter config = this.getConfig();
-		DiscordClient discordClient = DiscordClient.create(config.getToken());
+		DiscordConfig config = this.getConfig();
+		discord4j.core.DiscordClient discordClient = discord4j.core.DiscordClient.create(config.getToken());
 		this.gatewayDiscordClient = discordClient.login().block();
 		if (this.gatewayDiscordClient == null) {
 			throw new RuntimeException("Could not login");
 		}
-		this.botClient = new DiscordBotClientAdapter(this.gatewayDiscordClient);
+		this.botClient = new DiscordBotClient(this.gatewayDiscordClient);
 		this.gatewayDiscordClient.on(MessageCreateEvent.class).subscribe(event -> {
 			if (event.getMessage().getAuthor().isEmpty()) {
 				return;
 			}
-			IClient client = new DiscordClientAdapter(event.getMessage().getAuthor().get());
+			IClient client = new DiscordClient(event.getMessage().getAuthor().get());
 			String message = event.getMessage().getContent();
 			MessageChannel messageChannel = event.getMessage().getChannel().block();
 			if (messageChannel == null) {
 				return;
 			}
-			Optional<IChannel> channel = AbstractDiscordChannelAdapter.of(messageChannel);
+			Optional<IChannel> channel = AbstractDiscordChannel.of(messageChannel);
 			if (channel.isEmpty()) {
 				return;
 			}
-			DiscordBotAdapter.this.onMessage(channel.get(), client, message);
+			DiscordBot.this.onMessage(channel.get(), client, message);
 		});
 		this.gatewayDiscordClient.on(ConnectEvent.class).subscribe(event -> this.onConnect());
 		this.gatewayDiscordClient.on(DisconnectEvent.class).subscribe(event -> this.onDisconnect());
@@ -97,6 +96,6 @@ public class DiscordBotAdapter extends AbstractBot<DiscordConfigAdapter> {
 	
 	@Override
 	protected IConsoleChannel getConsoleChannel() {
-		return new DiscordConsoleChannelAdapter();
+		return new DiscordConsoleChannel();
 	}
 }

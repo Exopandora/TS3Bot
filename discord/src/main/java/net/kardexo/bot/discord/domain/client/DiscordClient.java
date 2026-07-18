@@ -2,14 +2,14 @@ package net.kardexo.bot.discord.domain.client;
 
 import discord4j.common.util.Snowflake;
 import discord4j.core.object.entity.User;
-import net.kardexo.bot.discord.domain.channel.DiscordPrivateChannelAdapter;
+import net.kardexo.bot.discord.domain.channel.DiscordPrivateChannel;
 import net.kardexo.bot.domain.channel.IPrivateChannel;
 import net.kardexo.bot.domain.client.IClient;
 
-public class DiscordClientAdapter implements IClient {
+public class DiscordClient implements IClient {
 	private final User user;
 	
-	public DiscordClientAdapter(User user) {
+	public DiscordClient(User user) {
 		this.user = user;
 	}
 	
@@ -25,7 +25,7 @@ public class DiscordClientAdapter implements IClient {
 	
 	@Override
 	public IPrivateChannel getPrivateChannel() {
-		return this.user.getPrivateChannel().map(DiscordPrivateChannelAdapter::new).block();
+		return this.user.getPrivateChannel().map(DiscordPrivateChannel::new).block();
 	}
 	
 	public Snowflake getClientId() {
@@ -34,7 +34,7 @@ public class DiscordClientAdapter implements IClient {
 	
 	@Override
 	public boolean equals(Object object) {
-		if (!(object instanceof DiscordClientAdapter other)) {
+		if (!(object instanceof DiscordClient other)) {
 			return false;
 		}
 		return this.user.getId().equals(other.user.getId());
