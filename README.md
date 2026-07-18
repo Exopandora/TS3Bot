@@ -42,11 +42,11 @@ Requirements:
 ### TeamSpeak
 Run the following command in a terminal:
 ```shell
-java -jar teamspeakbot-all.jar
+java -jar teamspeak-bot-all.jar
 ```
 
 ### Discord
 Run the following command in a terminal:
 ```shell
-java -jar discordbot-all.jar
+java -jar discord-bot-all.jar
 ```

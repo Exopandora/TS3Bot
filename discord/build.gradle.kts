@@ -44,6 +44,6 @@ tasks.withType<ShadowJar> {
 }
 
 tasks.withType<Jar> {
-	archiveBaseName.set("discordbot")
+	archiveBaseName.set("discord-bot")
 	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
