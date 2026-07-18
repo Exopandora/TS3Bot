@@ -8,12 +8,12 @@ import net.kardexo.bot.domain.client.IClient;
 import net.kardexo.bot.domain.commands.CommandSource;
 import net.kardexo.bot.domain.commands.arguments.ArgumentTypeFactory;
 
-public class TS3ArgumentTypeFactory implements ArgumentTypeFactory
+public class TeamSpeakArgumentTypeFactory implements ArgumentTypeFactory
 {
 	@Override
 	public ArgumentType<IChannel> createChannelArgumentType(IBotClient bot)
 	{
-		return TS3ChannelArgumentType.channel(bot);
+		return TeamSpeakChannelArgumentType.channel(bot);
 	}
 	
 	@Override
@@ -25,7 +25,7 @@ public class TS3ArgumentTypeFactory implements ArgumentTypeFactory
 	@Override
 	public ArgumentType<IClient> createClientArgumentType(IBotClient bot)
 	{
-		return TS3ClientArgumentType.client(bot);
+		return TeamSpeakClientArgumentType.client(bot);
 	}
 	
 	@Override

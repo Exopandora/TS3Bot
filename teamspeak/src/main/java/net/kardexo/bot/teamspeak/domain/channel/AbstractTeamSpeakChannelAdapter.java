@@ -3,15 +3,15 @@ package net.kardexo.bot.teamspeak.domain.channel;
 import com.github.theholywaffle.teamspeak3.TS3Api;
 import net.kardexo.bot.domain.channel.IChannel;
 import net.kardexo.bot.domain.server.IServer;
-import net.kardexo.bot.teamspeak.domain.server.TS3ServerAdapter;
+import net.kardexo.bot.teamspeak.domain.server.TeamSpeakServerAdapter;
 import org.jetbrains.annotations.NotNull;
 
-public abstract class AbstractTS3ChannelAdapter implements IChannel
+public abstract class AbstractTeamSpeakChannelAdapter implements IChannel
 {
 	protected final TS3Api api;
 	private IServer server;
 	
-	protected AbstractTS3ChannelAdapter(TS3Api api)
+	protected AbstractTeamSpeakChannelAdapter(TS3Api api)
 	{
 		this.api = api;
 	}
@@ -27,7 +27,7 @@ public abstract class AbstractTS3ChannelAdapter implements IChannel
 	{
 		if(this.server == null)
 		{
-			this.server = new TS3ServerAdapter(this.api, this.api.getServerInfo().getId());
+			this.server = new TeamSpeakServerAdapter(this.api, this.api.getServerInfo().getId());
 		}
 		
 		return this.server;

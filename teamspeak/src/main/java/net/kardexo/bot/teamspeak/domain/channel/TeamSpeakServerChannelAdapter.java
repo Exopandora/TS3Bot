@@ -7,9 +7,9 @@ import net.kardexo.bot.domain.client.IClient;
 import java.util.Collections;
 import java.util.List;
 
-public class TS3ServerChannelAdapter extends AbstractTS3ChannelAdapter implements IServerChannel
+public class TeamSpeakServerChannelAdapter extends AbstractTeamSpeakChannelAdapter implements IServerChannel
 {
-	public TS3ServerChannelAdapter(TS3Api api)
+	public TeamSpeakServerChannelAdapter(TS3Api api)
 	{
 		super(api);
 	}

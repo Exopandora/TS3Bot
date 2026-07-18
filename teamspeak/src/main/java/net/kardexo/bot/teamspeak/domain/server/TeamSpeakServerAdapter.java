@@ -6,20 +6,20 @@ import net.kardexo.bot.domain.channel.IChannel;
 import net.kardexo.bot.domain.channel.IServerChannel;
 import net.kardexo.bot.domain.client.IClient;
 import net.kardexo.bot.domain.server.IServer;
-import net.kardexo.bot.teamspeak.domain.channel.TS3MessageChannelAdapter;
-import net.kardexo.bot.teamspeak.domain.channel.TS3ServerChannelAdapter;
-import net.kardexo.bot.teamspeak.domain.client.TS3ClientAdapter;
+import net.kardexo.bot.teamspeak.domain.channel.TeamSpeakMessageChannelAdapter;
+import net.kardexo.bot.teamspeak.domain.channel.TeamSpeakServerChannelAdapter;
+import net.kardexo.bot.teamspeak.domain.client.TeamSpeakClientAdapter;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class TS3ServerAdapter implements IServer
+public class TeamSpeakServerAdapter implements IServer
 {
 	private final TS3Api api;
 	private final int serverId;
 	
-	public TS3ServerAdapter(TS3Api api, int serverId)
+	public TeamSpeakServerAdapter(TS3Api api, int serverId)
 	{
 		this.api = api;
 		this.serverId = serverId;
@@ -43,7 +43,7 @@ public class TS3ServerAdapter implements IServer
 		try
 		{
 			int channelId = this.api.getChannelByNameExact(name, true).getId();
-			return Optional.of(new TS3MessageChannelAdapter(this.api, channelId));
+			return Optional.of(new TeamSpeakMessageChannelAdapter(this.api, channelId));
 		}
 		catch(TS3CommandFailedException e)
 		{
@@ -57,7 +57,7 @@ public class TS3ServerAdapter implements IServer
 		try
 		{
 			int channelId = this.api.getChannelInfo(Integer.parseInt(id)).getId();
-			return Optional.of(new TS3MessageChannelAdapter(this.api, channelId));
+			return Optional.of(new TeamSpeakMessageChannelAdapter(this.api, channelId));
 		}
 		catch(TS3CommandFailedException e)
 		{
@@ -69,7 +69,7 @@ public class TS3ServerAdapter implements IServer
 	public List<IClient> getClients()
 	{
 		return this.api.getClients().stream()
-			.map(client -> new TS3ClientAdapter(this.api, client.getId()))
+			.map(client -> new TeamSpeakClientAdapter(this.api, client.getId()))
 			.collect(Collectors.toList());
 	}
 	
@@ -77,14 +77,14 @@ public class TS3ServerAdapter implements IServer
 	public List<IChannel> getChannels()
 	{
 		return this.api.getChannels().stream()
-			.map(channel -> new TS3MessageChannelAdapter(this.api, channel.getId()))
+			.map(channel -> new TeamSpeakMessageChannelAdapter(this.api, channel.getId()))
 			.collect(Collectors.toList());
 	}
 	
 	@Override
 	public IServerChannel getServerChannel()
 	{
-		return new TS3ServerChannelAdapter(this.api);
+		return new TeamSpeakServerChannelAdapter(this.api);
 	}
 	
 	public int getServerId()

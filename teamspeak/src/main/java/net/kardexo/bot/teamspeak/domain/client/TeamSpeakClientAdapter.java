@@ -4,18 +4,18 @@ import com.github.theholywaffle.teamspeak3.TS3Api;
 import net.kardexo.bot.domain.channel.IChannel;
 import net.kardexo.bot.domain.channel.IPrivateChannel;
 import net.kardexo.bot.domain.client.IClient;
-import net.kardexo.bot.teamspeak.domain.channel.TS3MessageChannelAdapter;
-import net.kardexo.bot.teamspeak.domain.channel.TS3PrivateChannelAdapter;
+import net.kardexo.bot.teamspeak.domain.channel.TeamSpeakMessageChannelAdapter;
+import net.kardexo.bot.teamspeak.domain.channel.TeamSpeakPrivateChannelAdapter;
 
 import java.util.Objects;
 
-public class TS3ClientAdapter implements IClient
+public class TeamSpeakClientAdapter implements IClient
 {
 	protected final TS3Api api;
 	protected final int clientId;
 	private String uniqueId;
 	
-	public TS3ClientAdapter(TS3Api api, int clientId)
+	public TeamSpeakClientAdapter(TS3Api api, int clientId)
 	{
 		this.api = api;
 		this.clientId = clientId;
@@ -41,7 +41,7 @@ public class TS3ClientAdapter implements IClient
 	@Override
 	public IPrivateChannel getPrivateChannel()
 	{
-		return new TS3PrivateChannelAdapter(this.api, this.clientId);
+		return new TeamSpeakPrivateChannelAdapter(this.api, this.clientId);
 	}
 	
 	public int getClientId()
@@ -51,13 +51,13 @@ public class TS3ClientAdapter implements IClient
 	
 	public IChannel getChannel()
 	{
-		return new TS3MessageChannelAdapter(this.api, this.api.getClientInfo(this.clientId).getChannelId());
+		return new TeamSpeakMessageChannelAdapter(this.api, this.api.getClientInfo(this.clientId).getChannelId());
 	}
 	
 	@Override
 	public boolean equals(Object object)
 	{
-		if(!(object instanceof TS3ClientAdapter other))
+		if(!(object instanceof TeamSpeakClientAdapter other))
 		{
 			return false;
 		}

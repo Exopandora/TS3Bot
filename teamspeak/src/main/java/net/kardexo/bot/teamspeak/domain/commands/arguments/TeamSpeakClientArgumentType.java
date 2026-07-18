@@ -7,18 +7,18 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import net.kardexo.bot.domain.client.IBotClient;
 import net.kardexo.bot.domain.client.IClient;
-import net.kardexo.bot.teamspeak.domain.client.TS3BotClientAdapter;
+import net.kardexo.bot.teamspeak.domain.client.TeamSpeakBotClientAdapter;
 
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Comparator;
 
-public class TS3ClientArgumentType implements ArgumentType<IClient>
+public class TeamSpeakClientArgumentType implements ArgumentType<IClient>
 {
 	private static final DynamicCommandExceptionType USER_NOT_FOUND = new DynamicCommandExceptionType(username -> new LiteralMessage("Could not find user " + username));
 	
 	private final IBotClient bot;
 	
-	private TS3ClientArgumentType(IBotClient bot)
+	private TeamSpeakClientArgumentType(IBotClient bot)
 	{
 		this.bot = bot;
 	}
@@ -27,7 +27,7 @@ public class TS3ClientArgumentType implements ArgumentType<IClient>
 	public IClient parse(StringReader reader) throws CommandSyntaxException
 	{
 		String username = normalize(reader.getRemaining());
-		SimpleEntry<IClient, String> result = ((TS3BotClientAdapter) this.bot).getServer().getClients().stream()
+		SimpleEntry<IClient, String> result = ((TeamSpeakBotClientAdapter) this.bot).getServer().getClients().stream()
 			.map(client -> new SimpleEntry<IClient, String>(client, normalize(client.getName())))
 			.filter(pair -> username.startsWith(pair.getValue()))
 			.max(Comparator.comparingInt(pair -> pair.getValue().length()))
@@ -41,8 +41,8 @@ public class TS3ClientArgumentType implements ArgumentType<IClient>
 		return string.replaceAll("\\s+", " ").trim().toLowerCase();
 	}
 	
-	public static TS3ClientArgumentType client(IBotClient bot)
+	public static TeamSpeakClientArgumentType client(IBotClient bot)
 	{
-		return new TS3ClientArgumentType(bot);
+		return new TeamSpeakClientArgumentType(bot);
 	}
 }

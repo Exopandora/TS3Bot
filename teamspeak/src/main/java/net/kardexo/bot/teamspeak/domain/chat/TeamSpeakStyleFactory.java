@@ -3,36 +3,36 @@ package net.kardexo.bot.teamspeak.domain.chat;
 import net.kardexo.bot.domain.chat.IStyle;
 import net.kardexo.bot.domain.chat.IStyleFactory;
 
-public class TS3StyleFactory implements IStyleFactory
+public class TeamSpeakStyleFactory implements IStyleFactory
 {
 	@Override
 	public IStyle color(int color)
 	{
-		return new TS3Style("color", String.format("#%02X%02X%02X", (color >> 16) & 0xFF, (color >> 8) & 0xFF, color & 0xFF));
+		return new TeamSpeakStyle("color", String.format("#%02X%02X%02X", (color >> 16) & 0xFF, (color >> 8) & 0xFF, color & 0xFF));
 	}
 	
 	@Override
 	public IStyle bold()
 	{
-		return TS3Style.BOLD;
+		return TeamSpeakStyle.BOLD;
 	}
 	
 	@Override
 	public IStyle underlined()
 	{
-		return TS3Style.UNDERLINED;
+		return TeamSpeakStyle.UNDERLINED;
 	}
 	
 	@Override
 	public IStyle italic()
 	{
-		return TS3Style.ITALIC;
+		return TeamSpeakStyle.ITALIC;
 	}
 	
 	@Override
 	public IStyle strikethrough()
 	{
-		return TS3Style.STRIKETHROUGH;
+		return TeamSpeakStyle.STRIKETHROUGH;
 	}
 	
 	@Override

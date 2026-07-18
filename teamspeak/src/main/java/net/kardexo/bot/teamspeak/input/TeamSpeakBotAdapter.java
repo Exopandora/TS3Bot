@@ -16,13 +16,13 @@ import net.kardexo.bot.domain.channel.IConsoleChannel;
 import net.kardexo.bot.domain.client.IBotClient;
 import net.kardexo.bot.domain.client.IClient;
 import net.kardexo.bot.input.AbstractBot;
-import net.kardexo.bot.teamspeak.domain.channel.TS3ConsoleChannelAdapter;
-import net.kardexo.bot.teamspeak.domain.channel.TS3MessageChannelAdapter;
-import net.kardexo.bot.teamspeak.domain.channel.TS3PrivateChannelAdapter;
-import net.kardexo.bot.teamspeak.domain.channel.TS3ServerChannelAdapter;
-import net.kardexo.bot.teamspeak.domain.client.TS3BotClientAdapter;
-import net.kardexo.bot.teamspeak.domain.client.TS3ClientAdapter;
-import net.kardexo.bot.teamspeak.domain.config.TS3ConfigAdapter;
+import net.kardexo.bot.teamspeak.domain.channel.TeamSpeakConsoleChannelAdapter;
+import net.kardexo.bot.teamspeak.domain.channel.TeamSpeakMessageChannelAdapter;
+import net.kardexo.bot.teamspeak.domain.channel.TeamSpeakPrivateChannelAdapter;
+import net.kardexo.bot.teamspeak.domain.channel.TeamSpeakServerChannelAdapter;
+import net.kardexo.bot.teamspeak.domain.client.TeamSpeakBotClientAdapter;
+import net.kardexo.bot.teamspeak.domain.client.TeamSpeakClientAdapter;
+import net.kardexo.bot.teamspeak.domain.config.TeamSpeakConfigAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,44 +30,44 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Random;
 
-public class TS3BotAdapter extends AbstractBot<TS3ConfigAdapter>
+public class TeamSpeakBotAdapter extends AbstractBot<TeamSpeakConfigAdapter>
 {
-	private static final Logger logger = LoggerFactory.getLogger(TS3BotAdapter.class);
+	private static final Logger logger = LoggerFactory.getLogger(TeamSpeakBotAdapter.class);
 	
 	private TS3Api api;
 	private TS3Query query;
-	private TS3BotClientAdapter botClient;
+	private TeamSpeakBotClientAdapter botClient;
 	
-	public TS3BotAdapter(String configFile) throws IOException
+	public TeamSpeakBotAdapter(String configFile) throws IOException
 	{
-		super(configFile, TS3ConfigAdapter::of, new Random());
+		super(configFile, TeamSpeakConfigAdapter::of, new Random());
 	}
 	
 	@Override
 	protected void connect()
 	{
-		TS3ConfigAdapter config = this.getConfig();
+		TeamSpeakConfigAdapter config = this.getConfig();
 		TS3Config ts3config = new TS3Config();
 		TS3Listener ts3Listener = new TS3EventAdapter()
 		{
 			@Override
 			public void onTextMessage(TextMessageEvent event)
 			{
-				IClient client = new TS3ClientAdapter(TS3BotAdapter.this.api, event.getInvokerId());
+				IClient client = new TeamSpeakClientAdapter(TeamSpeakBotAdapter.this.api, event.getInvokerId());
 				String message = event.getMessage();
 				IChannel channel = switch(event.getTargetMode())
 				{
-					case CLIENT -> new TS3PrivateChannelAdapter(TS3BotAdapter.this.api, event.getInvokerId());
-					case CHANNEL -> new TS3MessageChannelAdapter(TS3BotAdapter.this.api, TS3BotAdapter.this.botClient.getChannelId());
-					case SERVER -> new TS3ServerChannelAdapter(TS3BotAdapter.this.api);
+					case CLIENT -> new TeamSpeakPrivateChannelAdapter(TeamSpeakBotAdapter.this.api, event.getInvokerId());
+					case CHANNEL -> new TeamSpeakMessageChannelAdapter(TeamSpeakBotAdapter.this.api, TeamSpeakBotAdapter.this.botClient.getChannelId());
+					case SERVER -> new TeamSpeakServerChannelAdapter(TeamSpeakBotAdapter.this.api);
 				};
-				TS3BotAdapter.this.onMessage(channel, client, message);
+				TeamSpeakBotAdapter.this.onMessage(channel, client, message);
 			}
 			
 			@Override
 			public void onClientJoin(ClientJoinEvent event)
 			{
-				TS3BotAdapter.this.onClientJoin(new TS3ClientAdapter(TS3BotAdapter.this.api, event.getClientId()));
+				TeamSpeakBotAdapter.this.onClientJoin(new TeamSpeakClientAdapter(TeamSpeakBotAdapter.this.api, event.getClientId()));
 			}
 		};
 		ConnectionHandler connectionHandler = new ConnectionHandler()
@@ -75,16 +75,16 @@ public class TS3BotAdapter extends AbstractBot<TS3ConfigAdapter>
 			@Override
 			public void onConnect(TS3Api api)
 			{
-				if(TS3BotAdapter.this.api != null)
+				if(TeamSpeakBotAdapter.this.api != null)
 				{
-					TS3BotAdapter.this.onConnect();
+					TeamSpeakBotAdapter.this.onConnect();
 				}
 			}
 			
 			@Override
 			public void onDisconnect(TS3Query ts3Query)
 			{
-				TS3BotAdapter.this.onDisconnect();
+				TeamSpeakBotAdapter.this.onDisconnect();
 			}
 		};
 		ts3config.setHost(config.getHostAddress());
@@ -108,16 +108,16 @@ public class TS3BotAdapter extends AbstractBot<TS3ConfigAdapter>
 	@Override
 	protected void onConnect()
 	{
-		TS3ConfigAdapter config = this.getConfig();
+		TeamSpeakConfigAdapter config = this.getConfig();
 		logger.info("Connected to {}", config.getHostAddress());
 		this.api.selectVirtualServerById(config.getVirtualServerId(), config.getLoginName());
 		int id = this.api.whoAmI().getId();
-		this.botClient = new TS3BotClientAdapter(this.api, id);
+		this.botClient = new TeamSpeakBotClientAdapter(this.api, id);
 		Channel channel = this.api.getChannelByNameExact(config.getChannelName(), true);
 		
 		if(channel != null)
 		{
-			this.botClient.move(this.botClient, new TS3MessageChannelAdapter(this.api, channel.getId()));
+			this.botClient.move(this.botClient, new TeamSpeakMessageChannelAdapter(this.api, channel.getId()));
 		}
 		else
 		{
@@ -169,6 +169,6 @@ public class TS3BotAdapter extends AbstractBot<TS3ConfigAdapter>
 	@Override
 	protected IConsoleChannel getConsoleChannel()
 	{
-		return new TS3ConsoleChannelAdapter(this.api, this.botClient.getClientId());
+		return new TeamSpeakConsoleChannelAdapter(this.api, this.botClient.getClientId());
 	}
 }

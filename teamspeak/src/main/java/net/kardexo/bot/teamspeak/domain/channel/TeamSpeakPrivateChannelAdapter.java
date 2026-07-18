@@ -3,17 +3,17 @@ package net.kardexo.bot.teamspeak.domain.channel;
 import com.github.theholywaffle.teamspeak3.TS3Api;
 import net.kardexo.bot.domain.channel.IPrivateChannel;
 import net.kardexo.bot.domain.client.IClient;
-import net.kardexo.bot.teamspeak.domain.client.TS3ClientAdapter;
+import net.kardexo.bot.teamspeak.domain.client.TeamSpeakClientAdapter;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-public class TS3PrivateChannelAdapter extends AbstractTS3ChannelAdapter implements IPrivateChannel
+public class TeamSpeakPrivateChannelAdapter extends AbstractTeamSpeakChannelAdapter implements IPrivateChannel
 {
 	private final int clientId;
 	
-	public TS3PrivateChannelAdapter(TS3Api api, int clientId)
+	public TeamSpeakPrivateChannelAdapter(TS3Api api, int clientId)
 	{
 		super(api);
 		this.clientId = clientId;
@@ -34,7 +34,7 @@ public class TS3PrivateChannelAdapter extends AbstractTS3ChannelAdapter implemen
 	@Override
 	public List<IClient> getClients()
 	{
-		return Collections.singletonList(new TS3ClientAdapter(this.api, this.clientId));
+		return Collections.singletonList(new TeamSpeakClientAdapter(this.api, this.clientId));
 	}
 	
 	public int getClientId()
@@ -45,7 +45,7 @@ public class TS3PrivateChannelAdapter extends AbstractTS3ChannelAdapter implemen
 	@Override
 	public boolean equals(Object object)
 	{
-		if(!(object instanceof TS3PrivateChannelAdapter that))
+		if(!(object instanceof TeamSpeakPrivateChannelAdapter that))
 		{
 			return false;
 		}

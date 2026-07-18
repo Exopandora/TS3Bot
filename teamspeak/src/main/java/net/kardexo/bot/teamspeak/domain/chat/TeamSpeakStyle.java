@@ -5,22 +5,22 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
-public class TS3Style implements IStyle
+public class TeamSpeakStyle implements IStyle
 {
-	protected static final TS3Style BOLD = new TS3Style("b");
-	protected static final TS3Style UNDERLINED = new TS3Style("u");
-	protected static final TS3Style ITALIC = new TS3Style("i");
-	protected static final TS3Style STRIKETHROUGH = new TS3Style("s");
+	protected static final TeamSpeakStyle BOLD = new TeamSpeakStyle("b");
+	protected static final TeamSpeakStyle UNDERLINED = new TeamSpeakStyle("u");
+	protected static final TeamSpeakStyle ITALIC = new TeamSpeakStyle("i");
+	protected static final TeamSpeakStyle STRIKETHROUGH = new TeamSpeakStyle("s");
 	
 	private final String code;
 	private final @Nullable String value;
 	
-	protected TS3Style(String code)
+	protected TeamSpeakStyle(String code)
 	{
 		this(code, null);
 	}
 	
-	protected TS3Style(String code, @Nullable String value)
+	protected TeamSpeakStyle(String code, @Nullable String value)
 	{
 		this.code = code;
 		this.value = value;
@@ -49,12 +49,12 @@ public class TS3Style implements IStyle
 	@Override
 	public boolean equals(Object object)
 	{
-		if(!(object instanceof TS3Style ts3Style))
+		if(!(object instanceof TeamSpeakStyle tsStyle))
 		{
 			return false;
 		}
 		
-		return Objects.equals(this.code, ts3Style.code) && Objects.equals(this.value, ts3Style.value);
+		return Objects.equals(this.code, tsStyle.code) && Objects.equals(this.value, tsStyle.value);
 	}
 	
 	@Override

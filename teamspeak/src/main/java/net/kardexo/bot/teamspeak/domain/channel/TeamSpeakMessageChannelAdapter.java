@@ -3,17 +3,17 @@ package net.kardexo.bot.teamspeak.domain.channel;
 import com.github.theholywaffle.teamspeak3.TS3Api;
 import net.kardexo.bot.domain.channel.IMessageChannel;
 import net.kardexo.bot.domain.client.IClient;
-import net.kardexo.bot.teamspeak.domain.client.TS3ClientAdapter;
+import net.kardexo.bot.teamspeak.domain.client.TeamSpeakClientAdapter;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-public class TS3MessageChannelAdapter extends AbstractTS3ChannelAdapter implements IMessageChannel
+public class TeamSpeakMessageChannelAdapter extends AbstractTeamSpeakChannelAdapter implements IMessageChannel
 {
 	private final int channelId;
 	
-	public TS3MessageChannelAdapter(TS3Api api, int channelId)
+	public TeamSpeakMessageChannelAdapter(TS3Api api, int channelId)
 	{
 		super(api);
 		this.channelId = channelId;
@@ -36,7 +36,7 @@ public class TS3MessageChannelAdapter extends AbstractTS3ChannelAdapter implemen
 	{
 		return this.api.getClients().stream()
 			.filter(client -> client.getChannelId() == this.channelId && client.isRegularClient())
-			.map(client -> new TS3ClientAdapter(this.api, client.getId()))
+			.map(client -> new TeamSpeakClientAdapter(this.api, client.getId()))
 			.collect(Collectors.toList());
 	}
 	
@@ -49,7 +49,7 @@ public class TS3MessageChannelAdapter extends AbstractTS3ChannelAdapter implemen
 	@Override
 	public boolean equals(Object object)
 	{
-		if(!(object instanceof TS3MessageChannelAdapter other))
+		if(!(object instanceof TeamSpeakMessageChannelAdapter other))
 		{
 			return false;
 		}
