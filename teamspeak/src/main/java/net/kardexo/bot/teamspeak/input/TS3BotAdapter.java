@@ -169,6 +169,6 @@ public class TS3BotAdapter extends AbstractBot<TS3ConfigAdapter>
 	@Override
 	protected IConsoleChannel getConsoleChannel()
 	{
-		return new TS3ConsoleChannelAdapter(this.api, this.botClient.clientId);
+		return new TS3ConsoleChannelAdapter(this.api, this.botClient.getClientId());
 	}
 }
