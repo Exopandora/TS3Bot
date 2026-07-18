@@ -27,7 +27,7 @@ dependencies {
 }
 
 application {
-    mainClass.set("net.kardexo.bot.Start")
+    mainClass.set("net.kardexo.bot.teamspeak.Start")
 }
 
 tasks.named<JavaExec>("run") {

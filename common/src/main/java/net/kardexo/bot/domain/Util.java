@@ -2,8 +2,8 @@ package net.kardexo.bot.domain;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import net.kardexo.bot.domain.api.IChannel;
-import net.kardexo.bot.domain.api.IClient;
+import net.kardexo.bot.domain.channel.IChannel;
+import net.kardexo.bot.domain.client.IClient;
 import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.client.CloseableHttpClient;

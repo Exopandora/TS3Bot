@@ -1,7 +1,7 @@
 package net.kardexo.bot.testfixtures;
 
-import net.kardexo.bot.domain.api.IStyle;
-import net.kardexo.bot.services.api.IStyleFactory;
+import net.kardexo.bot.domain.chat.IStyle;
+import net.kardexo.bot.domain.chat.IStyleFactory;
 
 public class TestStyleFactory implements IStyleFactory
 {

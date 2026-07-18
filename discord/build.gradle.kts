@@ -31,7 +31,7 @@ dependencies {
 }
 
 application {
-    mainClass.set("net.kardexo.bot.Start")
+    mainClass.set("net.kardexo.bot.discord.Start")
 }
 
 tasks.named<JavaExec>("run") {

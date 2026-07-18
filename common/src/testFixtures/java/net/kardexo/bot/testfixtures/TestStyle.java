@@ -1,7 +1,6 @@
 package net.kardexo.bot.testfixtures;
 
-import net.kardexo.bot.domain.api.IStyle;
-import org.jetbrains.annotations.Nullable;
+import net.kardexo.bot.domain.chat.IStyle;
 
 import java.util.Objects;
 

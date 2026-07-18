@@ -2,7 +2,7 @@ package net.kardexo.bot.domain.config;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
-import net.kardexo.bot.adapters.lol.Platform;
+import net.kardexo.bot.output.services.lol.Platform;
 
 import java.io.File;
 import java.io.IOException;

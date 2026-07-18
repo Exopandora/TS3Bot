@@ -1,11 +1,11 @@
 package net.kardexo.bot.commands;
 
-import net.kardexo.bot.services.commands.impl.LeagueOfLegendsCommand;
-import net.kardexo.bot.adapters.lol.League;
-import net.kardexo.bot.adapters.lol.Platform;
-import net.kardexo.bot.adapters.lol.Rank;
-import net.kardexo.bot.adapters.lol.RiotId;
-import net.kardexo.bot.adapters.lol.Tier;
+import net.kardexo.bot.domain.services.commands.impl.LeagueOfLegendsCommand;
+import net.kardexo.bot.output.services.lol.League;
+import net.kardexo.bot.output.services.lol.Platform;
+import net.kardexo.bot.output.services.lol.Rank;
+import net.kardexo.bot.output.services.lol.RiotId;
+import net.kardexo.bot.output.services.lol.Tier;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
