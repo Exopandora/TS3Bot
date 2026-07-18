@@ -1,7 +1,6 @@
 package net.kardexo.bot.output.services.lol;
 
-public enum Rank
-{
+public enum Rank {
 	IV,
 	III,
 	II,
@@ -11,13 +10,11 @@ public enum Rank
 	public static final Rank LOWEST = Rank.IV;
 	public static final Rank[] VALUES = Rank.values();
 	
-	public int getRating()
-	{
+	public int getRating() {
 		return this.ordinal() + 1;
 	}
 	
-	public Rank next()
-	{
+	public Rank next() {
 		return VALUES[(this.ordinal() + 1) % VALUES.length];
 	}
 }

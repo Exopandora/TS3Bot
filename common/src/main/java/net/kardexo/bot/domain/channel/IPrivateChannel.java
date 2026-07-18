@@ -1,5 +1,4 @@
 package net.kardexo.bot.domain.channel;
 
-public interface IPrivateChannel extends IChannel
-{
+public interface IPrivateChannel extends IChannel {
 }

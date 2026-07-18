@@ -5,59 +5,49 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 import java.util.List;
 
-public class APIKeyConfig
-{
+public class APIKeyConfig {
 	@JsonProperty("tokens")
 	private JsonNode tokens;
 	@JsonProperty("limits")
 	private List<Limit> limits;
 	
-	public APIKeyConfig()
-	{
+	public APIKeyConfig() {
 		super();
 	}
 	
-	public APIKeyConfig(JsonNode tokens, List<Limit> limits)
-	{
+	public APIKeyConfig(JsonNode tokens, List<Limit> limits) {
 		this.tokens = tokens;
 		this.limits = limits;
 	}
 	
-	public JsonNode getTokens()
-	{
+	public JsonNode getTokens() {
 		return this.tokens;
 	}
 	
-	public List<Limit> getLimits()
-	{
+	public List<Limit> getLimits() {
 		return this.limits;
 	}
 	
-	public static class Limit
-	{
+	public static class Limit {
 		@JsonProperty("limit")
 		private int limit;
 		@JsonProperty("duration")
 		private long duration;
 		
-		public Limit()
-		{
+		public Limit() {
 			super();
 		}
 		
-		public Limit(int limit, long duration)
-		{
+		public Limit(int limit, long duration) {
 			this.limit = limit;
 			this.duration = duration;
 		}
 		
-		public int getLimit()
-		{
+		public int getLimit() {
 			return this.limit;
 		}
 		
-		public long getDuration()
-		{
+		public long getDuration() {
 			return this.duration;
 		}
 	}

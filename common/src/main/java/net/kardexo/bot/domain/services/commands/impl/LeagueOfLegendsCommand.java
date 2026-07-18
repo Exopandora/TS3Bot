@@ -50,124 +50,214 @@ import java.util.stream.StreamSupport;
 
 import static net.kardexo.bot.domain.Util.OBJECT_MAPPER;
 
-public class LeagueOfLegendsCommand
-{
-	private static final DynamicCommandExceptionType ERROR_FETCHING_DATA = new DynamicCommandExceptionType(message ->
-	{
-		return new LiteralMessage(message instanceof Throwable ? LeagueOfLegendsCommand.getRootThrowable((Throwable) message).getMessage() : "Error fetching data");
-	});
+public class LeagueOfLegendsCommand {
+	private static final DynamicCommandExceptionType ERROR_FETCHING_DATA =
+		new DynamicCommandExceptionType(message ->
+			new LiteralMessage(
+				message instanceof Throwable
+					? LeagueOfLegendsCommand.getRootThrowable((Throwable) message).getMessage()
+					: "Error fetching data"
+			)
+		);
 	private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd.MM");
-	private static final int MAX_RATING = Arrays.stream(Tier.VALUES).mapToInt(tier -> tier.isApexTier() ? 1 : Rank.VALUES.length).sum();
+	private static final int MAX_RATING = Arrays.stream(Tier.VALUES)
+		.mapToInt(tier -> tier.isApexTier() ? 1 : Rank.VALUES.length)
+		.sum();
 	private static final IStyle RED_COLOR = IStyle.color("E62142");
 	private static final IStyle BLUE_COLOR = IStyle.color("4788B6");
 	private static final IStyle WIN_COLOR = IStyle.color("008000");
 	private static final IStyle LOSS_COLOR = IStyle.color("FF2345");
 	
-	public static void register(CommandDispatcher<CommandSource> dispatcher, Config config, IAPIKeyService apiKeyService, IUserConfigService userConfigService)
-	{
+	public static void register(
+		CommandDispatcher<CommandSource> dispatcher,
+		Config config,
+		IAPIKeyService apiKeyService,
+		IUserConfigService userConfigService
+	) {
 		dispatcher.register(Commands.literal("lol")
 			.then(Commands.literal("match")
-				.executes(context -> match(context, apiKeyService, riotIdForUser(context, config.getLoLPlatform(), userConfigService), config.getLoLPlatform()))
+				.executes(context ->
+					match(
+						context,
+						apiKeyService,
+						riotIdForUser(context, config.getLoLPlatform(), userConfigService),
+						config.getLoLPlatform()
+					)
+				)
 				.then(Commands.argument("riot_id", RiotIdArgumentType.greedy(config.getLoLPlatform()))
-					.executes(context -> match(context, apiKeyService, RiotIdArgumentType.getRiotId(context, "riot_id"), config.getLoLPlatform()))))
+					.executes(context ->
+						match(
+							context,
+							apiKeyService,
+							RiotIdArgumentType.getRiotId(context, "riot_id"),
+							config.getLoLPlatform()
+						)
+					)))
 			.then(Commands.literal("history")
-				.executes(context -> history(context, apiKeyService, riotIdForUser(context, config.getLoLPlatform(), userConfigService), config.getLoLPlatform()))
+				.executes(context ->
+					history(
+						context,
+						apiKeyService,
+						riotIdForUser(context, config.getLoLPlatform(), userConfigService),
+						config.getLoLPlatform()
+					)
+				)
 				.then(Commands.argument("riot_id", RiotIdArgumentType.greedy(config.getLoLPlatform()))
-					.executes(context -> history(context, apiKeyService, RiotIdArgumentType.getRiotId(context, "riot_id"), config.getLoLPlatform()))))
+					.executes(context ->
+						history(
+							context,
+							apiKeyService,
+							RiotIdArgumentType.getRiotId(context, "riot_id"),
+							config.getLoLPlatform()
+						)
+					)))
 			.then(Commands.literal("lore")
 				.then(Commands.argument("champion", StringArgumentType.greedyString())
-					.executes(context -> lore(context, StringArgumentType.getString(context, "champion")))))
+					.executes(context ->
+						lore(
+							context,
+							StringArgumentType.getString(context, "champion")
+						)
+					)))
 			.then(Commands.literal("alias")
 				.then(Commands.argument("summoner", StringArgumentType.greedyString())
-					.executes(context -> alias(context, userConfigService, StringArgumentType.getString(context, "summoner")))))
+					.executes(context ->
+						alias(
+							context,
+							userConfigService,
+							StringArgumentType.getString(context, "summoner")
+						)
+					)))
 			.then(Commands.literal("build")
 				.then(Commands.literal("for")
 					.then(Commands.argument("champion", StringArgumentType.string())
-						.executes(context -> build(context, apiKeyService, BuildSelector.MINE, StringArgumentType.getString(context, "champion"), riotIdForUser(context, config.getLoLPlatform(), userConfigService), config.getLoLPlatform()))
+						.executes(context ->
+							build(
+								context,
+								apiKeyService,
+								BuildSelector.MINE,
+								StringArgumentType.getString(context, "champion"),
+								riotIdForUser(context, config.getLoLPlatform(), userConfigService),
+								config.getLoLPlatform()
+							)
+						)
 						.then(Commands.argument("riot_id", RiotIdArgumentType.greedy(config.getLoLPlatform()))
-							.executes(context -> build(context, apiKeyService, BuildSelector.MINE, StringArgumentType.getString(context, "champion"), RiotIdArgumentType.getRiotId(context, "riot_id"), config.getLoLPlatform()))))
+							.executes(context ->
+								build(
+									context,
+									apiKeyService,
+									BuildSelector.MINE,
+									StringArgumentType.getString(context, "champion"),
+									RiotIdArgumentType.getRiotId(context, "riot_id"),
+									config.getLoLPlatform()
+								)
+							)))
 					.then(Commands.literal("enemy")
 						.then(Commands.argument("champion", StringArgumentType.string())
-							.executes(context -> build(context, apiKeyService, BuildSelector.ENEMY, StringArgumentType.getString(context, "champion"), riotIdForUser(context, config.getLoLPlatform(), userConfigService), config.getLoLPlatform()))
+							.executes(context ->
+								build(
+									context,
+									apiKeyService,
+									BuildSelector.ENEMY,
+									StringArgumentType.getString(context, "champion"),
+									riotIdForUser(context, config.getLoLPlatform(), userConfigService),
+									config.getLoLPlatform()
+								)
+							)
 							.then(Commands.argument("riot_id", RiotIdArgumentType.greedy(config.getLoLPlatform()))
-								.executes(context -> build(context, apiKeyService, BuildSelector.ENEMY, StringArgumentType.getString(context, "champion"), RiotIdArgumentType.getRiotId(context, "riot_id"), config.getLoLPlatform())))))
+								.executes(context ->
+									build(
+										context,
+										apiKeyService,
+										BuildSelector.ENEMY,
+										StringArgumentType.getString(context, "champion"),
+										RiotIdArgumentType.getRiotId(context, "riot_id"),
+										config.getLoLPlatform()
+									)
+								))))
 					.then(Commands.literal("ally")
 						.then(Commands.argument("champion", StringArgumentType.string())
-							.executes(context -> build(context, apiKeyService, BuildSelector.ALLY, StringArgumentType.getString(context, "champion"), riotIdForUser(context, config.getLoLPlatform(), userConfigService), config.getLoLPlatform()))
+							.executes(context ->
+								build(
+									context,
+									apiKeyService,
+									BuildSelector.ALLY,
+									StringArgumentType.getString(context, "champion"),
+									riotIdForUser(context, config.getLoLPlatform(), userConfigService),
+									config.getLoLPlatform()
+								)
+							)
 							.then(Commands.argument("riot_id", RiotIdArgumentType.greedy(config.getLoLPlatform()))
-								.executes(context -> build(context, apiKeyService, BuildSelector.ALLY, StringArgumentType.getString(context, "champion"), RiotIdArgumentType.getRiotId(context, "riot_id"), config.getLoLPlatform()))))))));
+								.executes(context ->
+									build(
+										context,
+										apiKeyService,
+										BuildSelector.ALLY,
+										StringArgumentType.getString(context, "champion"),
+										RiotIdArgumentType.getRiotId(context, "riot_id"),
+										config.getLoLPlatform()
+									)
+								)))))));
 	}
 	
-	private static int build(CommandContext<CommandSource> context, IAPIKeyService apiKeyService, BuildSelector selector, String champion, RiotId riotId, Platform platform) throws CommandSyntaxException
-	{
+	private static int build(
+		CommandContext<CommandSource> context,
+		IAPIKeyService apiKeyService,
+		BuildSelector selector,
+		String champion,
+		RiotId riotId,
+		Platform platform
+	) throws CommandSyntaxException {
 		var itemsFuture = CompletableFuture.supplyAsync(wrapException(() -> LeagueOfLegends.fetchItems()));
-		var build = CompletableFuture.supplyAsync(wrapException(() ->
-		{
+		var build = CompletableFuture.supplyAsync(wrapException(() -> {
 			var account = LeagueOfLegends.fetchAccount(apiKeyService, riotId, platform);
-			
-			if(account.hasNonNull("status"))
-			{
+			if (account.hasNonNull("status")) {
 				throw new RuntimeException("Could not find user " + riotId);
 			}
-			
 			return account.path("puuid").asText();
-		})).thenApplyAsync(wrapException(puuid ->
-		{
+		})).thenApplyAsync(wrapException(puuid -> {
 			var matchIds = LeagueOfLegends.fetchMatchHistory(apiKeyService, puuid, platform.getRegion(), 0, 20);
-			
-			if(matchIds.isEmpty())
-			{
+			if (matchIds.isEmpty()) {
 				throw new RuntimeException(riotId + " has not played any games yet");
 			}
-			
 			var matches = new ArrayList<CompletableFuture<JsonNode>>(matchIds.size());
-			
-			for(JsonNode matchId : matchIds)
-			{
-				matches.add(CompletableFuture.supplyAsync(wrapException(() -> LeagueOfLegends.fetchMatch(apiKeyService, matchId.asText(), platform.getRegion()))));
+			for (JsonNode matchId : matchIds) {
+				matches.add(
+					CompletableFuture.supplyAsync(
+						wrapException(() -> LeagueOfLegends.fetchMatch(apiKeyService, matchId.asText(), platform.getRegion()))
+					)
+				);
 			}
-			
 			var targetChampion = LeagueOfLegendsCommand.normalizeChampionName(champion);
-			
-			for(int x = 0; x < matches.size(); x++)
-			{
+			for (int x = 0; x < matches.size(); x++) {
 				var info = matches.get(x).join().path("info");
 				var puuid2participant = new HashMap<String, JsonNode>();
 				var participants = info.path("participants");
-				
-				for(var participant : participants)
-				{
+				for (var participant : participants) {
 					var participantPuuid = participant.path("puuid").asText();
-					
-					if(participantPuuid != null)
-					{
+					if (participantPuuid != null) {
 						puuid2participant.put(participantPuuid, participant);
 					}
 				}
-				
 				var player = puuid2participant.get(puuid);
 				var team = player.path("teamId").asInt();
-				
-				switch(selector)
-				{
+				switch (selector) {
 					case MINE:
-						if(targetChampion.equals(normalizeChampionName(player.path("championName").asText())))
-						{
+						if (targetChampion.equals(normalizeChampionName(player.path("championName").asText()))) {
 							String response = createBuildResponse(player, player, itemsFuture.join());
 							context.getSource().sendFeedback(response);
 							return x;
 						}
 						break;
 					case ENEMY:
-						for(var participant : participants)
-						{
-							if(player.equals(participant))
-							{
+						for (var participant : participants) {
+							if (player.equals(participant)) {
 								continue;
 							}
-							
-							if(team != participant.path("teamId").asInt() && targetChampion.equals(normalizeChampionName(participant.path("championName").asText())))
-							{
+							if (
+								team != participant.path("teamId").asInt()
+									&& targetChampion.equals(normalizeChampionName(participant.path("championName").asText()))
+							) {
 								String response = createBuildResponse(participant, player, itemsFuture.join());
 								context.getSource().sendFeedback(response);
 								return x;
@@ -175,15 +265,14 @@ public class LeagueOfLegendsCommand
 						}
 						break;
 					case ALLY:
-						for(var participant : participants)
-						{
-							if(player.equals(participant))
-							{
+						for (var participant : participants) {
+							if (player.equals(participant)) {
 								continue;
 							}
-							
-							if(team == participant.path("teamId").asInt() && targetChampion.equals(normalizeChampionName(participant.path("championName").asText())))
-							{
+							if (
+								team == participant.path("teamId").asInt()
+									&& targetChampion.equals(normalizeChampionName(participant.path("championName").asText()))
+							) {
 								String response = createBuildResponse(participant, player, itemsFuture.join());
 								context.getSource().sendFeedback(response);
 								return x;
@@ -192,9 +281,7 @@ public class LeagueOfLegendsCommand
 						break;
 				}
 			}
-			
-			switch(selector)
-			{
+			switch (selector) {
 				case MINE:
 					throw new RuntimeException("Could not find build for " + champion + " in the match history for " + riotId);
 				case ALLY:
@@ -205,101 +292,70 @@ public class LeagueOfLegendsCommand
 					throw new RuntimeException("Invalid build selector " + selector);
 			}
 		}));
-		
-		try
-		{
+		try {
 			return build.join();
-		}
-		catch(CancellationException | CompletionException e)
-		{
+		} catch (CancellationException | CompletionException e) {
 			throw ERROR_FETCHING_DATA.create(e);
 		}
 	}
 	
-	private static int match(CommandContext<CommandSource> context, IAPIKeyService apiKeyService, RiotId riotId, Platform platform) throws CommandSyntaxException
-	{
+	private static int match(CommandContext<CommandSource> context, IAPIKeyService apiKeyService, RiotId riotId, Platform platform) throws CommandSyntaxException {
 		var championsFuture = CompletableFuture.supplyAsync(wrapException(() -> LeagueOfLegends.fetchChampions()));
 		var queuesFuture = CompletableFuture.supplyAsync(wrapException(LeagueOfLegends::fetchQueues));
-		var match = CompletableFuture.supplyAsync(wrapException(() ->
-		{
+		var match = CompletableFuture.supplyAsync(wrapException(() -> {
 			var account = LeagueOfLegends.fetchAccount(apiKeyService, riotId, platform);
-			
-			if(account.hasNonNull("status"))
-			{
+			if (account.hasNonNull("status")) {
 				throw new RuntimeException("Could not find user " + riotId);
 			}
-			
 			var puuid = account.path("puuid").asText();
 			var activeMatch = LeagueOfLegends.fetchActiveMatch(apiKeyService, puuid, platform);
-			
-			if(activeMatch.hasNonNull("status") || activeMatch.isTextual())
-			{
+			if (activeMatch.hasNonNull("status") || activeMatch.isTextual()) {
 				throw new RuntimeException(riotId + " is currently not in an active game");
 			}
-			
 			var participants = activeMatch.path("participants");
 			var builder = new FormattedStringBuilder();
-			var teams = LeagueOfLegendsCommand.groupAndLoad(apiKeyService, participants, championsFuture, platform).entrySet().stream()
+			var teams = LeagueOfLegendsCommand.groupAndLoad(apiKeyService, participants, championsFuture, platform)
+				.entrySet().stream()
 				.sorted(Comparator.comparingInt(Entry::getKey))
 				.map(Entry::getValue)
 				.toList();
 			var teamRatings = new int[teams.size()];
-			
-			for(int x = 0; x < teams.size(); x++)
-			{
+			for (int x = 0; x < teams.size(); x++) {
 				var teamMembers = teams.get(x);
 				var color = x % 2 == 0 ? BLUE_COLOR : RED_COLOR;
-				
-				if(x > 0)
-				{
+				if (x > 0) {
 					builder.append("\n");
 					builder.append("\t".repeat(7));
 					builder.append("VS", IStyle.bold());
 				}
-				
-				if(!teamMembers.isEmpty())
-				{
+				if (!teamMembers.isEmpty()) {
 					int rankedTeamMembers = 0;
-					
-					for(CompletableFuture<SummonerOverview> participant : teamMembers)
-					{
+					for (CompletableFuture<SummonerOverview> participant : teamMembers) {
 						var overview = participant.join();
 						builder.append("\n");
 						builder.append(overview.champion(), color);
-						
-						if(puuid.equals(overview.puuid()))
-						{
+						if (puuid.equals(overview.puuid())) {
 							builder.append(" ");
 							builder.append(overview.riotId(), IStyle.underlined());
-						}
-						else
-						{
+						} else {
 							builder.append(" ");
 							builder.append(overview.riotId());
 						}
-						
 						var league = overview.highestRank();
-						
-						if(league.isPresent())
-						{
+						if (league.isPresent()) {
 							teamRatings[x] += league.get().getRating();
 							rankedTeamMembers++;
 						}
-						
 						builder.append(" | ");
 						builder.append(league.map(League::toString).orElse("Unranked"));
 						builder.append(" | ");
 						builder.append(formatMastery(overview.mastery()));
 					}
-					
 					teamRatings[x] = Math.round((float) teamRatings[x] / (float) rankedTeamMembers);
-				}
-				else
-				{
+				} else {
 					builder.append("\nNone");
 				}
 			}
-			
 			var ranks = Arrays.stream(teamRatings)
 				.mapToObj(LeagueOfLegendsCommand::ratingToLeague)
 				.map(league -> league.map(League::toString).orElse("Unranked"))
@@ -307,118 +363,107 @@ public class LeagueOfLegendsCommand
 			var gameLength = activeMatch.path("gameLength").asLong();
 			var formattedGameLength = gameLength < 0 ? "Loading Screen" : Util.formatDuration(gameLength);
 			var queue = LeagueOfLegendsCommand.formatQueue(queuesFuture.join(), activeMatch.path("gameQueueConfigId").asInt());
-			
 			builder.append("\n");
 			builder.append(queue);
 			builder.append(" | ");
 			builder.append(formattedGameLength);
 			builder.append(" | Average Ranks: ");
 			builder.append(ranks);
-			
 			context.getSource().sendFeedback(builder.toString());
 			return participants.size();
 		}));
-		
-		try
-		{
+		try {
 			return match.join();
-		}
-		catch(CancellationException | CompletionException e)
-		{
+		} catch (CancellationException | CompletionException e) {
 			throw ERROR_FETCHING_DATA.create(e);
 		}
 	}
 	
-	private static CompletableFuture<SummonerOverview> loadParticipantAsync(IAPIKeyService apiKeyService, JsonNode participant, CompletableFuture<JsonNode> championsFuture, Platform platform)
-	{
+	private static CompletableFuture<SummonerOverview> loadParticipantAsync(
+		IAPIKeyService apiKeyService,
+		JsonNode participant,
+		CompletableFuture<JsonNode> championsFuture,
+		Platform platform
+	) {
 		var championId = participant.path("championId").asLong();
 		var championFuture = championsFuture.thenApply(champions -> LeagueOfLegendsCommand.championById(championId, champions));
-		
-		if(!participant.path("bot").asBoolean())
-		{
+		if (!participant.path("bot").asBoolean()) {
 			var puuid = participant.path("puuid").asText();
-			var league = CompletableFuture.supplyAsync(wrapException(() -> LeagueOfLegends.fetchLeague(apiKeyService, puuid, platform)));
-			var mastery = CompletableFuture.supplyAsync(wrapException(() -> LeagueOfLegends.fetchChampionMastery(apiKeyService, puuid, championId, platform)));
-			var accountFuture = CompletableFuture.supplyAsync(wrapException(() -> LeagueOfLegends.fetchAccount(apiKeyService, puuid, platform)));
-			return CompletableFuture.allOf(championFuture, league, mastery, accountFuture).thenApply(__ ->
-			{
+			var league = CompletableFuture.supplyAsync(
+				wrapException(() -> LeagueOfLegends.fetchLeague(apiKeyService, puuid, platform))
+			);
+			var mastery = CompletableFuture.supplyAsync(
+				wrapException(() -> LeagueOfLegends.fetchChampionMastery(apiKeyService, puuid, championId, platform))
+			);
+			var accountFuture = CompletableFuture.supplyAsync(
+				wrapException(() -> LeagueOfLegends.fetchAccount(apiKeyService, puuid, platform))
+			);
+			return CompletableFuture.allOf(championFuture, league, mastery, accountFuture).thenApply(__ -> {
 				var account = accountFuture.join();
 				var riotId = new RiotId(account.path("gameName").asText(), account.path("tagLine").asText());
 				return new SummonerOverview(riotId, puuid, championFuture.join(), league.join(), mastery.join());
 			});
 		}
-		
 		return championFuture.thenApply(champion -> new SummonerOverview(new RiotId("Bot " + champion), null, champion, null, null));
 	}
 	
-	private record SummonerOverview(RiotId riotId, String puuid, String champion, JsonNode league, JsonNode mastery)
-	{
-		public Optional<League> highestRank()
-		{
-			if(this.league != null)
-			{
+	private record SummonerOverview(RiotId riotId, String puuid, String champion, JsonNode league, JsonNode mastery) {
+		public Optional<League> highestRank() {
+			if (this.league != null) {
 				return LeagueOfLegendsCommand.highestRank(this.league);
 			}
-			
 			return Optional.empty();
 		}
 	}
 	
-	private static int history(CommandContext<CommandSource> context, IAPIKeyService apiKeyService, RiotId riotId, Platform platform) throws CommandSyntaxException
-	{
+	private static int history(
+		CommandContext<CommandSource> context,
+		IAPIKeyService apiKeyService,
+		RiotId riotId,
+		Platform platform
+	) throws CommandSyntaxException {
 		var queuesFuture = CompletableFuture.supplyAsync(wrapException(LeagueOfLegends::fetchQueues));
 		var championsFuture = CompletableFuture.supplyAsync(wrapException(() -> LeagueOfLegends.fetchChampions()));
-		var history = CompletableFuture.supplyAsync(wrapException(() ->
-		{
+		var history = CompletableFuture.supplyAsync(wrapException(() -> {
 			var account = LeagueOfLegends.fetchAccount(apiKeyService, riotId, platform);
-			
-			if(account.hasNonNull("status"))
-			{
+			if (account.hasNonNull("status")) {
 				throw new RuntimeException("Could not find user " + riotId);
 			}
-			
 			return account.path("puuid").asText();
-		})).thenApplyAsync(wrapException(puuid ->
-		{
+		})).thenApplyAsync(wrapException(puuid -> {
 			var matchIds = LeagueOfLegends.fetchMatchHistory(apiKeyService, puuid, platform.getRegion(), 0, 20);
-			
-			if(matchIds.isEmpty())
-			{
+			if (matchIds.isEmpty()) {
 				throw new RuntimeException(riotId + " has not played any games yet");
 			}
-			
 			var matches = new ArrayList<CompletableFuture<JsonNode>>(matchIds.size());
-			
-			for(JsonNode matchId : matchIds)
-			{
+			for (JsonNode matchId : matchIds) {
 				matches.add(CompletableFuture.supplyAsync(wrapException(() -> LeagueOfLegends.fetchMatch(apiKeyService, matchId.asText(), platform.getRegion()))));
 			}
-			
 			var calendar = Calendar.getInstance();
 			calendar.set(Calendar.HOUR_OF_DAY, 0);
 			calendar.set(Calendar.MINUTE, 0);
 			calendar.set(Calendar.SECOND, 0);
 			calendar.set(Calendar.MILLISECOND, 0);
-			
 			var today = calendar.getTime();
 			var builder = new FormattedStringBuilder();
 			var champions = championsFuture.join();
 			var queues = queuesFuture.join();
 			var stats = new HistoryStats();
-			
 			builder.append("\nMatch history for ");
 			builder.append(riotId);
 			builder.append(":");
-			
-			for(int x = 0; x < matches.size(); x++)
-			{
+			for (int x = 0; x < matches.size(); x++) {
 				var info = matches.get(x).join().path("info");
 				var participant = LeagueOfLegendsCommand.findParticipant(info.path("participants"), puuid);
 				var gameStart = info.path("gameStartTimestamp").asLong();
 				var date = new Date(gameStart);
 				var champion = LeagueOfLegendsCommand.championById(participant.path("championId").asLong(), champions);
 				var queue = LeagueOfLegendsCommand.formatQueue(queues, info.path("queueId").asInt());
-				var playTime = (info.has("gameEndTimestamp") ? (info.path("gameEndTimestamp").asLong() - gameStart) : info.path("gameDuration").asLong()) / 1000L;
+				var playTime = (
+					info.has("gameEndTimestamp")
+						? (info.path("gameEndTimestamp").asLong() - gameStart)
+						: info.path("gameDuration").asLong()
+					) / 1000L;
 				var kills = participant.path("kills").asInt();
 				var deaths = participant.path("deaths").asInt();
 				var assists = participant.path("assists").asInt();
@@ -426,22 +471,16 @@ public class LeagueOfLegendsCommand
 				var formattedDate = DATE_FORMAT.format(date);
 				var formattedPlayTime = Util.formatDuration(playTime);
 				var color = winner ? WIN_COLOR : LOSS_COLOR;
-				
-				if(winner)
-				{
+				if (winner) {
 					stats.addWin();
 				}
-				
-				if(!date.before(today))
-				{
+				if (!date.before(today)) {
 					stats.addPlaytimeToday(playTime);
 				}
-				
 				stats.addPlaytime(playTime);
 				stats.addKills(kills);
 				stats.addDeaths(deaths);
 				stats.addAssists(assists);
-				
 				builder.append("\n[");
 				builder.append(x + 1, color);
 				builder.append("] ");
@@ -459,7 +498,6 @@ public class LeagueOfLegendsCommand
 				builder.append(" | ");
 				builder.append(champion);
 			}
-			
 			var matchCount = (double) matches.size();
 			var winrate = Math.round(stats.getWins() * 100 / matchCount);
 			var kills = String.format(Locale.ENGLISH, "%.01f", stats.getKills() / matchCount);
@@ -467,7 +505,6 @@ public class LeagueOfLegendsCommand
 			var assists = String.format(Locale.ENGLISH, "%.01f", stats.getAssists() / matchCount);
 			var averageMatchLength = Util.formatDuration((long) (stats.getPlaytime() / matchCount));
 			var playTimeToday = Util.formatDuration(stats.getPlaytimeToday());
-			
 			builder.append("\nWin rate: ");
 			builder.append(winrate);
 			builder.append("%");
@@ -481,46 +518,32 @@ public class LeagueOfLegendsCommand
 			builder.append(averageMatchLength);
 			builder.append(" | Playtime Today: ");
 			builder.append(playTimeToday);
-			
 			context.getSource().sendFeedback(builder.toString());
 			return stats.getWins();
 		}));
-		
-		try
-		{
+		try {
 			return history.join();
-		}
-		catch(CancellationException | CompletionException e)
-		{
+		} catch (CancellationException | CompletionException e) {
 			throw ERROR_FETCHING_DATA.create(e);
 		}
 	}
 	
-	private static JsonNode findParticipant(JsonNode participants, String puuid)
-	{
-		for(JsonNode participant : participants)
-		{
-			if(participant.path("puuid").asText().equals(puuid))
-			{
+	private static JsonNode findParticipant(JsonNode participants, String puuid) {
+		for (JsonNode participant : participants) {
+			if (participant.path("puuid").asText().equals(puuid)) {
 				return participant;
 			}
 		}
-		
 		return MissingNode.getInstance();
 	}
 	
-	private static int lore(CommandContext<CommandSource> context, String champion) throws CommandSyntaxException
-	{
-		var future = CompletableFuture.supplyAsync(wrapException(() ->
-		{
+	private static int lore(CommandContext<CommandSource> context, String champion) throws CommandSyntaxException {
+		var future = CompletableFuture.supplyAsync(wrapException(() -> {
 			var normal = LeagueOfLegendsCommand.normalizeChampionName(champion);
 			var version = LeagueOfLegends.fetchVersion();
 			var champions = LeagueOfLegends.fetchChampions(version);
-			
-			for(JsonNode node : champions.path("data"))
-			{
-				if(LeagueOfLegendsCommand.normalizeChampionName(node.path("name").asText()).equals(normal))
-				{
+			for (JsonNode node : champions.path("data")) {
+				if (LeagueOfLegendsCommand.normalizeChampionName(node.path("name").asText()).equals(normal)) {
 					var id = node.path("id").asText();
 					var champ = LeagueOfLegends.fetchChampion(version, id);
 					var data = champ.path("data").path(id);
@@ -532,22 +555,16 @@ public class LeagueOfLegendsCommand
 					return data.path("key").asInt();
 				}
 			}
-			
 			throw new RuntimeException("Could not find champion " + champion);
 		}));
-		
-		try
-		{
+		try {
 			return future.join();
-		}
-		catch(CancellationException | CompletionException e)
-		{
+		} catch (CancellationException | CompletionException e) {
 			throw ERROR_FETCHING_DATA.create(e);
 		}
 	}
 	
-	private static int alias(CommandContext<CommandSource> context, IUserConfigService userConfigService, String alias)
-	{
+	private static int alias(CommandContext<CommandSource> context, IUserConfigService userConfigService, String alias) {
 		IClient client = context.getSource().getClient();
 		UserConfig config = userConfigService.getUserConfig(client.getId());
 		config.setLeagueOfLegendsAlias(alias);
@@ -555,36 +572,26 @@ public class LeagueOfLegendsCommand
 		return 1;
 	}
 	
-	private static String normalizeChampionName(String champion)
-	{
-		if(champion == null)
-		{
+	private static String normalizeChampionName(String champion) {
+		if (champion == null) {
 			return null;
 		}
-		
 		return champion.replaceAll("[^A-Za-z]", "").toLowerCase();
 	}
 	
-	private static String championById(long championId, JsonNode champions)
-	{
+	private static String championById(long championId, JsonNode champions) {
 		JsonNode data = champions.path("data");
 		Iterator<JsonNode> iterator = data.elements();
-		
-		while(iterator.hasNext())
-		{
+		while (iterator.hasNext()) {
 			JsonNode champion = iterator.next();
-			
-			if(champion.path("key").asInt() == championId)
-			{
+			if (champion.path("key").asInt() == championId) {
 				return champion.path("name").asText();
 			}
 		}
-		
 		return null;
 	}
 	
-	private static Optional<League> highestRank(JsonNode leagues)
-	{
+	private static Optional<League> highestRank(JsonNode leagues) {
 		return StreamSupport.stream(leagues.spliterator(), false)
 			.map(LeagueOfLegendsCommand::rankFromLeague)
 			.filter(Objects::nonNull)
@@ -592,127 +599,94 @@ public class LeagueOfLegendsCommand
 			.findFirst();
 	}
 	
-	private static League rankFromLeague(JsonNode league)
-	{
-		try
-		{
+	private static League rankFromLeague(JsonNode league) {
+		try {
 			return OBJECT_MAPPER.treeToValue(league, League.class);
-		}
-		catch(Throwable e)
-		{
+		} catch (Throwable e) {
 			return null;
 		}
 	}
 	
-	public static Optional<League> ratingToLeague(int rating)
-	{
-		if(rating <= 0 || rating > MAX_RATING)
-		{
+	public static Optional<League> ratingToLeague(int rating) {
+		if (rating <= 0 || rating > MAX_RATING) {
 			return Optional.empty();
 		}
-		
 		return Optional.of(LeagueOfLegendsCommand.leagueFromRating(Tier.LOWEST, Rank.LOWEST, rating));
 	}
 	
-	private static League leagueFromRating(Tier tier, Rank rank, int rating)
-	{
-		if(rating == 1)
-		{
+	private static League leagueFromRating(Tier tier, Rank rank, int rating) {
+		if (rating == 1) {
 			return new League(tier, rank);
 		}
-		
-		if(!tier.isApexTier())
-		{
-			if(rating - 1 < Rank.VALUES.length)
-			{
+		if (!tier.isApexTier()) {
+			if (rating - 1 < Rank.VALUES.length) {
 				return new League(tier, Rank.VALUES[rating - 1]);
-			}
-			else
-			{
+			} else {
 				return LeagueOfLegendsCommand.leagueFromRating(tier.next(), Rank.LOWEST, rating - 4);
 			}
 		}
-		
 		return LeagueOfLegendsCommand.leagueFromRating(tier.next(), null, rating - 1);
 	}
 	
-	private static String formatQueue(JsonNode queues, int queueId)
-	{
-		for(int x = 0; x < queues.size(); x++)
-		{
+	private static String formatQueue(JsonNode queues, int queueId) {
+		for (int x = 0; x < queues.size(); x++) {
 			JsonNode queue = queues.get(x);
-			
-			if(queue.path("queueId").asInt() == queueId)
-			{
+			if (queue.path("queueId").asInt() == queueId) {
 				return queue.path("description").asText("Custom")
 					.replaceFirst("^[0-9]v[0-9] ", "")
 					.replaceFirst(" games$", "");
 			}
 		}
-		
 		return "Unknown Queue";
 	}
 	
-	private static String formatMastery(JsonNode mastery)
-	{
-		if(mastery != null)
-		{
+	private static String formatMastery(JsonNode mastery) {
+		if (mastery != null) {
 			return mastery.path("championPoints").asInt() + " (" + mastery.path("championLevel").asInt() + ")";
 		}
-		
 		return "0 (1)";
 	}
 	
-	private static Map<Integer, List<CompletableFuture<SummonerOverview>>> groupAndLoad(IAPIKeyService apiKeyService, JsonNode participants, CompletableFuture<JsonNode> champions, Platform platform)
-	{
+	private static Map<Integer, List<CompletableFuture<SummonerOverview>>> groupAndLoad(
+		IAPIKeyService apiKeyService,
+		JsonNode participants,
+		CompletableFuture<JsonNode> champions,
+		Platform platform
+	) {
 		Map<Integer, List<CompletableFuture<SummonerOverview>>> map = new HashMap<Integer, List<CompletableFuture<SummonerOverview>>>();
-		
-		for(int x = 0; x < participants.size(); x++)
-		{
+		for (int x = 0; x < participants.size(); x++) {
 			JsonNode participant = participants.get(x);
-			List<CompletableFuture<SummonerOverview>> team = map.computeIfAbsent(participant.path("teamId").asInt(), key -> new ArrayList<CompletableFuture<SummonerOverview>>());
+			List<CompletableFuture<SummonerOverview>> team = map.computeIfAbsent(
+				participant.path("teamId").asInt(),
+				key -> new ArrayList<CompletableFuture<SummonerOverview>>()
+			);
 			team.add(LeagueOfLegendsCommand.loadParticipantAsync(apiKeyService, participant, champions, platform));
 		}
-		
 		return map;
 	}
 	
-	private static RiotId riotIdForUser(CommandContext<CommandSource> context, Platform platform, IUserConfigService userConfigService)
-	{
+	private static RiotId riotIdForUser(CommandContext<CommandSource> context, Platform platform, IUserConfigService userConfigService) {
 		IClient client = context.getSource().getClient();
 		UserConfig config = userConfigService.getUserConfig(client.getId());
-		
-		if(config.getLeagueOfLegendsAlias() != null)
-		{
+		if (config.getLeagueOfLegendsAlias() != null) {
 			return RiotId.parse(config.getLeagueOfLegendsAlias(), platform);
 		}
-		
 		return RiotId.parse(client.getName(), platform);
 	}
 	
-	private static String createBuildResponse(JsonNode participant, JsonNode player, JsonNode items)
-	{
+	private static String createBuildResponse(JsonNode participant, JsonNode player, JsonNode items) {
 		List<Integer> itemIds = new ArrayList<Integer>(7);
-		
-		for(int x = 0; x < 7; x++)
-		{
+		for (int x = 0; x < 7; x++) {
 			int itemId = participant.path("item" + x).asInt(0);
-			
-			if(itemId > 0)
-			{
+			if (itemId > 0) {
 				itemIds.add(itemId);
 			}
 		}
-		
 		String name = extractParticipantName(participant);
-		
-		if(itemIds.isEmpty())
-		{
+		if (itemIds.isEmpty()) {
 			return name + " bought no items";
 		}
-		
 		String playerName = extractParticipantName(player);
-		
 		StringBuilder response = new StringBuilder("Build for ");
 		response.append(participant.path("championName").asText());
 		response.append(" by ");
@@ -728,34 +702,25 @@ public class LeagueOfLegendsCommand
 		response.append(" played as ");
 		response.append(player.path("championName").asText());
 		response.append(":");
-		
 		var data = items.path("data");
-		
-		for(int x = 0; x < itemIds.size(); x++)
-		{
+		for (int x = 0; x < itemIds.size(); x++) {
 			response.append("\n");
 			response.append(x + 1);
 			response.append(". ");
 			response.append(data.path(itemIds.get(x).toString()).path("name").asText());
 		}
-		
 		return response.toString();
 	}
 	
-	private static String extractParticipantName(JsonNode participant)
-	{
+	private static String extractParticipantName(JsonNode participant) {
 		String summonerName = participant.path("summonerName").asText();
-		
-		if(summonerName.isEmpty())
-		{
+		if (summonerName.isEmpty()) {
 			return participant.path("riotIdGameName").asText() + "#" + participant.path("riotIdTagline").asText();
 		}
-		
 		return summonerName;
 	}
 	
-	private static class HistoryStats
-	{
+	private static class HistoryStats {
 		private int wins;
 		private int kills = 0;
 		private int deaths = 0;
@@ -763,123 +728,94 @@ public class LeagueOfLegendsCommand
 		private long playtime = 0;
 		private long playtimeToday = 0;
 		
-		public int getWins()
-		{
+		public int getWins() {
 			return this.wins;
 		}
 		
-		public void addWin()
-		{
+		public void addWin() {
 			this.wins++;
 		}
 		
-		public int getKills()
-		{
+		public int getKills() {
 			return this.kills;
 		}
 		
-		public void addKills(int kills)
-		{
+		public void addKills(int kills) {
 			this.kills += kills;
 		}
 		
-		public int getDeaths()
-		{
+		public int getDeaths() {
 			return this.deaths;
 		}
 		
-		public void addDeaths(int deaths)
-		{
+		public void addDeaths(int deaths) {
 			this.deaths += deaths;
 		}
 		
-		public int getAssists()
-		{
+		public int getAssists() {
 			return this.assists;
 		}
 		
-		public void addAssists(int assists)
-		{
+		public void addAssists(int assists) {
 			this.assists += assists;
 		}
 		
-		public long getPlaytime()
-		{
+		public long getPlaytime() {
 			return this.playtime;
 		}
 		
-		public void addPlaytime(long playtime)
-		{
+		public void addPlaytime(long playtime) {
 			this.playtime += playtime;
 		}
 		
-		public long getPlaytimeToday()
-		{
+		public long getPlaytimeToday() {
 			return this.playtimeToday;
 		}
 		
-		public void addPlaytimeToday(long playtimeToday)
-		{
+		public void addPlaytimeToday(long playtimeToday) {
 			this.playtimeToday += playtimeToday;
 		}
 	}
 	
-	private static Throwable getRootThrowable(Throwable throwable)
-	{
+	private static Throwable getRootThrowable(Throwable throwable) {
 		Throwable result = throwable;
-		
-		while(result.getCause() != null)
-		{
+		while (result.getCause() != null) {
 			result = result.getCause();
 		}
-		
 		return result;
 	}
 	
-	private static <T> Supplier<T> wrapException(ThrowableSupplier<T> supplier)
-	{
-		return () ->
-		{
-			try
-			{
+	private static <T> Supplier<T> wrapException(ThrowableSupplier<T> supplier) {
+		return () -> {
+			try {
 				return supplier.get();
-			}
-			catch(Throwable e)
-			{
+			} catch (Throwable e) {
 				throw new RuntimeException(e);
 			}
 		};
 	}
 	
-	private static <T, R> Function<T, R> wrapException(ThrowableFunction<T, R> function)
-	{
-		return t ->
-		{
-			try
-			{
+	private static <T, R> Function<T, R> wrapException(ThrowableFunction<T, R> function) {
+		return t -> {
+			try {
 				return function.apply(t);
-			}
-			catch(Throwable e)
-			{
+			} catch (Throwable e) {
 				throw new RuntimeException(e);
 			}
 		};
 	}
 	
 	@FunctionalInterface
-	private interface ThrowableSupplier<T>
-	{
+	private interface ThrowableSupplier<T> {
 		T get() throws Throwable;
 	}
 	
 	@FunctionalInterface
-	private interface ThrowableFunction<T, R>
-	{
+	private interface ThrowableFunction<T, R> {
 		R apply(T t) throws Throwable;
 	}
 	
-	private enum BuildSelector
-	{
+	private enum BuildSelector {
 		MINE,
 		ENEMY,
 		ALLY;

@@ -18,109 +18,87 @@ import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
 
-public class DiscordBotClientAdapter extends DiscordClientAdapter implements IBotClient
-{
+public class DiscordBotClientAdapter extends DiscordClientAdapter implements IBotClient {
 	private final GatewayDiscordClient gatewayDiscordClient;
 	private boolean isSilent;
 	
-	public DiscordBotClientAdapter(GatewayDiscordClient gatewayDiscordClient)
-	{
+	public DiscordBotClientAdapter(GatewayDiscordClient gatewayDiscordClient) {
 		super(gatewayDiscordClient.getSelf().block());
 		this.gatewayDiscordClient = gatewayDiscordClient;
 	}
 	
 	@Override
-	public void sendPrivateMessage(IPrivateChannel channel, String message)
-	{
+	public void sendPrivateMessage(IPrivateChannel channel, String message) {
 		((DiscordPrivateChannelAdapter) channel).getChannel().createMessage(message).block();
 	}
 	
 	@Override
-	public void sendServerMessage(IServerChannel channel, String message)
-	{
+	public void sendServerMessage(IServerChannel channel, String message) {
 		((DiscordServerChannelAdapter) channel).getChannel().createMessage(message).block();
 	}
 	
 	@Override
-	public void sendChannelMessage(IMessageChannel channel, String message)
-	{
+	public void sendChannelMessage(IMessageChannel channel, String message) {
 		((DiscordMessageChannelAdapter) channel).getChannel().createMessage(message).block();
 	}
 	
 	@Override
-	public void sendConsoleMessage(IConsoleChannel channel, String message)
-	{
+	public void sendConsoleMessage(IConsoleChannel channel, String message) {
 		System.out.println(message);
 	}
 	
 	@Override
-	public void ban(IServer server, @Nullable String reason, Duration duration, IClient client)
-	{
+	public void ban(IServer server, @Nullable String reason, Duration duration, IClient client) {
 		Guild guild = ((DiscordServerAdapter) server).getGuild();
-		
-		if(reason == null)
-		{
+		if (reason == null) {
 			guild.ban(((DiscordClientAdapter) client).getClientId()).block();
-		}
-		else
-		{
+		} else {
 			guild.ban(((DiscordClientAdapter) client).getClientId()).withReason(reason).block();
 		}
 	}
 	
 	@Override
-	public void kick(IServer server, @Nullable String reason, IClient... clients)
-	{
+	public void kick(IServer server, @Nullable String reason, IClient... clients) {
 		Guild guild = ((DiscordServerAdapter) server).getGuild();
-		
-		if(reason == null)
-		{
-			for(IClient client : clients)
-			{
+		if (reason == null) {
+			for (IClient client : clients) {
 				guild.kick(((DiscordClientAdapter) client).getClientId());
 			}
-		}
-		else
-		{
-			for(IClient client : clients)
-			{
+		} else {
+			for (IClient client : clients) {
 				guild.kick(((DiscordClientAdapter) client).getClientId(), reason);
 			}
 		}
 	}
 	
 	@Override
-	public void move(IClient client, IChannel channel)
-	{
+	public void move(IClient client, IChannel channel) {
 		// NO-OP: clients cannot be moved in discord
 	}
 	
 	@Override
-	public void disconnect()
-	{
+	public void disconnect() {
 		this.gatewayDiscordClient.logout();
 	}
 	
 	@Override
-	public boolean isSilent()
-	{
+	public boolean isSilent() {
 		return this.isSilent;
 	}
 	
 	@Override
-	public void setSilent(boolean silent)
-	{
+	public void setSilent(boolean silent) {
 		this.isSilent = silent;
 	}
 	
 	@Override
-	public IPrivateChannel getPrivateChannel()
-	{
-		return new DiscordPrivateChannelAdapter(this.gatewayDiscordClient.getSelf().blockOptional().orElseThrow().getPrivateChannel().block());
+	public IPrivateChannel getPrivateChannel() {
+		return new DiscordPrivateChannelAdapter(
+			this.gatewayDiscordClient.getSelf().blockOptional().orElseThrow().getPrivateChannel().block()
+		);
 	}
 	
-	public GatewayDiscordClient getGatewayDiscordClient()
-	{
+	public GatewayDiscordClient getGatewayDiscordClient() {
 		return this.gatewayDiscordClient;
 	}
 }

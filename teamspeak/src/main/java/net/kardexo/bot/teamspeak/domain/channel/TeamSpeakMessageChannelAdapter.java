@@ -9,31 +9,26 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-public class TeamSpeakMessageChannelAdapter extends AbstractTeamSpeakChannelAdapter implements IMessageChannel
-{
+public class TeamSpeakMessageChannelAdapter extends AbstractTeamSpeakChannelAdapter implements IMessageChannel {
 	private final int channelId;
 	
-	public TeamSpeakMessageChannelAdapter(TS3Api api, int channelId)
-	{
+	public TeamSpeakMessageChannelAdapter(TS3Api api, int channelId) {
 		super(api);
 		this.channelId = channelId;
 	}
 	
 	@Override
-	public String getName()
-	{
+	public String getName() {
 		return this.api.getChannelInfo(this.channelId).getName();
 	}
 	
 	@Override
-	public String getId()
-	{
+	public String getId() {
 		return String.valueOf(this.channelId);
 	}
 	
 	@Override
-	public List<IClient> getClients()
-	{
+	public List<IClient> getClients() {
 		return this.api.getClients().stream()
 			.filter(client -> client.getChannelId() == this.channelId && client.isRegularClient())
 			.map(client -> new TeamSpeakClientAdapter(this.api, client.getId()))
@@ -41,25 +36,20 @@ public class TeamSpeakMessageChannelAdapter extends AbstractTeamSpeakChannelAdap
 	}
 	
 	@Override
-	public boolean isJoinable()
-	{
+	public boolean isJoinable() {
 		return true;
 	}
 	
 	@Override
-	public boolean equals(Object object)
-	{
-		if(!(object instanceof TeamSpeakMessageChannelAdapter other))
-		{
+	public boolean equals(Object object) {
+		if (!(object instanceof TeamSpeakMessageChannelAdapter other)) {
 			return false;
 		}
-		
 		return this.channelId == other.channelId;
 	}
 	
 	@Override
-	public int hashCode()
-	{
+	public int hashCode() {
 		return Objects.hash(this.api, this.channelId);
 	}
 }

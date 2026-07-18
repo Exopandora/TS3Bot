@@ -13,40 +13,31 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class UserConfigService implements IUserConfigService
-{
+public class UserConfigService implements IUserConfigService {
 	private static final Logger logger = LoggerFactory.getLogger(UserConfigService.class);
 	
 	private final ObjectMapper objectMapper;
 	private final Map<String, UserConfig> users;
 	private final File file;
 	
-	public UserConfigService(File file, ObjectMapper objectMapper) throws IOException
-	{
+	public UserConfigService(File file, ObjectMapper objectMapper) throws IOException {
 		this.file = file;
 		this.objectMapper = objectMapper;
 		this.users = Util.readJsonFile(this.file, this.objectMapper, new TypeReference<Map<String, UserConfig>>() {}, HashMap::new);
 	}
 	
 	@Override
-	public UserConfig getUserConfig(String user)
-	{
+	public UserConfig getUserConfig(String user) {
 		return this.users.getOrDefault(user, new UserConfig());
 	}
 	
 	@Override
-	public void saveUserConfig(String user, UserConfig config)
-	{
-		synchronized(this.users)
-		{
+	public void saveUserConfig(String user, UserConfig config) {
+		synchronized (this.users) {
 			this.users.put(user, config);
-			
-			try
-			{
+			try {
 				this.objectMapper.writeValue(this.file, this.users);
-			}
-			catch(Exception e)
-			{
+			} catch (Exception e) {
 				logger.error("Error saving user config", e);
 			}
 		}

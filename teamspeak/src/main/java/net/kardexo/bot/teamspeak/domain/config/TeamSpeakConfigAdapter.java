@@ -12,8 +12,7 @@ import java.io.IOException;
 import static net.kardexo.bot.domain.Util.OBJECT_MAPPER;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class TeamSpeakConfigAdapter extends Config
-{
+public class TeamSpeakConfigAdapter extends Config {
 	@JsonProperty("host_address")
 	private String hostAddress;
 	@JsonProperty("login_name")
@@ -25,49 +24,39 @@ public class TeamSpeakConfigAdapter extends Config
 	@JsonProperty("protocol")
 	private TS3Query.Protocol protocol;
 	
-	public TeamSpeakConfigAdapter()
-	{
+	public TeamSpeakConfigAdapter() {
 		super();
 	}
 	
-	public String getHostAddress()
-	{
+	public String getHostAddress() {
 		return this.hostAddress;
 	}
 	
-	public String getLoginName()
-	{
+	public String getLoginName() {
 		return this.loginName;
 	}
 	
-	public String getLoginPassword()
-	{
+	public String getLoginPassword() {
 		return this.loginPassword;
 	}
 	
-	public String getChannelName()
-	{
+	public String getChannelName() {
 		return this.channelName;
 	}
 	
-	public @NotNull TS3Query.Protocol getProtocol()
-	{
-		if(this.protocol == null)
-		{
+	public @NotNull TS3Query.Protocol getProtocol() {
+		if (this.protocol == null) {
 			return TS3Query.Protocol.RAW;
 		}
-		
 		return this.protocol;
 	}
 	
 	@Override
-	public void reload(File configFile) throws IOException
-	{
+	public void reload(File configFile) throws IOException {
 		OBJECT_MAPPER.readerForUpdating(this).readValue(configFile);
 	}
 	
-	public static TeamSpeakConfigAdapter of(File configFile) throws IOException
-	{
+	public static TeamSpeakConfigAdapter of(File configFile) throws IOException {
 		return OBJECT_MAPPER.readValue(configFile, TeamSpeakConfigAdapter.class);
 	}
 }

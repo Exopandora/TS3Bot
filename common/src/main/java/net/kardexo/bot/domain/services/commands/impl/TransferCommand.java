@@ -13,25 +13,33 @@ import net.kardexo.bot.domain.commands.CommandSource;
 import net.kardexo.bot.domain.commands.arguments.ClientArgumentType;
 import net.kardexo.bot.domain.services.commands.Commands;
 
-public class TransferCommand
-{
-	private static final DynamicCommandExceptionType NOT_ENOUGH_COINS = new DynamicCommandExceptionType(currency -> new LiteralMessage("You do not have enough " + currency));
+public class TransferCommand {
+	private static final DynamicCommandExceptionType NOT_ENOUGH_COINS =
+		new DynamicCommandExceptionType(currency -> new LiteralMessage("You do not have enough " + currency));
 	
-	public static void register(CommandDispatcher<CommandSource> dispatcher, IBotClient bot, IEconomyService economyService)
-	{
+	public static void register(CommandDispatcher<CommandSource> dispatcher, IBotClient bot, IEconomyService economyService) {
 		dispatcher.register(Commands.literal("transfer")
 			.then(Commands.argument("amount", IntegerArgumentType.integer(0))
 				.then(Commands.argument("beneficiary", ClientArgumentType.client(bot))
-					.executes(context -> transfer(context, economyService, IntegerArgumentType.getInteger(context, "amount"), ClientArgumentType.getClient(context, "beneficiary"))))));
+					.executes(context ->
+						transfer(
+							context,
+							economyService,
+							IntegerArgumentType.getInteger(context, "amount"),
+							ClientArgumentType.getClient(context, "beneficiary")
+						)
+					))));
 	}
 	
-	private static int transfer(CommandContext<CommandSource> context, IEconomyService economyService, int amount, IClient beneficiary) throws CommandSyntaxException
-	{
-		if(!economyService.transfer(context.getSource().getClient().getId(), beneficiary.getId(), amount))
-		{
+	private static int transfer(
+		CommandContext<CommandSource> context,
+		IEconomyService economyService,
+		int amount,
+		IClient beneficiary
+	) throws CommandSyntaxException {
+		if (!economyService.transfer(context.getSource().getClient().getId(), beneficiary.getId(), amount)) {
 			throw NOT_ENOUGH_COINS.create(economyService.getCurrency());
 		}
-		
 		context.getSource().sendFeedback("You transferred " + amount + economyService.getCurrency() + " to " + beneficiary.getName());
 		return amount;
 	}

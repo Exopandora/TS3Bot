@@ -15,30 +15,25 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
-public class DiscordServerAdapter implements IServer
-{
+public class DiscordServerAdapter implements IServer {
 	private final Guild guild;
 	
-	public DiscordServerAdapter(Guild guild)
-	{
+	public DiscordServerAdapter(Guild guild) {
 		this.guild = guild;
 	}
 	
 	@Override
-	public String getId()
-	{
+	public String getId() {
 		return this.guild.getId().asString();
 	}
 	
 	@Override
-	public String getName()
-	{
+	public String getName() {
 		return this.guild.getName();
 	}
 	
 	@Override
-	public Optional<IChannel> findChannelByName(String name)
-	{
+	public Optional<IChannel> findChannelByName(String name) {
 		GuildChannel guildChannel = this.guild.getChannels()
 			.filter(channel -> channel.getName().equals(name))
 			.blockFirst();
@@ -48,8 +43,7 @@ public class DiscordServerAdapter implements IServer
 	}
 	
 	@Override
-	public Optional<IChannel> findChannelById(String id)
-	{
+	public Optional<IChannel> findChannelById(String id) {
 		return this.guild.getChannelById(Snowflake.of(id))
 			.map(AbstractDiscordChannelAdapter::of)
 			.blockOptional()
@@ -57,14 +51,12 @@ public class DiscordServerAdapter implements IServer
 	}
 	
 	@Override
-	public List<IClient> getClients()
-	{
+	public List<IClient> getClients() {
 		return this.guild.getMembers().<IClient>map(DiscordClientAdapter::new).collectList().block();
 	}
 	
 	@Override
-	public List<IChannel> getChannels()
-	{
+	public List<IChannel> getChannels() {
 		return this.guild.getChannels().map(AbstractDiscordChannelAdapter::of)
 			.filter(Optional::isPresent)
 			.map(Optional::get)
@@ -73,13 +65,11 @@ public class DiscordServerAdapter implements IServer
 	}
 	
 	@Override
-	public IServerChannel getServerChannel()
-	{
+	public IServerChannel getServerChannel() {
 		return new DiscordServerChannelAdapter(this.guild.getPublicUpdatesChannel().block());
 	}
 	
-	public Guild getGuild()
-	{
+	public Guild getGuild() {
 		return this.guild;
 	}
 }

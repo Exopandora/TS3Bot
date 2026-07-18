@@ -10,29 +10,24 @@ import java.io.IOException;
 import static net.kardexo.bot.domain.Util.OBJECT_MAPPER;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class DiscordConfigAdapter extends Config
-{
+public class DiscordConfigAdapter extends Config {
 	@JsonProperty("token")
 	private String token;
 	
-	public DiscordConfigAdapter()
-	{
+	public DiscordConfigAdapter() {
 		super();
 	}
 	
-	public String getToken()
-	{
+	public String getToken() {
 		return this.token;
 	}
 	
 	@Override
-	public void reload(File configFile) throws IOException
-	{
+	public void reload(File configFile) throws IOException {
 		OBJECT_MAPPER.readerForUpdating(this).readValue(configFile);
 	}
 	
-	public static DiscordConfigAdapter of(File configFile) throws IOException
-	{
+	public static DiscordConfigAdapter of(File configFile) throws IOException {
 		return OBJECT_MAPPER.readValue(configFile, DiscordConfigAdapter.class);
 	}
 }

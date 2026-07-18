@@ -1,49 +1,35 @@
 package net.kardexo.bot.domain.chat;
 
-public class FormattedStringBuilder
-{
+public class FormattedStringBuilder {
 	private final StringBuilder builder;
 	
-	public FormattedStringBuilder()
-	{
+	public FormattedStringBuilder() {
 		this.builder = new StringBuilder();
 	}
 	
-	public FormattedStringBuilder append(Object object)
-	{
+	public FormattedStringBuilder append(Object object) {
 		return this.append(object.toString());
 	}
 	
-	public FormattedStringBuilder append(String string)
-	{
+	public FormattedStringBuilder append(String string) {
 		this.builder.append(string);
 		return this;
 	}
 	
-	public FormattedStringBuilder append(Object object, IStyle... styles)
-	{
+	public FormattedStringBuilder append(Object object, IStyle... styles) {
 		return this.append(object.toString(), styles);
 	}
 	
-	public FormattedStringBuilder append(String string, IStyle... styles)
-	{
-		if(styles.length == 0)
-		{
+	public FormattedStringBuilder append(String string, IStyle... styles) {
+		if (styles.length == 0) {
 			this.builder.append(string);
-		}
-		else if(styles.length == 1)
-		{
+		} else if (styles.length == 1) {
 			styles[0].apply(this.builder, string);
-		}
-		else
-		{
+		} else {
 			String styled = string;
-			
-			for(IStyle style : styles)
-			{
+			for (IStyle style : styles) {
 				styled = style.apply(styled);
 			}
-			
 			this.builder.append(styled);
 		}
 		
@@ -51,8 +37,7 @@ public class FormattedStringBuilder
 	}
 	
 	@Override
-	public String toString()
-	{
+	public String toString() {
 		return this.builder.toString();
 	}
 }

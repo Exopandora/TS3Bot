@@ -11,10 +11,13 @@ import net.kardexo.bot.domain.commands.CommandSource;
 import net.kardexo.bot.domain.commands.arguments.ClientArgumentType;
 import net.kardexo.bot.domain.services.commands.Commands;
 
-public class BalanceCommand
-{
-	public static void register(CommandDispatcher<CommandSource> dispatcher, IBotClient bot, IPermissionService permissionService, IEconomyService economyService)
-	{
+public class BalanceCommand {
+	public static void register(
+		CommandDispatcher<CommandSource> dispatcher,
+		IBotClient bot,
+		IPermissionService permissionService,
+		IEconomyService economyService
+	) {
 		dispatcher.register(Commands.literal("balance")
 			.executes(context -> balance(context, economyService))
 			.then(Commands.literal("set")
@@ -22,37 +25,35 @@ public class BalanceCommand
 				.then(Commands.argument("value", IntegerArgumentType.integer(0))
 					.executes(context -> set(context, economyService, IntegerArgumentType.getInteger(context, "value")))
 					.then(Commands.argument("username", ClientArgumentType.client(bot))
-						.executes(context -> set(context, economyService, IntegerArgumentType.getInteger(context, "value"), ClientArgumentType.getClient(context, "username"))))))
+						.executes(context ->
+							set(context, economyService, IntegerArgumentType.getInteger(context, "value"), ClientArgumentType.getClient(context, "username"))
+						))))
 			.then(Commands.argument("username", ClientArgumentType.client(bot))
 				.executes(context -> balance(context, economyService, ClientArgumentType.getClient(context, "username")))));
 	}
 	
-	private static int set(CommandContext<CommandSource> context, IEconomyService economyService, int value)
-	{
+	private static int set(CommandContext<CommandSource> context, IEconomyService economyService, int value) {
 		IClient client = context.getSource().getClient();
 		economyService.set(client.getId(), value);
 		context.getSource().sendFeedback("Set balance of " + client.getName() + " to " + value + economyService.getCurrency());
 		return value;
 	}
 	
-	private static int set(CommandContext<CommandSource> context, IEconomyService economyService, int value, IClient target)
-	{
+	private static int set(CommandContext<CommandSource> context, IEconomyService economyService, int value, IClient target) {
 		String uuid = target.getId();
 		economyService.set(uuid, value);
 		context.getSource().sendFeedback("Set balance of " + target.getName() + " to " + value + economyService.getCurrency());
 		return value;
 	}
 	
-	private static int balance(CommandContext<CommandSource> context, IEconomyService economyService)
-	{
+	private static int balance(CommandContext<CommandSource> context, IEconomyService economyService) {
 		IClient client = context.getSource().getClient();
 		long coins = economyService.get(client.getId());
 		context.getSource().sendFeedback(client.getName() + " has " + coins + economyService.getCurrency());
 		return (int) coins;
 	}
 	
-	private static int balance(CommandContext<CommandSource> context, IEconomyService economyService, IClient client)
-	{
+	private static int balance(CommandContext<CommandSource> context, IEconomyService economyService, IClient client) {
 		long coins = economyService.get(client.getId());
 		context.getSource().sendFeedback(client.getName() + " has " + coins + economyService.getCurrency());
 		return (int) coins;

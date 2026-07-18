@@ -13,13 +13,12 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class DiscordChannelArgumentType implements ArgumentType<IChannel>
-{
-	private static final DynamicCommandExceptionType CHANNEL_NOT_FOUND = new DynamicCommandExceptionType(id -> new LiteralMessage("Could not find channel <#" + id + ">"));
+public class DiscordChannelArgumentType implements ArgumentType<IChannel> {
+	private static final DynamicCommandExceptionType CHANNEL_NOT_FOUND =
+		new DynamicCommandExceptionType(id -> new LiteralMessage("Could not find channel <#" + id + ">"));
 	
 	@Override
-	public IChannel parse(StringReader reader) throws CommandSyntaxException
-	{
+	public IChannel parse(StringReader reader) throws CommandSyntaxException {
 		reader.expect('<');
 		reader.expect('@');
 		long id = reader.readLong();
@@ -27,54 +26,42 @@ public class DiscordChannelArgumentType implements ArgumentType<IChannel>
 		return new DiscordChannelParseResult(id);
 	}
 	
-	public static DiscordChannelArgumentType channel()
-	{
+	public static DiscordChannelArgumentType channel() {
 		return new DiscordChannelArgumentType();
 	}
 	
-	record DiscordChannelParseResult(long id) implements IChannel
-	{
+	record DiscordChannelParseResult(long id) implements IChannel {
 		@Override
-		public String getName()
-		{
+		public String getName() {
 			throw new RuntimeException("Channel must be resolved before accessing name");
 		}
 		
 		@Override
-		public String getId()
-		{
+		public String getId() {
 			return String.valueOf(this.id);
 		}
 		
 		@Override
-		public List<IClient> getClients()
-		{
+		public List<IClient> getClients() {
 			throw new RuntimeException("Channel must be resolved before accessing clients");
 		}
 		
 		@Override
-		public @Nullable IServer getServer()
-		{
+		public @Nullable IServer getServer() {
 			return null;
 		}
 		
 		@Override
-		public boolean isJoinable()
-		{
+		public boolean isJoinable() {
 			return false;
 		}
 		
-		public IChannel resolve(CommandSource context) throws CommandSyntaxException
-		{
+		public IChannel resolve(CommandSource context) throws CommandSyntaxException {
 			IServer server = context.getChannel().getServer();
-			
-			if(server == null)
-			{
+			if (server == null) {
 				throw CHANNEL_NOT_FOUND.create(this.id);
 			}
-			
 			String id = String.valueOf(this.id);
-			
 			return server.getChannels().stream()
 				.filter(channel -> channel.getId().equals(id))
 				.findFirst()

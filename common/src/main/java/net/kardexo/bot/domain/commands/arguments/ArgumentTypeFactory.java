@@ -10,8 +10,7 @@ import net.kardexo.bot.domain.commands.CommandSource;
 
 import java.util.ServiceLoader;
 
-public interface ArgumentTypeFactory
-{
+public interface ArgumentTypeFactory {
 	ArgumentTypeFactory INSTANCE = ServiceLoader.load(ArgumentTypeFactory.class).findFirst().orElseThrow();
 	
 	ArgumentType<IChannel> createChannelArgumentType(IBotClient bot);

@@ -1,7 +1,6 @@
 package net.kardexo.bot.output.services.lol;
 
-public enum Tier
-{
+public enum Tier {
 	IRON("Iron", false),
 	BRONZE("Bronze", false),
 	SILVER("Silver", false),
@@ -20,29 +19,24 @@ public enum Tier
 	private final String name;
 	private final boolean isApexTier;
 	
-	private Tier(String name, boolean isApexTier)
-	{
+	Tier(String name, boolean isApexTier) {
 		this.name = name;
 		this.isApexTier = isApexTier;
 	}
 	
-	public String getName()
-	{
+	public String getName() {
 		return this.name;
 	}
 	
-	public boolean isApexTier()
-	{
+	public boolean isApexTier() {
 		return this.isApexTier;
 	}
 	
-	public int rating(Rank rank)
-	{
+	public int rating(Rank rank) {
 		return (this.ordinal() > 0 ? VALUES[this.ordinal() - 1].rating(Rank.I) : 0) + (this.isApexTier ? 1 : rank.getRating());
 	}
 	
-	public Tier next()
-	{
+	public Tier next() {
 		return VALUES[(this.ordinal() + 1) % VALUES.length];
 	}
 }

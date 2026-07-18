@@ -7,16 +7,14 @@ import net.kardexo.bot.domain.client.IClient;
 
 import java.util.Random;
 
-public class CommandSource
-{
+public class CommandSource {
 	private final IBotClient bot;
 	private final IChannel channel;
 	private final IClient client;
 	private final Random random;
 	private final ChatHistory chatHistory;
 	
-	public CommandSource(IBotClient bot, IChannel channel, IClient client, ChatHistory chatHistory, Random random)
-	{
+	public CommandSource(IBotClient bot, IChannel channel, IClient client, ChatHistory chatHistory, Random random) {
 		this.bot = bot;
 		this.channel = channel;
 		this.client = client;
@@ -24,38 +22,31 @@ public class CommandSource
 		this.random = random;
 	}
 	
-	public void sendFeedback(String message)
-	{
+	public void sendFeedback(String message) {
 		this.bot.sendMessage(this.channel, message);
 	}
 	
-	public void sendPrivateMessage(String message)
-	{
+	public void sendPrivateMessage(String message) {
 		this.bot.sendPrivateMessage(this.client.getPrivateChannel(), message);
 	}
 	
-	public IBotClient getBot()
-	{
+	public IBotClient getBot() {
 		return this.bot;
 	}
 	
-	public IChannel getChannel()
-	{
+	public IChannel getChannel() {
 		return this.channel;
 	}
 	
-	public IClient getClient()
-	{
+	public IClient getClient() {
 		return this.client;
 	}
 	
-	public ChatHistory getChatHistory()
-	{
+	public ChatHistory getChatHistory() {
 		return this.chatHistory;
 	}
 	
-	public Random getRandomSource()
-	{
+	public Random getRandomSource() {
 		return this.random;
 	}
 }

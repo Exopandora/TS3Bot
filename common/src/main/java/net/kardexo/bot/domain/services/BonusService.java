@@ -16,8 +16,7 @@ import java.util.TimerTask;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-public class BonusService implements IBonusService
-{
+public class BonusService implements IBonusService {
 	private static final Logger logger = LoggerFactory.getLogger(BonusService.class);
 	
 	private final ObjectMapper objectMapper;
@@ -25,8 +24,7 @@ public class BonusService implements IBonusService
 	private final Consumer<String> reward;
 	private final File file;
 	
-	public BonusService(File file, ObjectMapper objectMapper, Consumer<String> reward) throws IOException
-	{
+	public BonusService(File file, ObjectMapper objectMapper, Consumer<String> reward) throws IOException {
 		this.file = file;
 		this.objectMapper = objectMapper;
 		this.claimed = Util.readJsonFile(this.file, this.objectMapper, new TypeReference<Set<String>>() {}, HashSet::new);
@@ -34,83 +32,61 @@ public class BonusService implements IBonusService
 	}
 	
 	@Override
-	public void reset()
-	{
-		synchronized(this.claimed)
-		{
+	public void reset() {
+		synchronized (this.claimed) {
 			this.claimed.clear();
 			this.save();
 		}
 	}
 	
 	@Override
-	public boolean claim(String user)
-	{
-		synchronized(this.claimed)
-		{
-			if(this.hasClaimed(user))
-			{
+	public boolean claim(String user) {
+		synchronized (this.claimed) {
+			if (this.hasClaimed(user)) {
 				return false;
 			}
-			
 			this.claimed.add(user);
 			this.reward.accept(user);
 			this.save();
-			
 			return true;
 		}
 	}
 	
 	@Override
-	public boolean hasClaimed(String user)
-	{
-		synchronized(this.claimed)
-		{
+	public boolean hasClaimed(String user) {
+		synchronized (this.claimed) {
 			return this.claimed.contains(user);
 		}
 	}
 	
 	@Override
-	public void claim(Collection<String> users)
-	{
-		synchronized(this.claimed)
-		{
-			for(String user : users)
-			{
-				if(!this.hasClaimed(user))
-				{
+	public void claim(Collection<String> users) {
+		synchronized (this.claimed) {
+			for (String user : users) {
+				if (!this.hasClaimed(user)) {
 					this.claimed.add(user);
 					this.reward.accept(user);
 				}
 			}
-			
 			this.save();
 		}
 	}
 	
-	private void save()
-	{
-		synchronized(this.claimed)
-		{
-			try
-			{
+	private void save() {
+		synchronized (this.claimed) {
+			try {
 				this.objectMapper.writeValue(this.file, this.claimed);
-			}
-			catch(Exception e)
-			{
+			} catch (Exception e) {
 				logger.error("Error saving bonus claims", e);
 			}
 		}
 	}
 	
 	@Override
-	public TimerTask createTimerTask(Supplier<Collection<String>> users)
-	{
-		return new TimerTask()
-		{
+	public TimerTask createTimerTask(Supplier<Collection<String>> users) {
+		return new TimerTask() {
 			@Override
-			public void run()
-			{
+			public void run() {
 				BonusService.this.reset();
 				BonusService.this.claim(users.get());
 			}

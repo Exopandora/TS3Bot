@@ -10,11 +10,9 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class LeagueOfLegendsCommandTest
-{
+class LeagueOfLegendsCommandTest {
 	@Test
-	void testRiotIdParsing()
-	{
+	void testRiotIdParsing() {
 		assertEquals(new RiotId("abc", "ABC"), RiotId.parse("abc#ABC", Platform.EUW));
 		assertEquals(new RiotId("abc", "FIVE5"), RiotId.parse("abc#FIVE5", Platform.EUW));
 		assertEquals(new RiotId("abc#SIX666", "EUW"), RiotId.parse("abc#SIX666", Platform.EUW));
@@ -26,8 +24,7 @@ class LeagueOfLegendsCommandTest
 	}
 	
 	@Test
-	void testLeagueToRating()
-	{
+	void testLeagueToRating() {
 		assertEquals(1, Tier.IRON.rating(Rank.IV));
 		assertEquals(2, Tier.IRON.rating(Rank.III));
 		assertEquals(3, Tier.IRON.rating(Rank.II));
@@ -62,8 +59,7 @@ class LeagueOfLegendsCommandTest
 	}
 	
 	@Test
-	void testRatingToLeague()
-	{
+	void testRatingToLeague() {
 		assertLeague(LeagueOfLegendsCommand.ratingToLeague(1).get(), Tier.IRON, Rank.IV);
 		assertLeague(LeagueOfLegendsCommand.ratingToLeague(2).get(), Tier.IRON, Rank.III);
 		assertLeague(LeagueOfLegendsCommand.ratingToLeague(3).get(), Tier.IRON, Rank.II);
@@ -97,8 +93,7 @@ class LeagueOfLegendsCommandTest
 		assertLeague(LeagueOfLegendsCommand.ratingToLeague(31).get(), Tier.CHALLENGER, null);
 	}
 	
-	private static void assertLeague(League actualLeague, Tier expectedTier, Rank expectedRank)
-	{
+	private static void assertLeague(League actualLeague, Tier expectedTier, Rank expectedRank) {
 		assertEquals(expectedTier, actualLeague.getTier());
 		assertEquals(expectedRank, actualLeague.getRank());
 	}

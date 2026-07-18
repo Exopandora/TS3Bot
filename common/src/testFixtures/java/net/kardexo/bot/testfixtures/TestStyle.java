@@ -4,8 +4,7 @@ import net.kardexo.bot.domain.chat.IStyle;
 
 import java.util.Objects;
 
-public class TestStyle implements IStyle
-{
+public class TestStyle implements IStyle {
 	protected static final TestStyle BOLD = new TestStyle("bold");
 	protected static final TestStyle UNDERLINED = new TestStyle("underlined");
 	protected static final TestStyle ITALIC = new TestStyle("italic");
@@ -13,14 +12,12 @@ public class TestStyle implements IStyle
 	
 	private final String code;
 	
-	protected TestStyle(String code)
-	{
+	protected TestStyle(String code) {
 		this.code = code;
 	}
 	
 	@Override
-	public StringBuilder apply(StringBuilder builder, String string)
-	{
+	public StringBuilder apply(StringBuilder builder, String string) {
 		builder.append("<");
 		builder.append(this.code);
 		builder.append(">");
@@ -32,10 +29,8 @@ public class TestStyle implements IStyle
 	}
 	
 	@Override
-	public boolean equals(Object object)
-	{
-		if(!(object instanceof TestStyle testStyle))
-		{
+	public boolean equals(Object object) {
+		if (!(object instanceof TestStyle testStyle)) {
 			return false;
 		}
 		
@@ -43,8 +38,7 @@ public class TestStyle implements IStyle
 	}
 	
 	@Override
-	public int hashCode()
-	{
+	public int hashCode() {
 		return Objects.hash(this.code);
 	}
 }

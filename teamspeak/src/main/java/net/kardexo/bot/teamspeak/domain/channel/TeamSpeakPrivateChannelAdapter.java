@@ -9,53 +9,43 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-public class TeamSpeakPrivateChannelAdapter extends AbstractTeamSpeakChannelAdapter implements IPrivateChannel
-{
+public class TeamSpeakPrivateChannelAdapter extends AbstractTeamSpeakChannelAdapter implements IPrivateChannel {
 	private final int clientId;
 	
-	public TeamSpeakPrivateChannelAdapter(TS3Api api, int clientId)
-	{
+	public TeamSpeakPrivateChannelAdapter(TS3Api api, int clientId) {
 		super(api);
 		this.clientId = clientId;
 	}
 	
 	@Override
-	public String getName()
-	{
+	public String getName() {
 		return this.api.getChannelInfo(this.clientId).getName();
 	}
 	
 	@Override
-	public String getId()
-	{
+	public String getId() {
 		return String.valueOf(this.clientId);
 	}
 	
 	@Override
-	public List<IClient> getClients()
-	{
+	public List<IClient> getClients() {
 		return Collections.singletonList(new TeamSpeakClientAdapter(this.api, this.clientId));
 	}
 	
-	public int getClientId()
-	{
+	public int getClientId() {
 		return this.clientId;
 	}
 	
 	@Override
-	public boolean equals(Object object)
-	{
-		if(!(object instanceof TeamSpeakPrivateChannelAdapter that))
-		{
+	public boolean equals(Object object) {
+		if (!(object instanceof TeamSpeakPrivateChannelAdapter that)) {
 			return false;
 		}
-		
 		return this.clientId == that.clientId;
 	}
 	
 	@Override
-	public int hashCode()
-	{
+	public int hashCode() {
 		return Objects.hash(this.api, this.clientId);
 	}
 }

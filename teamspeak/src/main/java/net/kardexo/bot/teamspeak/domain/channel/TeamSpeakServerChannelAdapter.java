@@ -7,28 +7,23 @@ import net.kardexo.bot.domain.client.IClient;
 import java.util.Collections;
 import java.util.List;
 
-public class TeamSpeakServerChannelAdapter extends AbstractTeamSpeakChannelAdapter implements IServerChannel
-{
-	public TeamSpeakServerChannelAdapter(TS3Api api)
-	{
+public class TeamSpeakServerChannelAdapter extends AbstractTeamSpeakChannelAdapter implements IServerChannel {
+	public TeamSpeakServerChannelAdapter(TS3Api api) {
 		super(api);
 	}
 	
 	@Override
-	public String getName()
-	{
+	public String getName() {
 		return this.api.getServerInfo().getName();
 	}
 	
 	@Override
-	public String getId()
-	{
+	public String getId() {
 		return "-1";
 	}
 	
 	@Override
-	public List<IClient> getClients()
-	{
+	public List<IClient> getClients() {
 		return Collections.emptyList();
 	}
 }

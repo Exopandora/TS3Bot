@@ -8,48 +8,41 @@ import net.kardexo.bot.domain.client.IClient;
 import java.util.Collections;
 import java.util.List;
 
-public class TeamSpeakConsoleChannelAdapter extends AbstractTeamSpeakChannelAdapter implements IConsoleChannel
-{
+public class TeamSpeakConsoleChannelAdapter extends AbstractTeamSpeakChannelAdapter implements IConsoleChannel {
 	private final int clientId;
 	
-	public TeamSpeakConsoleChannelAdapter(TS3Api api, int clientId)
-	{
+	public TeamSpeakConsoleChannelAdapter(TS3Api api, int clientId) {
 		super(api);
 		this.clientId = clientId;
 	}
 	
 	@Override
-	public String getId()
-	{
+	public String getId() {
 		return "-1";
 	}
 	
 	@Override
-	public List<IClient> getClients()
-	{
+	public List<IClient> getClients() {
 		return Collections.emptyList();
 	}
 	
 	@Override
-	public List<IChannel> getBroadcastChannels()
-	{
-		return Collections.singletonList(new TeamSpeakMessageChannelAdapter(this.api, this.api.getClientInfo(this.clientId).getChannelId()));
+	public List<IChannel> getBroadcastChannels() {
+		return Collections.singletonList(
+			new TeamSpeakMessageChannelAdapter(this.api, this.api.getClientInfo(this.clientId).getChannelId())
+		);
 	}
 	
 	@Override
-	public boolean equals(Object object)
-	{
-		if(!(object instanceof TeamSpeakConsoleChannelAdapter that))
-		{
+	public boolean equals(Object object) {
+		if (!(object instanceof TeamSpeakConsoleChannelAdapter that)) {
 			return false;
 		}
-		
 		return this.getId().equals(that.getId());
 	}
 	
 	@Override
-	public int hashCode()
-	{
+	public int hashCode() {
 		return this.getId().hashCode();
 	}
 }

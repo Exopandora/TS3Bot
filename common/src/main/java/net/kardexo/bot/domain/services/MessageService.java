@@ -21,13 +21,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class MessageService implements IMessageService
-{
+public class MessageService implements IMessageService {
 	private final List<IMessageProcessor> messageProcessors = new ArrayList<IMessageProcessor>();
 	private final IBotClient bot;
 	
-	public MessageService
-	(
+	public MessageService(
 		IBotClient bot,
 		IConfigService<? extends Config> configService,
 		IAPIKeyService apiKeyService,
@@ -35,12 +33,10 @@ public class MessageService implements IMessageService
 		IEconomyService economyService,
 		IUserConfigService userConfigService,
 		Random random
-	)
-	{
+	) {
 		this.bot = bot;
 		URLMessageProcessor urlMessageProcessor = new URLMessageProcessor(apiKeyService);
-		CommandMessageProcessor commandMessageProcessor = new CommandMessageProcessor
-		(
+		CommandMessageProcessor commandMessageProcessor = new CommandMessageProcessor(
 			bot,
 			configService,
 			apiKeyService,
@@ -51,31 +47,32 @@ public class MessageService implements IMessageService
 			random
 		);
 		this.messageProcessors.add(commandMessageProcessor);
-		IMessageProcessorRegistrar.INSTANCE.forEach(registrar ->
-		{
-			registrar.register(this.messageProcessors, bot, configService, apiKeyService, permissionService, economyService, userConfigService, urlMessageProcessor, random);
-		});
+		for (IMessageProcessorRegistrar registrar : IMessageProcessorRegistrar.INSTANCE) {
+			registrar.register(
+				this.messageProcessors,
+				bot,
+				configService,
+				apiKeyService,
+				permissionService,
+				economyService,
+				userConfigService,
+				urlMessageProcessor,
+				random
+			);
+		}
 	}
 	
 	@Override
-	public void onMessage(IChannel channel, IClient client, String message, ChatHistory chatHistory)
-	{
-		if(this.bot.equals(client) && !(channel instanceof IConsoleChannel))
-		{
+	public void onMessage(IChannel channel, IClient client, String message, ChatHistory chatHistory) {
+		if (this.bot.equals(client) && !(channel instanceof IConsoleChannel)) {
 			return;
 		}
-		
 		String msg = message.strip();
-		
-		if(msg.isEmpty())
-		{
+		if (msg.isEmpty()) {
 			return;
 		}
-		
-		for(IMessageProcessor processor : this.messageProcessors)
-		{
-			if(processor.isApplicable(this.bot, channel, client, msg, chatHistory))
-			{
+		for (IMessageProcessor processor : this.messageProcessors) {
+			if (processor.isApplicable(this.bot, channel, client, msg, chatHistory)) {
 				processor.process(this.bot, channel, client, msg, chatHistory);
 			}
 		}

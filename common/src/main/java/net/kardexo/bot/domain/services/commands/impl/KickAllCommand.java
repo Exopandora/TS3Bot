@@ -11,19 +11,18 @@ import net.kardexo.bot.domain.server.IServer;
 import net.kardexo.bot.domain.services.commands.Commands;
 import org.jetbrains.annotations.Nullable;
 
-public class KickAllCommand
-{
-	public static void register(CommandDispatcher<CommandSource> dispatcher, IPermissionService permissionService)
-	{
+public class KickAllCommand {
+	public static void register(CommandDispatcher<CommandSource> dispatcher, IPermissionService permissionService) {
 		dispatcher.register(Commands.literal("kickall")
-			.requires(source -> source.getChannel().getServer() != null && permissionService.hasPermission(source.getClient(), "admin"))
+			.requires(source ->
+				source.getChannel().getServer() != null && permissionService.hasPermission(source.getClient(), "admin")
+			)
 			.executes(context -> kick(context, null))
 			.then(Commands.argument("reason", StringArgumentType.greedyString())
 				.executes(context -> kick(context, StringArgumentType.getString(context, "reason")))));
 	}
 	
-	private static int kick(CommandContext<CommandSource> context, @Nullable String reason)
-	{
+	private static int kick(CommandContext<CommandSource> context, @Nullable String reason) {
 		IBotClient bot = context.getSource().getBot();
 		IServer server = context.getSource().getChannel().getServer();
 		assert server != null;

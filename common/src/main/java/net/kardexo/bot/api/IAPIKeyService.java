@@ -1,7 +1,6 @@
 package net.kardexo.bot.api;
 
-public interface IAPIKeyService
-{
+public interface IAPIKeyService {
 	String API_KEY_WATCH_2_GETHER = "watch_2_gether";
 	String API_KEY_TWITCH = "twitch";
 	String API_KEY_YOUTUBE = "youtube";

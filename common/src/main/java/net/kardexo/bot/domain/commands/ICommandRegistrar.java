@@ -12,12 +12,10 @@ import net.kardexo.bot.domain.config.Config;
 
 import java.util.ServiceLoader;
 
-public interface ICommandRegistrar
-{
+public interface ICommandRegistrar {
 	ServiceLoader<ICommandRegistrar> INSTANCE = ServiceLoader.load(ICommandRegistrar.class);
 	
-	void register
-	(
+	void register(
 		CommandDispatcher<CommandSource> dispatcher,
 		IBotClient bot,
 		IConfigService<? extends Config> configService,

@@ -11,11 +11,9 @@ import net.kardexo.bot.output.services.url.YouTubeURLProcessor;
 
 import java.util.List;
 
-public class URLProcessors implements IURLProcessorRegistrar
-{
+public class URLProcessors implements IURLProcessorRegistrar {
 	@Override
-	public void register(List<IURLProcessor> registrar, IAPIKeyService apiKeyService)
-	{
+	public void register(List<IURLProcessor> registrar, IAPIKeyService apiKeyService) {
 		registrar.add(new SteamURLProcessor(apiKeyService));
 		registrar.add(new TwitchURLProcessor(apiKeyService));
 		registrar.add(new YouTubeURLProcessor(apiKeyService));

@@ -12,20 +12,18 @@ import net.kardexo.bot.teamspeak.domain.client.TeamSpeakBotClientAdapter;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Comparator;
 
-public class TeamSpeakChannelArgumentType implements ArgumentType<IChannel>
-{
-	private static final DynamicCommandExceptionType CHANNEL_NOT_FOUND = new DynamicCommandExceptionType(channel -> new LiteralMessage("Could not find channel " + channel));
+public class TeamSpeakChannelArgumentType implements ArgumentType<IChannel> {
+	private static final DynamicCommandExceptionType CHANNEL_NOT_FOUND =
+		new DynamicCommandExceptionType(channel -> new LiteralMessage("Could not find channel " + channel));
 	
 	private final IBotClient bot;
 	
-	private TeamSpeakChannelArgumentType(IBotClient bot)
-	{
+	private TeamSpeakChannelArgumentType(IBotClient bot) {
 		this.bot = bot;
 	}
 	
 	@Override
-	public IChannel parse(StringReader reader) throws CommandSyntaxException
-	{
+	public IChannel parse(StringReader reader) throws CommandSyntaxException {
 		String username = normalize(reader.getRemaining());
 		SimpleEntry<IChannel, String> result = ((TeamSpeakBotClientAdapter) this.bot).getServer().getChannels().stream()
 			.map(channel -> new SimpleEntry<IChannel, String>(channel, normalize(channel.getName())))
@@ -36,13 +34,11 @@ public class TeamSpeakChannelArgumentType implements ArgumentType<IChannel>
 		return result.getKey();
 	}
 	
-	private static String normalize(String string)
-	{
+	private static String normalize(String string) {
 		return string.replaceAll("\\s+", " ").trim().toLowerCase();
 	}
 	
-	public static TeamSpeakChannelArgumentType channel(IBotClient bot)
-	{
+	public static TeamSpeakChannelArgumentType channel(IBotClient bot) {
 		return new TeamSpeakChannelArgumentType(bot);
 	}
 }

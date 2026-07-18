@@ -11,19 +11,19 @@ import net.kardexo.bot.output.services.twitch.Twitch;
 
 import java.util.Map.Entry;
 
-public class TwitchCommand
-{
-	public static void register(CommandDispatcher<CommandSource> dispatcher, Config config, IAPIKeyService apiKeyService)
-	{
-		for(Entry<String, String> entry : config.getShortcuts().getTwitch().entrySet())
-		{
+public class TwitchCommand {
+	public static void register(CommandDispatcher<CommandSource> dispatcher, Config config, IAPIKeyService apiKeyService) {
+		for (Entry<String, String> entry : config.getShortcuts().getTwitch().entrySet()) {
 			dispatcher.register(Commands.literal(entry.getKey())
 				.executes(context -> TwitchCommand.twitch(context, apiKeyService, entry.getValue())));
 		}
 	}
 	
-	private static int twitch(CommandContext<CommandSource> context, IAPIKeyService apiKeyService, String user) throws CommandSyntaxException
-	{
+	private static int twitch(
+		CommandContext<CommandSource> context,
+		IAPIKeyService apiKeyService,
+		String user
+	) throws CommandSyntaxException {
 		context.getSource().sendFeedback(Twitch.details(apiKeyService, user, true));
 		return 0;
 	}

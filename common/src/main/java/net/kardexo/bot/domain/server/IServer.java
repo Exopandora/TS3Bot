@@ -7,8 +7,7 @@ import net.kardexo.bot.domain.client.IClient;
 import java.util.List;
 import java.util.Optional;
 
-public interface IServer
-{
+public interface IServer {
 	String getId();
 	
 	String getName();

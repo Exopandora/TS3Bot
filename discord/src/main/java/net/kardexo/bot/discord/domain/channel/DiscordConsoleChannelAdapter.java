@@ -9,52 +9,42 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Collections;
 import java.util.List;
 
-public class DiscordConsoleChannelAdapter implements IConsoleChannel
-{
+public class DiscordConsoleChannelAdapter implements IConsoleChannel {
 	@Override
-	public String getId()
-	{
+	public String getId() {
 		return "-1";
 	}
 	
 	@Override
-	public List<IClient> getClients()
-	{
+	public List<IClient> getClients() {
 		return Collections.emptyList();
 	}
 	
 	@Override
-	public @Nullable IServer getServer()
-	{
+	public @Nullable IServer getServer() {
 		return null;
 	}
 	
 	@Override
-	public List<IChannel> getBroadcastChannels()
-	{
+	public List<IChannel> getBroadcastChannels() {
 		return Collections.emptyList();
 	}
 	
 	@Override
-	public boolean isJoinable()
-	{
+	public boolean isJoinable() {
 		return false;
 	}
 	
 	@Override
-	public boolean equals(Object object)
-	{
-		if(!(object instanceof DiscordConsoleChannelAdapter that))
-		{
+	public boolean equals(Object object) {
+		if (!(object instanceof DiscordConsoleChannelAdapter that)) {
 			return false;
 		}
-		
 		return this.getId().equals(that.getId());
 	}
 	
 	@Override
-	public int hashCode()
-	{
+	public int hashCode() {
 		return this.getId().hashCode();
 	}
 }

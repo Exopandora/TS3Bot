@@ -4,8 +4,7 @@ import java.util.Collection;
 import java.util.TimerTask;
 import java.util.function.Supplier;
 
-public interface IBonusService
-{
+public interface IBonusService {
 	void reset();
 	
 	boolean claim(String user);

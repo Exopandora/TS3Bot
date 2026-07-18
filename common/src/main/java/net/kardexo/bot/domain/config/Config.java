@@ -10,8 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public abstract class Config
-{
+public abstract class Config {
 	@JsonProperty("virtual_server_id")
 	private int virtualServerId;
 	@JsonProperty("chat_history_size")
@@ -57,98 +56,79 @@ public abstract class Config
 	@JsonProperty("command_prefix")
 	private String commandPrefix;
 	
-	protected Config()
-	{
+	protected Config() {
 		super();
 	}
 	
-	public int getVirtualServerId()
-	{
+	public int getVirtualServerId() {
 		return this.virtualServerId;
 	}
 	
-	public int getChatHistorySize()
-	{
+	public int getChatHistorySize() {
 		return this.chatHistorySize;
 	}
 	
-	public Map<String, APIKeyConfig> getApiKeys()
-	{
+	public Map<String, APIKeyConfig> getApiKeys() {
 		return this.apiKeys;
 	}
 	
-	public Map<String, Set<String>> getPermissions()
-	{
+	public Map<String, Set<String>> getPermissions() {
 		return this.permissions;
 	}
 	
-	public String getDefaultW2GShare()
-	{
+	public String getDefaultW2GShare() {
 		return this.defaultW2GShare;
 	}
 	
-	public String getDefaultW2GBGColor()
-	{
+	public String getDefaultW2GBGColor() {
 		return this.defaultW2GBGColor;
 	}
 	
-	public int getDefaultW2GBGOpacity()
-	{
+	public int getDefaultW2GBGOpacity() {
 		return this.defaultW2GBGOpacity;
 	}
 	
-	public Platform getLoLPlatform()
-	{
+	public Platform getLoLPlatform() {
 		return this.lolRegion;
 	}
 	
-	public void setLoLRegion(Platform lolRegion)
-	{
+	public void setLoLRegion(Platform lolRegion) {
 		this.lolRegion = lolRegion;
 	}
 	
-	public List<String> getRules()
-	{
+	public List<String> getRules() {
 		return this.rules;
 	}
 	
-	public List<JsonNode> getBingoItems()
-	{
+	public List<JsonNode> getBingoItems() {
 		return this.bingoItems;
 	}
 	
-	public int getBingoTicketSize()
-	{
+	public int getBingoTicketSize() {
 		return this.bingoTicketSize;
 	}
 	
-	public ShortcutsConfig getShortcuts()
-	{
+	public ShortcutsConfig getShortcuts() {
 		return this.shortcuts;
 	}
 	
-	public int getLoginBonus()
-	{
+	public int getLoginBonus() {
 		return this.loginBonus;
 	}
 	
-	public String getCurrency()
-	{
+	public String getCurrency() {
 		return this.currency;
 	}
 	
-	public int getMinVideoDurationYouTube()
-	{
+	public int getMinVideoDurationYouTube() {
 		return this.minVideoDurationYouTube;
 	}
 	
-	public int getMaxVideoDurationYouTube()
-	{
+	public int getMaxVideoDurationYouTube() {
 		return this.maxVideoDurationYouTube;
 	}
 	
-	public String getCommandPrefix()
-	{
+	public String getCommandPrefix() {
 		return this.commandPrefix;
 	}
 	

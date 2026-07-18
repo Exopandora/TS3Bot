@@ -10,8 +10,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
 
-public interface IBotClient extends IClient
-{
+public interface IBotClient extends IClient {
 	void sendPrivateMessage(IPrivateChannel channel, String message);
 	
 	void sendServerMessage(IServerChannel channel, String message);
@@ -20,10 +19,8 @@ public interface IBotClient extends IClient
 	
 	void sendConsoleMessage(IConsoleChannel channel, String message);
 	
-	default void sendMessage(IChannel channel, String message)
-	{
-		switch(channel)
-		{
+	default void sendMessage(IChannel channel, String message) {
+		switch (channel) {
 			case IPrivateChannel pc -> this.sendPrivateMessage(pc, message);
 			case IConsoleChannel cc -> this.sendConsoleMessage(cc, message);
 			case IServerChannel sc -> this.sendServerMessage(sc, message);

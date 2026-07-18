@@ -29,90 +29,85 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.BiFunction;
 
-public class CalculateCommand
-{
+public class CalculateCommand {
 	private static final Map<String, BigDecimal> HISTORY = new HashMap<String, BigDecimal>();
-	private static final DynamicCommandExceptionType PARSING_EXCEPTION = new DynamicCommandExceptionType(exception -> new LiteralMessage(String.valueOf(exception)));
-	private static final SimpleCommandExceptionType NO_ANS_STORED = new SimpleCommandExceptionType(new LiteralMessage("No previous value stored for ans"));
-	private static final DynamicCommandExceptionType ERROR_WHILE_COMPUTING = new DynamicCommandExceptionType(cause -> new LiteralMessage("Error while computing result: " + cause));
-	private static final SimpleCommandExceptionType COMPUTATION_TIME_EXCEEDED = new SimpleCommandExceptionType(new LiteralMessage("Computation time exceeded"));
-	private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("#0.##########", DecimalFormatSymbols.getInstance(Locale.ENGLISH));
+	private static final DynamicCommandExceptionType PARSING_EXCEPTION =
+		new DynamicCommandExceptionType(exception -> new LiteralMessage(String.valueOf(exception)));
+	private static final SimpleCommandExceptionType NO_ANS_STORED =
+		new SimpleCommandExceptionType(new LiteralMessage("No previous value stored for ans"));
+	private static final DynamicCommandExceptionType ERROR_WHILE_COMPUTING =
+		new DynamicCommandExceptionType(cause -> new LiteralMessage("Error while computing result: " + cause));
+	private static final SimpleCommandExceptionType COMPUTATION_TIME_EXCEEDED =
+		new SimpleCommandExceptionType(new LiteralMessage("Computation time exceeded"));
+	private static final DecimalFormat DECIMAL_FORMAT =
+		new DecimalFormat("#0.##########", DecimalFormatSymbols.getInstance(Locale.ENGLISH));
 	private static final MathContext MATH_CONTEXT = new MathContext(100);
 	
-	public static void register(CommandDispatcher<CommandSource> dispatcher)
-	{
+	public static void register(CommandDispatcher<CommandSource> dispatcher) {
 		LiteralCommandNode<CommandSource> calculate = dispatcher.register(Commands.literal("calculate")
 			.then(Commands.argument("expression", StringArgumentType.greedyString())
-				.executes(context -> calculate(context, MATH_CONTEXT, StringArgumentType.getString(context, "expression"))))
+				.executes(context ->
+					calculate(context, MATH_CONTEXT, StringArgumentType.getString(context, "expression"))
+				))
 			.then(Commands.literal("precise")
 				.then(Commands.argument("precision", IntegerArgumentType.integer(1))
 					.then(Commands.argument("expression", StringArgumentType.greedyString())
-						.executes(context -> calculate(context, new MathContext(IntegerArgumentType.getInteger(context, "precision")), StringArgumentType.getString(context, "expression")))))));
+						.executes(context ->
+							calculate(
+								context,
+								new MathContext(IntegerArgumentType.getInteger(context, "precision")),
+								StringArgumentType.getString(context, "expression")
+							)
+						)))));
 		dispatcher.register(Commands.literal("calc")
 			.redirect(calculate));
 	}
 	
-	private static int calculate(CommandContext<CommandSource> context, MathContext mathContext, String expression) throws CommandSyntaxException
-	{
+	private static int calculate(
+		CommandContext<CommandSource> context,
+		MathContext mathContext,
+		String expression
+	) throws CommandSyntaxException {
 		String uuid = context.getSource().getClient().getId();
-		
-		if(expression.contains("ans") && !HISTORY.containsKey(uuid))
-		{
+		if (expression.contains("ans") && !HISTORY.containsKey(uuid)) {
 			throw NO_ANS_STORED.create();
 		}
-		
-		try
-		{
-			return CompletableFuture.supplyAsync(() ->
-			{
-				try
-				{
+		try {
+			return CompletableFuture.supplyAsync(() -> {
+				try {
 					BigDecimal x = new Expression(expression).eval(HISTORY.get(uuid), mathContext);
 					context.getSource().sendFeedback(expression + " = " + DECIMAL_FORMAT.format(x));
 					HISTORY.put(uuid, x);
 					return x;
-				}
-				catch(ParseException e)
-				{
+				} catch (ParseException e) {
 					throw new CompletionException(e);
 				}
 			}).get(5, TimeUnit.SECONDS).intValue();
-		}
-		catch(CompletionException e)
-		{
+		} catch (CompletionException e) {
 			throw PARSING_EXCEPTION.create(e.getCause().getMessage());
-		}
-		catch(TimeoutException e)
-		{
+		} catch (TimeoutException e) {
 			throw COMPUTATION_TIME_EXCEEDED.create();
-		}
-		catch(InterruptedException | ExecutionException e)
-		{
+		} catch (InterruptedException | ExecutionException e) {
 			throw ERROR_WHILE_COMPUTING.create(e.getCause().getMessage());
 		}
 	}
 	
-	public static class Expression
-	{
+	public static class Expression {
 		private final String string;
 		
-		public Expression(String string)
-		{
+		public Expression(String string) {
 			this.string = string;
 		}
 		
-		public BigDecimal eval() throws ParseException
-		{
+		public BigDecimal eval() throws ParseException {
 			return this.eval(null, MATH_CONTEXT);
 		}
 		
-		public BigDecimal eval(BigDecimal ans, MathContext context) throws ParseException
-		{
+		public BigDecimal eval(BigDecimal ans, MathContext context) throws ParseException {
 			Parser parser = new Parser(this.string, ans, context);
 			BigDecimal x = parser.parseExpression();
 			
-			if(parser.getPosition() < this.string.length())
-			{
+			if (parser.getPosition() < this.string.length()) {
 				throw new ParseException("Unexpected: " + (char) parser.getChar(), parser.getPosition());
 			}
 			
@@ -120,21 +115,18 @@ public class CalculateCommand
 		}
 		
 		@Override
-		public String toString()
-		{
+		public String toString() {
 			return this.string;
 		}
 		
-		private static class Parser
-		{
+		private static class Parser {
 			private final String string;
 			private final BigDecimal ans;
 			private final MathContext context;
 			private int position;
 			private int character;
 			
-			public Parser(String string, BigDecimal ans, MathContext context)
-			{
+			public Parser(String string, BigDecimal ans, MathContext context) {
 				this.string = string;
 				this.ans = ans;
 				this.context = context;
@@ -142,176 +134,116 @@ public class CalculateCommand
 				this.character = this.string.isEmpty() ? -1 : this.string.charAt(0);
 			}
 			
-			private boolean consume(int c)
-			{
-				while(this.getChar() == ' ')
-				{
+			private boolean consume(int c) {
+				while (this.getChar() == ' ') {
 					this.next();
 				}
-				
-				if(this.getChar() == c)
-				{
+				if (this.getChar() == c) {
 					this.next();
 					return true;
 				}
-				
 				return false;
 			}
 			
-			private void consumeExpected(char c) throws ParseException
-			{
-				if(!this.consume(c))
-				{
+			private void consumeExpected(char c) throws ParseException {
+				if (!this.consume(c)) {
 					throw new ParseException("Expected: '" + c + "'", this.getPosition());
 				}
 			}
 			
-			public BigDecimal parseExpression() throws ParseException
-			{
+			public BigDecimal parseExpression() throws ParseException {
 				BigDecimal x = this.parseTerm();
-				
-				while(true)
-				{
-					if(this.consume('+'))
-					{
+				while (true) {
+					if (this.consume('+')) {
 						x = x.add(this.parseTerm());
-					}
-					else if(this.consume('-'))
-					{
+					} else if (this.consume('-')) {
 						x = x.subtract(this.parseTerm());
-					}
-					else
-					{
+					} else {
 						return x;
 					}
 				}
 			}
 			
-			private BigDecimal parseTerm() throws ParseException
-			{
+			private BigDecimal parseTerm() throws ParseException {
 				BigDecimal x = this.parseFactor();
-				
-				while(true)
-				{
-					if(this.consume('*'))
-					{
+				while (true) {
+					if (this.consume('*')) {
 						x = x.multiply(this.parseFactor(), this.context);
-					}
-					else if(this.consume('/'))
-					{
+					} else if (this.consume('/')) {
 						BigDecimal y = this.parseFactor();
-						
-						if(y.equals(BigDecimal.ZERO))
-						{
+						if (y.equals(BigDecimal.ZERO)) {
 							throw new ParseException("Division by zero", this.position);
 						}
-						
 						x = x.divide(y, this.context);
-					}
-					else if(this.getChar() >= 'a' && this.getChar() <= 'z')
-					{
+					} else if (this.getChar() >= 'a' && this.getChar() <= 'z') {
 						int start = this.getPosition();
-						
-						while(this.getChar() >= 'a' && this.getChar() <= 'z')
-						{
+						while (this.getChar() >= 'a' && this.getChar() <= 'z') {
 							this.next();
 						}
-						
 						String function = this.string.substring(start, this.getPosition());
-						
-						if(function.equals("mod"))
-						{
+						if (function.equals("mod")) {
 							x = x.remainder(this.parseExpression(), this.context);
-						}
-						else
-						{
+						} else {
 							throw new ParseException("Unknown operator: " + function, start);
 						}
-					}
-					else
-					{
+					} else {
 						return x;
 					}
 				}
 			}
 			
-			private BigDecimal parseArgument() throws ParseException
-			{
+			private BigDecimal parseArgument() throws ParseException {
 				this.consumeExpected('(');
 				BigDecimal x = this.parseExpression();
 				this.consumeExpected(')');
 				return x;
 			}
 			
-			private BigDecimal parseArguments(BiFunction<BigDecimal, BigDecimal, BigDecimal> function, boolean multipleArgs) throws ParseException
-			{
+			private BigDecimal parseArguments(
+				BiFunction<BigDecimal, BigDecimal, BigDecimal> function,
+				boolean multipleArgs
+			) throws ParseException {
 				this.consumeExpected('(');
 				BigDecimal x = this.parseExpression();
 				this.consumeExpected(',');
 				x = function.apply(x, this.parseExpression());
-				
-				if(multipleArgs)
-				{
-					while(this.consume(','))
-					{
+				if (multipleArgs) {
+					while (this.consume(',')) {
 						x = function.apply(x, this.parseExpression());
 					}
 				}
-				
 				this.consumeExpected(')');
 				return x;
 			}
 			
-			private BigDecimal parseFactor() throws ParseException
-			{
-				if(this.consume('+'))
-				{
+			private BigDecimal parseFactor() throws ParseException {
+				if (this.consume('+')) {
 					return this.parseFactor();
 				}
-				
-				if(this.consume('-'))
-				{
+				if (this.consume('-')) {
 					return this.parseFactor().negate(this.context);
 				}
-				
 				BigDecimal x;
-				
-				if(this.consume('('))
-				{
+				if (this.consume('(')) {
 					x = this.parseExpression();
 					this.consumeExpected(')');
-				}
-				else if((this.character >= '0' && this.character <= '9') || this.character == '.')
-				{
+				} else if ((this.character >= '0' && this.character <= '9') || this.character == '.') {
 					int start = this.getPosition();
-					
-					while((this.character >= '0' && this.character <= '9') || this.character == '.')
-					{
+					while ((this.character >= '0' && this.character <= '9') || this.character == '.') {
 						this.next();
 					}
-					
-					try
-					{
+					try {
 						x = BigDecimalMath.toBigDecimal(this.string.substring(start, this.getPosition()), this.context);
-					}
-					catch(NumberFormatException e)
-					{
+					} catch (NumberFormatException e) {
 						throw new ParseException(e.getMessage(), start);
 					}
-				}
-				else if(this.getChar() >= 'a' && this.getChar() <= 'z')
-				{
+				} else if (this.getChar() >= 'a' && this.getChar() <= 'z') {
 					int start = this.getPosition();
-					
-					while(this.getChar() >= 'a' && this.getChar() <= 'z')
-					{
+					while (this.getChar() >= 'a' && this.getChar() <= 'z') {
 						this.next();
 					}
-					
 					String function = this.string.substring(start, this.getPosition());
-					
-					switch(function)
-					{
+					switch (function) {
 						case "e":
 							x = BigDecimalMath.e(this.context);
 							break;
@@ -319,24 +251,18 @@ public class CalculateCommand
 							x = BigDecimalMath.pi(this.context);
 							break;
 						case "ans":
-							if(this.ans == null)
-							{
+							if (this.ans == null) {
 								throw new ParseException("No value for ans", start);
 							}
 							x = this.ans;
 							break;
 						case "sqrt":
 							x = this.parseArgument();
-							
-							try
-							{
+							try {
 								x = BigDecimalMath.sqrt(x, this.context);
-							}
-							catch(ArithmeticException e)
-							{
+							} catch (ArithmeticException e) {
 								throw new ParseException("Undefined input for function sqrt: " + DECIMAL_FORMAT.format(x), start);
 							}
-							
 							break;
 						case "ceil":
 							x = this.parseArgument().setScale(0, RoundingMode.CEILING);
@@ -355,42 +281,27 @@ public class CalculateCommand
 							break;
 						case "log":
 							x = this.parseArgument();
-							
-							try
-							{
+							try {
 								x = BigDecimalMath.log10(x, this.context);
-							}
-							catch(ArithmeticException e)
-							{
+							} catch (ArithmeticException e) {
 								throw new ParseException("Undefined input for function log: " + DECIMAL_FORMAT.format(x), start);
 							}
-							
 							break;
 						case "ln":
 							x = this.parseArgument();
-							
-							try
-							{
+							try {
 								x = BigDecimalMath.log(x, this.context);
-							}
-							catch(ArithmeticException e)
-							{
+							} catch (ArithmeticException e) {
 								throw new ParseException("Undefined input for function ln: " + DECIMAL_FORMAT.format(x), start);
 							}
-							
 							break;
 						case "ld":
 							x = this.parseArgument();
-							
-							try
-							{
+							try {
 								x = BigDecimalMath.log2(x, this.context);
-							}
-							catch(ArithmeticException e)
-							{
+							} catch (ArithmeticException e) {
 								throw new ParseException("Undefined input for function ld: " + DECIMAL_FORMAT.format(x), start);
 							}
-							
 							break;
 						case "sin":
 							x = BigDecimalMath.sin(this.parseArgument(), this.context);
@@ -412,29 +323,19 @@ public class CalculateCommand
 							break;
 						case "asin":
 							x = this.parseArgument();
-							
-							try
-							{
+							try {
 								x = BigDecimalMath.asin(x, this.context);
-							}
-							catch(ArithmeticException e)
-							{
+							} catch (ArithmeticException e) {
 								throw new ParseException("Undefined input for function asin: " + DECIMAL_FORMAT.format(x), start);
 							}
-							
 							break;
 						case "acos":
 							x = this.parseArgument();
-							
-							try
-							{
+							try {
 								x = BigDecimalMath.acos(x, this.context);
-							}
-							catch(ArithmeticException e)
-							{
+							} catch (ArithmeticException e) {
 								throw new ParseException("Undefined input for function acos: " + DECIMAL_FORMAT.format(x), start);
 							}
-							
 							break;
 						case "atan":
 							x = BigDecimalMath.atan(this.parseArgument(), this.context);
@@ -457,44 +358,36 @@ public class CalculateCommand
 						default:
 							throw new ParseException("Unknown function: " + function, start);
 					}
-				}
-				else
-				{
+				} else {
 					throw new ParseException("Unexpected: " + (char) this.getChar(), this.getPosition());
 				}
 				
-				if(this.consume('^'))
-				{
+				if (this.consume('^')) {
 					x = BigDecimalMath.pow(x, this.parseFactor(), this.context);
-				}
-				else if(this.consume('!'))
-				{
+				} else if (this.consume('!')) {
 					x = BigDecimalMath.factorial(x, this.context);
 				}
 				
 				return x;
 			}
 			
-			public int getPosition()
-			{
+			public int getPosition() {
 				return this.position;
 			}
 			
-			public int getChar()
-			{
+			public int getChar() {
 				return this.character;
 			}
 			
-			public void next()
-			{
-				this.character = (++this.position < this.string.length()) ? this.string.charAt(this.position) : -1;
+			public void next() {
+				this.character = (++this.position < this.string.length())
+					? this.string.charAt(this.position)
+					: -1;
 			}
 		}
 		
-		public static class ParseException extends Exception
-		{
-			public ParseException(String message, int position)
-			{
+		public static class ParseException extends Exception {
+			public ParseException(String message, int position) {
 				super(message + " at position " + position);
 			}
 		}

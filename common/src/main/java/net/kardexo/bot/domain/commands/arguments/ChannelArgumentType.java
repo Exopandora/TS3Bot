@@ -7,15 +7,12 @@ import net.kardexo.bot.domain.channel.IChannel;
 import net.kardexo.bot.domain.client.IBotClient;
 import net.kardexo.bot.domain.commands.CommandSource;
 
-public interface ChannelArgumentType extends ArgumentType<IChannel>
-{
-	static ArgumentType<IChannel> channel(IBotClient bot)
-	{
+public interface ChannelArgumentType extends ArgumentType<IChannel> {
+	static ArgumentType<IChannel> channel(IBotClient bot) {
 		return ArgumentTypeFactory.INSTANCE.createChannelArgumentType(bot);
 	}
 	
-	static IChannel getChannel(final CommandContext<CommandSource> context, final String name) throws CommandSyntaxException
-	{
+	static IChannel getChannel(final CommandContext<CommandSource> context, final String name) throws CommandSyntaxException {
 		return ArgumentTypeFactory.INSTANCE.getChannelArgumentType(context, name);
 	}
 }

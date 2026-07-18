@@ -14,11 +14,9 @@ import net.kardexo.bot.domain.config.Config;
 import java.util.List;
 import java.util.Random;
 
-public class MessageProcessorRegistrar implements IMessageProcessorRegistrar
-{
+public class MessageProcessorRegistrar implements IMessageProcessorRegistrar {
 	@Override
-	public void register
-	(
+	public void register(
 		List<IMessageProcessor> registrar,
 		IBotClient bot,
 		IConfigService<? extends Config> configService,
@@ -28,8 +26,7 @@ public class MessageProcessorRegistrar implements IMessageProcessorRegistrar
 		IUserConfigService userConfigService,
 		IURLMessageProcessor urlMessageProcessor,
 		Random random
-	)
-	{
+	) {
 		registrar.add(urlMessageProcessor);
 	}
 }

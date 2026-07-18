@@ -2,8 +2,7 @@ package net.kardexo.bot.output.services.lol;
 
 import java.net.URI;
 
-public enum Platform
-{
+public enum Platform {
 	BR("br1", Region.AMERICAS, "BR"),
 	EUNE("eun1", Region.EUROPE, "EUNE"),
 	EUW("euw1", Region.EUROPE, "EUW"),
@@ -26,62 +25,48 @@ public enum Platform
 	private final String defaultTagLine;
 	private final Region regionV5;
 	
-	private Platform(String id, Region region, String defaultTagLine)
-	{
+	Platform(String id, Region region, String defaultTagLine) {
 		this.id = id;
 		this.regionV5 = region;
 		this.defaultTagLine = defaultTagLine;
 	}
 	
-	public String getId()
-	{
+	public String getId() {
 		return this.id;
 	}
 	
-	public Region getRegion()
-	{
+	public Region getRegion() {
 		return this.regionV5;
 	}
 	
-	public String getDefaultTagLine()
-	{
+	public String getDefaultTagLine() {
 		return this.defaultTagLine;
 	}
 	
-	public URI getApiUrl()
-	{
+	public URI getApiUrl() {
 		return URI.create(String.format(LeagueOfLegends.API_URL, this.id));
 	}
 	
 	@Override
-	public String toString()
-	{
+	public String toString() {
 		return this.name();
 	}
 	
-	public static Platform fromId(String input)
-	{
-		for(Platform platform : Platform.values())
-		{
-			if(platform.name().equals(input))
-			{
+	public static Platform fromId(String input) {
+		for (Platform platform : Platform.values()) {
+			if (platform.name().equals(input)) {
 				return platform;
 			}
 		}
-		
 		return null;
 	}
 	
-	public static Platform fromTagLine(String tagLine)
-	{
-		for(Platform platform : Platform.values())
-		{
-			if(platform.getDefaultTagLine().equals(tagLine))
-			{
+	public static Platform fromTagLine(String tagLine) {
+		for (Platform platform : Platform.values()) {
+			if (platform.getDefaultTagLine().equals(tagLine)) {
 				return platform;
 			}
 		}
-		
 		return null;
 	}
 }

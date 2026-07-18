@@ -1,7 +1,6 @@
 package net.kardexo.bot.api;
 
-public interface IEconomyService
-{
+public interface IEconomyService {
 	void add(String user, long coins);
 	
 	void subtract(String user, long coins);

@@ -2,49 +2,40 @@ package net.kardexo.bot.domain.chat;
 
 import java.util.ServiceLoader;
 
-public interface IStyle
-{
+public interface IStyle {
 	IStyleFactory INSTANCE = ServiceLoader.load(IStyleFactory.class).findFirst().orElseThrow();
 	
-	default String apply(String string)
-	{
+	default String apply(String string) {
 		return this.apply(new StringBuilder(), string).toString();
 	}
 	
 	StringBuilder apply(StringBuilder builder, String string);
 	
-	static IStyle color(String hex)
-	{
+	static IStyle color(String hex) {
 		return color(Integer.parseInt(hex, 16));
 	}
 	
-	static IStyle color(int color)
-	{
+	static IStyle color(int color) {
 		return INSTANCE.color(color);
 	}
 	
-	static IStyle bold()
-	{
+	static IStyle bold() {
 		return INSTANCE.bold();
 	}
 	
-	static IStyle underlined()
-	{
+	static IStyle underlined() {
 		return INSTANCE.underlined();
 	}
 	
-	static IStyle italic()
-	{
+	static IStyle italic() {
 		return INSTANCE.italic();
 	}
 	
-	static IStyle strikethrough()
-	{
+	static IStyle strikethrough() {
 		return INSTANCE.strikethrough();
 	}
 	
-	static int colorOverhead()
-	{
+	static int colorOverhead() {
 		return INSTANCE.colorOverhead();
 	}
 }

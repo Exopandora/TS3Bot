@@ -1,98 +1,110 @@
 {
-	"host_address": "127.0.0.1",
-	"login_name": "TS3Bot",
-	"login_password": "PASSWORD",
-	"channel_name": "CHANNEL",
-	"protocol": "SSH OR RAW",
-	"virtual_server_id": 1,
-	"token": "DISCORD_OAUTH_TOKEN",
-	"command_prefix": "!",
-	"chat_history_size": 100,
-	"api_keys": {
-		"watch_2_gether": {
-			"tokens": {
-				"api_key": "API_KEY"
-			}
-		},
-		"twitch": {
-			"tokens": {
-				"client_id": "CLIENT_ID",
-				"oauth_token": "OAUTH_TOKEN"
-			}
-		},
-		"youtube": {
-			"tokens": {
-				"api_key": "API_KEY"
-			}
-		},
-		"twitter": {
-			"tokens": {
-				"bearer_token": "BEARER_TOKEN"
-			}
-		},
-		"league_of_legends": {
-			"tokens": {
-				"api_key": "API_KEY"
-			},
-			"limits": [
-				{
-					"limit": 20,
-					"duration": 1000
-				},
-				{
-					"limit": 100,
-					"duration": 120000
-				}
-			]
-		},
-		"imagga": {
-			"tokens": {
-				"bearer_token": "API_KEY"
-			}
-		}
-	},
-	"default_watch2gether_share": "URL",
-	"default_watch2gether_bg_color": "#FFFFFF",
-	"default_watch2gether_bg_opacity": "100",
-	"league_of_legends_region": "REGION_CODE",
-	"permissions": {
-		"admin": [
-			"CLIENT_UID"
-		]
-	},
-	"rules": [
-		"RULE1",
-		"RULE2"
-	],
-	"bingo_items": [
-		"ITEM1",
-		"ITEM2",
-		["ITEM3_ARRAY_ITEM1", "ITEM3_ARRAY_ITEM2"],
-		["ITEM4_ARRAY_ITEM1", "ITEM4_ARRAY_ITEM2"],
-		"ITEM5",
-		"ITEM6"
-	],
-	"bingo_ticket_size": 3,
-	"shortcuts": {
-		"text": {
-			"COMMAND1": "ITEM1",
-			"COMMAND2": "ITEM2",
-			"COMMAND3": ["ARRAY_ITEM1", "ARRAY_ITEM2"],
-			"COMMAND4": ["ARRAY_ITEM3", "ARRAY_ITEM4"],
-			"COMMAND5": "ITEM5",
-			"COMMAND6": "ITEM6"
-		},
-		"youtube": {
-			"COMMAND1": "CHANNEL1",
-			"COMMAND2": "CHANNEL2"
-		},
-		"twitch": {
-			"COMMAND3": "CHANNEL1",
-			"COMMAND4": "CHANNEL2"
-		}
-	},
-	"login_bonus": 500,
-	"currency": " CURRENCY",
-	"min_video_duration_youtube": 60,
-	"max_video_duration_youtube": 3600
+  "host_address": "127.0.0.1",
+  "login_name": "TS3Bot",
+  "login_password": "PASSWORD",
+  "channel_name": "CHANNEL",
+  "protocol": "SSH OR RAW",
+  "virtual_server_id": 1,
+  "token": "DISCORD_OAUTH_TOKEN",
+  "command_prefix": "!",
+  "chat_history_size": 100,
+  "api_keys": {
+    "watch_2_gether": {
+      "tokens": {
+        "api_key": "API_KEY"
+      }
+    },
+    "twitch": {
+      "tokens": {
+        "client_id": "CLIENT_ID",
+        "oauth_token": "OAUTH_TOKEN"
+      }
+    },
+    "youtube": {
+      "tokens": {
+        "api_key": "API_KEY"
+      }
+    },
+    "twitter": {
+      "tokens": {
+        "bearer_token": "BEARER_TOKEN"
+      }
+    },
+    "league_of_legends": {
+      "tokens": {
+        "api_key": "API_KEY"
+      },
+      "limits": [
+        {
+          "limit": 20,
+          "duration": 1000
+        },
+        {
+          "limit": 100,
+          "duration": 120000
+        }
+      ]
+    },
+    "imagga": {
+      "tokens": {
+        "bearer_token": "API_KEY"
+      }
+    }
+  },
+  "default_watch2gether_share": "URL",
+  "default_watch2gether_bg_color": "#FFFFFF",
+  "default_watch2gether_bg_opacity": "100",
+  "league_of_legends_region": "REGION_CODE",
+  "permissions": {
+    "admin": [
+      "CLIENT_UID"
+    ]
+  },
+  "rules": [
+    "RULE1",
+    "RULE2"
+  ],
+  "bingo_items": [
+    "ITEM1",
+    "ITEM2",
+    [
+      "ITEM3_ARRAY_ITEM1",
+      "ITEM3_ARRAY_ITEM2"
+    ],
+    [
+      "ITEM4_ARRAY_ITEM1",
+      "ITEM4_ARRAY_ITEM2"
+    ],
+    "ITEM5",
+    "ITEM6"
+  ],
+  "bingo_ticket_size": 3,
+  "shortcuts": {
+    "text": {
+      "COMMAND1": "ITEM1",
+      "COMMAND2": "ITEM2",
+      "COMMAND3": [
+        "ARRAY_ITEM1",
+        "ARRAY_ITEM2"
+      ],
+      "COMMAND4": [
+        "ARRAY_ITEM3",
+        "ARRAY_ITEM4"
+      ],
+      "COMMAND5": "ITEM5",
+      "COMMAND6": "ITEM6"
+    },
+    "youtube": {
+      "COMMAND1": "CHANNEL1",
+      "COMMAND2": "CHANNEL2"
+    },
+    "twitch": {
+      "COMMAND3": "CHANNEL1",
+      "COMMAND4": "CHANNEL2"
+    }
+  },
+  "login_bonus": 500,
+  "currency": " CURRENCY",
+  "min_video_duration_youtube": 60,
+  "max_video_duration_youtube": 3600
 }

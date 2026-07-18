@@ -4,8 +4,7 @@ import net.kardexo.bot.domain.chat.IStyle;
 
 import java.util.Objects;
 
-public class DiscordStyle implements IStyle
-{
+public class DiscordStyle implements IStyle {
 	protected static final DiscordStyle BOLD = new DiscordStyle("**");
 	protected static final DiscordStyle UNDERLINED = new DiscordStyle("__");
 	protected static final DiscordStyle ITALIC = new DiscordStyle("*");
@@ -14,14 +13,12 @@ public class DiscordStyle implements IStyle
 	
 	private final String format;
 	
-	protected DiscordStyle(String format)
-	{
+	protected DiscordStyle(String format) {
 		this.format = format;
 	}
 	
 	@Override
-	public StringBuilder apply(StringBuilder builder, String string)
-	{
+	public StringBuilder apply(StringBuilder builder, String string) {
 		builder.append(this.format);
 		builder.append(string);
 		builder.append(this.format);
@@ -29,19 +26,15 @@ public class DiscordStyle implements IStyle
 	}
 	
 	@Override
-	public boolean equals(Object object)
-	{
-		if(!(object instanceof DiscordStyle discordStyle))
-		{
+	public boolean equals(Object object) {
+		if (!(object instanceof DiscordStyle discordStyle)) {
 			return false;
 		}
-		
 		return Objects.equals(this.format, discordStyle.format);
 	}
 	
 	@Override
-	public int hashCode()
-	{
+	public int hashCode() {
 		return Objects.hash(this.format);
 	}
 }

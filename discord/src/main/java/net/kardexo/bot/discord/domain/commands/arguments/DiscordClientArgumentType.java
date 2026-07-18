@@ -12,20 +12,18 @@ import net.kardexo.bot.discord.domain.client.DiscordClientAdapter;
 import net.kardexo.bot.domain.client.IBotClient;
 import net.kardexo.bot.domain.client.IClient;
 
-public class DiscordClientArgumentType implements ArgumentType<IClient>
-{
-	private static final DynamicCommandExceptionType USER_NOT_FOUND = new DynamicCommandExceptionType(id -> new LiteralMessage("Could not find user <@" + id + ">"));
+public class DiscordClientArgumentType implements ArgumentType<IClient> {
+	private static final DynamicCommandExceptionType USER_NOT_FOUND =
+		new DynamicCommandExceptionType(id -> new LiteralMessage("Could not find user <@" + id + ">"));
 	
 	private final IBotClient bot;
 	
-	private DiscordClientArgumentType(IBotClient bot)
-	{
+	private DiscordClientArgumentType(IBotClient bot) {
 		this.bot = bot;
 	}
 	
 	@Override
-	public IClient parse(StringReader reader) throws CommandSyntaxException
-	{
+	public IClient parse(StringReader reader) throws CommandSyntaxException {
 		reader.expect('<');
 		reader.expect('@');
 		long id = reader.readLong();
@@ -36,8 +34,7 @@ public class DiscordClientArgumentType implements ArgumentType<IClient>
 		return new DiscordClientAdapter(user);
 	}
 	
-	public static DiscordClientArgumentType client(IBotClient bot)
-	{
+	public static DiscordClientArgumentType client(IBotClient bot) {
 		return new DiscordClientArgumentType(bot);
 	}
 }

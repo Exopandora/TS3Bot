@@ -4,33 +4,26 @@ import net.kardexo.bot.api.IAPIKeyService;
 
 import java.util.regex.Pattern;
 
-public class SteamURLProcessor extends DefaultURLProcessor
-{
+public class SteamURLProcessor extends DefaultURLProcessor {
 	private static final Pattern STEAM_URL = Pattern.compile("https?://([^.]+\\.)?(steamcommunity|steampowered)\\.[^ ]+");
 	
-	public SteamURLProcessor(IAPIKeyService apiKeyService)
-	{
+	public SteamURLProcessor(IAPIKeyService apiKeyService) {
 		super(apiKeyService);
 	}
 	
 	@Override
-	public String process(String url)
-	{
+	public String process(String url) {
 		String response = super.process(url);
 		StringBuilder builder = new StringBuilder();
-		
-		if(response != null)
-		{
+		if (response != null) {
 			builder.append(response);
 			builder.append(" ");
 		}
-		
 		return builder.append("steam://openurl/").append(url).toString();
 	}
 	
 	@Override
-	public boolean isApplicable(String url)
-	{
+	public boolean isApplicable(String url) {
 		return url != null && STEAM_URL.matcher(url).matches();
 	}
 }

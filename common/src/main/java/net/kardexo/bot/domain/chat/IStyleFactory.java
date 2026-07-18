@@ -1,7 +1,6 @@
 package net.kardexo.bot.domain.chat;
 
-public interface IStyleFactory
-{
+public interface IStyleFactory {
 	IStyle color(int color);
 	
 	IStyle bold();

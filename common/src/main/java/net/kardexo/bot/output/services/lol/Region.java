@@ -2,8 +2,7 @@ package net.kardexo.bot.output.services.lol;
 
 import java.net.URI;
 
-public enum Region
-{
+public enum Region {
 	AMERICAS("americas"),
 	ASIA("asia"),
 	EUROPE("europe"),
@@ -14,24 +13,20 @@ public enum Region
 	
 	private final String id;
 	
-	private Region(String id)
-	{
+	Region(String id) {
 		this.id = id;
 	}
 	
-	public String getId()
-	{
+	public String getId() {
 		return this.id;
 	}
 	
-	public URI getApiUrl()
-	{
+	public URI getApiUrl() {
 		return URI.create(String.format(LeagueOfLegends.API_URL, this.id));
 	}
 	
 	@Override
-	public String toString()
-	{
+	public String toString() {
 		return this.id;
 	}
 }

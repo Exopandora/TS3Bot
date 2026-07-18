@@ -12,20 +12,18 @@ import net.kardexo.bot.teamspeak.domain.client.TeamSpeakBotClientAdapter;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Comparator;
 
-public class TeamSpeakClientArgumentType implements ArgumentType<IClient>
-{
-	private static final DynamicCommandExceptionType USER_NOT_FOUND = new DynamicCommandExceptionType(username -> new LiteralMessage("Could not find user " + username));
+public class TeamSpeakClientArgumentType implements ArgumentType<IClient> {
+	private static final DynamicCommandExceptionType USER_NOT_FOUND =
+		new DynamicCommandExceptionType(username -> new LiteralMessage("Could not find user " + username));
 	
 	private final IBotClient bot;
 	
-	private TeamSpeakClientArgumentType(IBotClient bot)
-	{
+	private TeamSpeakClientArgumentType(IBotClient bot) {
 		this.bot = bot;
 	}
 	
 	@Override
-	public IClient parse(StringReader reader) throws CommandSyntaxException
-	{
+	public IClient parse(StringReader reader) throws CommandSyntaxException {
 		String username = normalize(reader.getRemaining());
 		SimpleEntry<IClient, String> result = ((TeamSpeakBotClientAdapter) this.bot).getServer().getClients().stream()
 			.map(client -> new SimpleEntry<IClient, String>(client, normalize(client.getName())))
@@ -36,13 +34,11 @@ public class TeamSpeakClientArgumentType implements ArgumentType<IClient>
 		return result.getKey();
 	}
 	
-	private static String normalize(String string)
-	{
+	private static String normalize(String string) {
 		return string.replaceAll("\\s+", " ").trim().toLowerCase();
 	}
 	
-	public static TeamSpeakClientArgumentType client(IBotClient bot)
-	{
+	public static TeamSpeakClientArgumentType client(IBotClient bot) {
 		return new TeamSpeakClientArgumentType(bot);
 	}
 }

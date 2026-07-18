@@ -6,15 +6,12 @@ import net.kardexo.bot.domain.client.IBotClient;
 import net.kardexo.bot.domain.client.IClient;
 import net.kardexo.bot.domain.commands.CommandSource;
 
-public interface ClientArgumentType extends ArgumentType<IClient>
-{
-	static ArgumentType<IClient> client(IBotClient bot)
-	{
+public interface ClientArgumentType extends ArgumentType<IClient> {
+	static ArgumentType<IClient> client(IBotClient bot) {
 		return ArgumentTypeFactory.INSTANCE.createClientArgumentType(bot);
 	}
 	
-	static IClient getClient(final CommandContext<CommandSource> context, final String name)
-	{
+	static IClient getClient(final CommandContext<CommandSource> context, final String name) {
 		return ArgumentTypeFactory.INSTANCE.getClientArgumentType(context, name);
 	}
 }

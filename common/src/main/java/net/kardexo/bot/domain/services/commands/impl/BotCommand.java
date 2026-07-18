@@ -5,16 +5,13 @@ import com.mojang.brigadier.context.CommandContext;
 import net.kardexo.bot.domain.commands.CommandSource;
 import net.kardexo.bot.domain.services.commands.Commands;
 
-public class BotCommand
-{
-	public static void register(CommandDispatcher<CommandSource> dispatcher)
-	{
+public class BotCommand {
+	public static void register(CommandDispatcher<CommandSource> dispatcher) {
 		dispatcher.register(Commands.literal("bot")
 			.executes(BotCommand::bot));
 	}
 	
-	private static int bot(CommandContext<CommandSource> context)
-	{
+	private static int bot(CommandContext<CommandSource> context) {
 		context.getSource().sendPrivateMessage("KardExo Bot");
 		return 0;
 	}

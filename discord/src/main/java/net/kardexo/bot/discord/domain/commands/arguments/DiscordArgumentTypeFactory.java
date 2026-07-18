@@ -10,29 +10,24 @@ import net.kardexo.bot.domain.client.IClient;
 import net.kardexo.bot.domain.commands.CommandSource;
 import net.kardexo.bot.domain.commands.arguments.ArgumentTypeFactory;
 
-public class DiscordArgumentTypeFactory implements ArgumentTypeFactory
-{
+public class DiscordArgumentTypeFactory implements ArgumentTypeFactory {
 	@Override
-	public ArgumentType<IChannel> createChannelArgumentType(IBotClient bot)
-	{
+	public ArgumentType<IChannel> createChannelArgumentType(IBotClient bot) {
 		return DiscordChannelArgumentType.channel();
 	}
 	
 	@Override
-	public IChannel getChannelArgumentType(CommandContext<CommandSource> context, String name) throws CommandSyntaxException
-	{
+	public IChannel getChannelArgumentType(CommandContext<CommandSource> context, String name) throws CommandSyntaxException {
 		return context.getArgument(name, DiscordChannelParseResult.class).resolve(context.getSource());
 	}
 	
 	@Override
-	public ArgumentType<IClient> createClientArgumentType(IBotClient bot)
-	{
+	public ArgumentType<IClient> createClientArgumentType(IBotClient bot) {
 		return DiscordClientArgumentType.client(bot);
 	}
 	
 	@Override
-	public IClient getClientArgumentType(CommandContext<CommandSource> context, String name)
-	{
+	public IClient getClientArgumentType(CommandContext<CommandSource> context, String name) {
 		return context.getArgument(name, IClient.class);
 	}
 }

@@ -12,12 +12,10 @@ import java.util.List;
 import java.util.Random;
 import java.util.ServiceLoader;
 
-public interface IMessageProcessorRegistrar
-{
+public interface IMessageProcessorRegistrar {
 	ServiceLoader<IMessageProcessorRegistrar> INSTANCE = ServiceLoader.load(IMessageProcessorRegistrar.class);
 	
-	void register
-	(
+	void register(
 		List<IMessageProcessor> registrar,
 		IBotClient bot,
 		IConfigService<? extends Config> configService,

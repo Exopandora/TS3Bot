@@ -8,30 +8,25 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.kardexo.bot.output.services.lol.Platform;
 import net.kardexo.bot.output.services.lol.RiotId;
 
-public class RiotIdArgumentType implements ArgumentType<RiotId>
-{
+public class RiotIdArgumentType implements ArgumentType<RiotId> {
 	private final StringArgumentType delegate;
 	private final Platform defaultRegion;
 	
-	private RiotIdArgumentType(Platform defaultRegion)
-	{
+	private RiotIdArgumentType(Platform defaultRegion) {
 		this.delegate = StringArgumentType.greedyString();
 		this.defaultRegion = defaultRegion;
 	}
 	
 	@Override
-	public RiotId parse(StringReader reader) throws CommandSyntaxException
-	{
+	public RiotId parse(StringReader reader) throws CommandSyntaxException {
 		return RiotId.parse(this.delegate.parse(reader), this.defaultRegion);
 	}
 	
-	public static RiotIdArgumentType greedy(Platform defaultRegion)
-	{
+	public static RiotIdArgumentType greedy(Platform defaultRegion) {
 		return new RiotIdArgumentType(defaultRegion);
 	}
 	
-	public static RiotId getRiotId(final CommandContext<?> context, final String name)
-	{
+	public static RiotId getRiotId(final CommandContext<?> context, final String name) {
 		return context.getArgument(name, RiotId.class);
 	}
 }

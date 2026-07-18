@@ -40,11 +40,9 @@ import net.kardexo.bot.domain.services.commands.impl.TwitchCommand;
 import net.kardexo.bot.domain.services.commands.impl.Watch2GetherCommand;
 import net.kardexo.bot.domain.services.commands.impl.YouTubeCommand;
 
-public class Commands implements ICommandRegistrar
-{
+public class Commands implements ICommandRegistrar {
 	@Override
-	public void register
-	(
+	public void register(
 		CommandDispatcher<CommandSource> dispatcher,
 		IBotClient bot,
 		IConfigService<? extends Config> configService,
@@ -53,8 +51,7 @@ public class Commands implements ICommandRegistrar
 		IEconomyService economyService,
 		IUserConfigService userConfigService,
 		IURLMessageProcessor urlMessageProcessor
-	)
-	{
+	) {
 		ExitCommand.register(dispatcher, permissionService);
 		BotCommand.register(dispatcher);
 		HelpCommand.register(dispatcher, configService.getConfig());
@@ -82,13 +79,11 @@ public class Commands implements ICommandRegistrar
 		ReloadCommand.register(dispatcher, configService, permissionService);
 	}
 	
-	public static LiteralArgumentBuilder<CommandSource> literal(String name)
-	{
+	public static LiteralArgumentBuilder<CommandSource> literal(String name) {
 		return LiteralArgumentBuilder.literal(name);
 	}
 	
-	public static <T> RequiredArgumentBuilder<CommandSource, T> argument(String name, ArgumentType<T> type)
-	{
+	public static <T> RequiredArgumentBuilder<CommandSource, T> argument(String name, ArgumentType<T> type) {
 		return RequiredArgumentBuilder.argument(name, type);
 	}
 }

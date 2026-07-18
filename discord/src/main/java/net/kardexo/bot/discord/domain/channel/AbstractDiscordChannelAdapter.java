@@ -26,20 +26,16 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public abstract class AbstractDiscordChannelAdapter implements IChannel
-{
+public abstract class AbstractDiscordChannelAdapter implements IChannel {
 	protected final Channel channel;
 	
-	protected AbstractDiscordChannelAdapter(Channel channel)
-	{
+	protected AbstractDiscordChannelAdapter(Channel channel) {
 		this.channel = channel;
 	}
 	
 	@Override
-	public String getName()
-	{
-		return switch(this.channel.getType())
-		{
+	public String getName() {
+		return switch (this.channel.getType()) {
 			case UNKNOWN -> "Unknown";
 			case GUILD_TEXT -> ((TextChannel) this.channel).getName();
 			case GUILD_STORE -> ((StoreChannel) this.channel).getName();
@@ -48,7 +44,11 @@ public abstract class AbstractDiscordChannelAdapter implements IChannel
 				.map(ChannelData::name)
 				.map(Possible::toOptional)
 				.flatMap(optional -> optional)
-				.orElseGet(() -> ((PrivateChannel) this.channel).getRecipients().stream().map(User::getUsername).collect(Collectors.joining(", ")));
+				.orElseGet(() ->
+					((PrivateChannel) this.channel).getRecipients().stream()
+						.map(User::getUsername)
+						.collect(Collectors.joining(", "))
+				);
 			case GUILD_NEWS_THREAD, GUILD_PUBLIC_THREAD, GUILD_PRIVATE_THREAD -> ((ThreadChannel) this.channel).getName();
 			case GUILD_VOICE, GUILD_STAGE_VOICE -> ((VoiceChannel) this.channel).getName();
 			case GUILD_NEWS -> ((NewsChannel) this.channel).getName();
@@ -57,21 +57,17 @@ public abstract class AbstractDiscordChannelAdapter implements IChannel
 	}
 	
 	@Override
-	public String getId()
-	{
+	public String getId() {
 		return this.channel.getId().asString();
 	}
 	
 	@Override
-	public List<IClient> getClients()
-	{
-		return switch(this.channel.getType())
-		{
+	public List<IClient> getClients() {
+		return switch (this.channel.getType()) {
 			case UNKNOWN, GUILD_FORUM, GUILD_TEXT, GUILD_STORE, GUILD_CATEGORY -> Collections.emptyList();
-			case DM, GROUP_DM ->
-				((PrivateChannel) this.channel).getRecipients().stream()
-					.<IClient>map(DiscordClientAdapter::new)
-					.toList();
+			case DM, GROUP_DM -> ((PrivateChannel) this.channel).getRecipients().stream()
+				.<IClient>map(DiscordClientAdapter::new)
+				.toList();
 			case GUILD_NEWS, GUILD_NEWS_THREAD, GUILD_PUBLIC_THREAD, GUILD_PRIVATE_THREAD, GUILD_STAGE_VOICE, GUILD_VOICE ->
 				((GuildMessageChannel) this.channel).getMembers()
 					.<IClient>map(DiscordClientAdapter::new)
@@ -81,42 +77,33 @@ public abstract class AbstractDiscordChannelAdapter implements IChannel
 	}
 	
 	@Override
-	public @Nullable IServer getServer()
-	{
-		return switch(this.channel.getType())
-		{
+	public @Nullable IServer getServer() {
+		return switch (this.channel.getType()) {
 			case UNKNOWN, DM, GROUP_DM -> null;
 			default -> new DiscordServerAdapter(((GuildChannel) this.channel).getGuild().block());
 		};
 	}
 	
 	@Override
-	public boolean isJoinable()
-	{
+	public boolean isJoinable() {
 		return false;
 	}
 	
 	@Override
-	public boolean equals(Object object)
-	{
-		if(!(object instanceof AbstractDiscordChannelAdapter other))
-		{
+	public boolean equals(Object object) {
+		if (!(object instanceof AbstractDiscordChannelAdapter other)) {
 			return false;
 		}
-		
 		return this.getId().equals(other.getId());
 	}
 	
 	@Override
-	public int hashCode()
-	{
+	public int hashCode() {
 		return this.channel.hashCode();
 	}
 	
-	public static Optional<IChannel> of(Channel channel)
-	{
-		return switch(channel)
-		{
+	public static Optional<IChannel> of(Channel channel) {
+		return switch (channel) {
 			case PrivateChannel pc -> Optional.of(new DiscordPrivateChannelAdapter(pc));
 			case GuildMessageChannel gc -> Optional.of(new DiscordMessageChannelAdapter(gc));
 			default -> Optional.empty();

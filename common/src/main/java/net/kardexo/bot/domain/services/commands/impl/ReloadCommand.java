@@ -8,25 +8,23 @@ import net.kardexo.bot.domain.commands.CommandSource;
 import net.kardexo.bot.domain.config.Config;
 import net.kardexo.bot.domain.services.commands.Commands;
 
-public class ReloadCommand
-{
-	public static void register(CommandDispatcher<CommandSource> dispatcher, IConfigService<? extends Config> configService, IPermissionService permissionService)
-	{
+public class ReloadCommand {
+	public static void register(
+		CommandDispatcher<CommandSource> dispatcher,
+		IConfigService<? extends Config> configService,
+		IPermissionService permissionService
+	) {
 		dispatcher.register(Commands.literal("reload")
 			.requires(source -> permissionService.hasPermission(source.getClient(), "admin"))
 			.executes(context -> reloadConfig(context, configService)));
 	}
 	
-	private static int reloadConfig(CommandContext<CommandSource> context, IConfigService<? extends Config> configService)
-	{
-		try
-		{
+	private static int reloadConfig(CommandContext<CommandSource> context, IConfigService<? extends Config> configService) {
+		try {
 			configService.reload();
 			context.getSource().sendFeedback("Config successfully reloaded");
 			return 1;
-		}
-		catch(Exception e)
-		{
+		} catch (Exception e) {
 			context.getSource().sendFeedback("Failed to reload config");
 			return 0;
 		}

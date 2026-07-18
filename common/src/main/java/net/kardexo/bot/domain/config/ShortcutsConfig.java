@@ -5,8 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 import java.util.Map;
 
-public class ShortcutsConfig
-{
+public class ShortcutsConfig {
 	@JsonProperty("text")
 	private Map<String, JsonNode> text;
 	@JsonProperty("youtube")
@@ -14,30 +13,25 @@ public class ShortcutsConfig
 	@JsonProperty("twitch")
 	private Map<String, String> twitch;
 	
-	public ShortcutsConfig()
-	{
+	public ShortcutsConfig() {
 		super();
 	}
 	
-	public ShortcutsConfig(Map<String, JsonNode> text, Map<String, String> youtube, Map<String, String> twitch)
-	{
+	public ShortcutsConfig(Map<String, JsonNode> text, Map<String, String> youtube, Map<String, String> twitch) {
 		this.text = text;
 		this.youtube = youtube;
 		this.twitch = twitch;
 	}
 	
-	public Map<String, JsonNode> getText()
-	{
+	public Map<String, JsonNode> getText() {
 		return this.text;
 	}
 	
-	public Map<String, String> getYoutube()
-	{
+	public Map<String, String> getYoutube() {
 		return this.youtube;
 	}
 	
-	public Map<String, String> getTwitch()
-	{
+	public Map<String, String> getTwitch() {
 		return this.twitch;
 	}
 }

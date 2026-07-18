@@ -33,8 +33,7 @@ import java.util.regex.Pattern;
 
 import static net.kardexo.bot.domain.Util.OBJECT_MAPPER;
 
-public abstract class AbstractBot<T extends Config>
-{
+public abstract class AbstractBot<T extends Config> {
 	private final IConfigService<T> configService;
 	private final Random random;
 	private final ChatHistory chatHistory;
@@ -47,8 +46,7 @@ public abstract class AbstractBot<T extends Config>
 	private IMessageService messageService;
 	private Timer timer;
 	
-	public AbstractBot(String configFile, IConfigFactory<T> configFactory, Random random) throws IOException
-	{
+	public AbstractBot(String configFile, IConfigFactory<T> configFactory, Random random) throws IOException {
 		this.configService = new ConfigService<T>(configFile, configFactory);
 		this.random = random;
 		this.chatHistory = new ChatHistory(this.getConfig().getChatHistorySize());
@@ -58,56 +56,62 @@ public abstract class AbstractBot<T extends Config>
 		Runtime.getRuntime().addShutdownHook(new Thread(this::exit));
 	}
 	
-	public final void start()
-	{
+	public final void start() {
 		this.connect();
 	}
 	
 	protected abstract void connect();
 	
-	protected void onConnect()
-	{
-		this.messageService = new MessageService(this.getBotClient(), this.configService, this.apiKeyService, this.permissionService, this.economyService, this.userConfigService, this.random);
+	protected void onConnect() {
+		this.messageService = new MessageService(
+			this.getBotClient(),
+			this.configService,
+			this.apiKeyService,
+			this.permissionService,
+			this.economyService,
+			this.userConfigService,
+			this.random
+		);
 		this.loginBonusService.claim(this.getAllClientUidsForLoginBonus());
 		this.timer = new Timer();
-		this.timer.schedule(this.loginBonusService.createTimerTask(this::getAllClientUidsForLoginBonus), Util.tomorrow(), TimeUnit.DAYS.toMillis(1));
+		this.timer.schedule(
+			this.loginBonusService.createTimerTask(this::getAllClientUidsForLoginBonus),
+			Util.tomorrow(),
+			TimeUnit.DAYS.toMillis(1)
+		);
 		this.consoleListener = new Thread(this::listen);
 		this.consoleListener.setDaemon(true);
 		this.consoleListener.start();
 	}
 	
-	protected void onClientJoin(IClient client)
-	{
+	protected void onClientJoin(IClient client) {
 		this.loginBonusService.claim(client.getId());
 	}
 	
-	protected void onMessage(IChannel channel, IClient client, String message)
-	{
+	protected void onMessage(IChannel channel, IClient client, String message) {
 		this.messageService.onMessage(channel, client, message, this.chatHistory);
 	}
 	
-	protected void onDisconnect()
-	{
+	protected void onDisconnect() {
 		this.timer.cancel();
 		this.consoleListener.interrupt();
 	}
 	
 	public abstract void exit();
 	
-	private void listen()
-	{
-		try(Scanner scanner = new Scanner(System.in))
-		{
-			while(scanner.hasNextLine())
-			{
-				String message = scanner.nextLine().replaceFirst("^(?:" + Pattern.quote(this.getConfig().getCommandPrefix()) + ")?", this.getConfig().getCommandPrefix());
+	private void listen() {
+		try (Scanner scanner = new Scanner(System.in)) {
+			while (scanner.hasNextLine()) {
+				String message = scanner.nextLine().replaceFirst(
+					"^(?:" + Pattern.quote(this.getConfig().getCommandPrefix()) + ")?",
+					this.getConfig().getCommandPrefix()
+				);
 				this.onMessage(this.getConsoleChannel(), this.getBotClient(), message);
 			}
 		}
 	}
 	
-	private void awardLoginBonus(String user)
-	{
+	private void awardLoginBonus(String user) {
 		this.economyService.add(user, this.getConfig().getLoginBonus());
 	}
 	
@@ -117,23 +121,19 @@ public abstract class AbstractBot<T extends Config>
 	
 	protected abstract IConsoleChannel getConsoleChannel();
 	
-	public T getConfig()
-	{
+	public T getConfig() {
 		return this.configService.getConfig();
 	}
 	
-	public ChatHistory getChatHistory()
-	{
+	public ChatHistory getChatHistory() {
 		return this.chatHistory;
 	}
 	
-	public IAPIKeyService getApiKeyService()
-	{
+	public IAPIKeyService getApiKeyService() {
 		return this.apiKeyService;
 	}
 	
-	public IEconomyService getEconomyService()
-	{
+	public IEconomyService getEconomyService() {
 		return this.economyService;
 	}
 }
