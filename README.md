@@ -7,9 +7,9 @@ Requirements:
 ### TeamSpeak
 The TeamSpeak distribution can be built using the following command:
 ```shell
-gradlew :ts3:shadowJar
+gradlew :teamspeak:shadowJar
 ```
-The resulting jar will be located in `ts3/build/libs`.
+The resulting jar will be located in `teamspeak/build/libs`.
 
 ### Discord
 The Discord distribution can be built using the following command:
@@ -42,7 +42,7 @@ Requirements:
 ### TeamSpeak
 Run the following command in a terminal:
 ```shell
-java -jar ts3bot-all.jar
+java -jar teamspeakbot-all.jar
 ```
 
 ### Discord

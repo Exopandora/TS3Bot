@@ -40,6 +40,6 @@ tasks.withType<ShadowJar> {
 }
 
 tasks.withType<Jar> {
-    archiveBaseName.set("ts3bot")
+    archiveBaseName.set("teamspeakbot")
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
